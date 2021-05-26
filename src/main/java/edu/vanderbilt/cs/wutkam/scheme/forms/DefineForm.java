@@ -7,6 +7,8 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.ListExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.SymbolExpr;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
 
+import java.util.List;
+
 /**
  * Created with IntelliJ IDEA.
  * User: mark
@@ -21,7 +23,7 @@ public class DefineForm implements Form {
             throw new LispException("define is only allowed at the top level "+aList);
         }
 
-        if (aList.elements.size() != 3) {
+        if (aList.elements.size() < 3) {
             throw new LispException("define must have two parameters");
         }
         if (aList.elements.get(1) instanceof ListExpr) {
@@ -54,7 +56,7 @@ public class DefineForm implements Form {
             throw new LispException("Function name must be a symbol in "+functionHeader);
         }
 
-        Expression functionBody = aList.elements.get(2);
+        List<Expression> functionBody = aList.elements.subList(2, aList.elements.size());
 
         FunctionExpr functionExpr = LambdaForm.createFunctionDefinition(
                 new ListExpr(functionHeader.elements.subList(1, functionHeader.elements.size())),

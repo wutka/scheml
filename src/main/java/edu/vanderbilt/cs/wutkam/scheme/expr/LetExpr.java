@@ -14,9 +14,9 @@ import java.util.List;
 public class LetExpr implements Expression {
     List<Declaration> declarations;
     boolean isLetStar;
-    Expression body;
+    List<Expression> body;
 
-    public LetExpr(List<Declaration> declarations, boolean isLetStar, Expression body) {
+    public LetExpr(List<Declaration> declarations, boolean isLetStar, List<Expression> body) {
         this.declarations = declarations;
         this.isLetStar = isLetStar;
         this.body = body;
@@ -31,7 +31,11 @@ public class LetExpr implements Expression {
                 letEnv.define(dec.name, dec.value.evaluate(env));
             }
         }
-        return body.evaluate(letEnv);
+        Expression last = null;
+        for (Expression expr: body) {
+            last = expr.evaluate(letEnv);
+        }
+        return last;
     }
 
     public static class Declaration {

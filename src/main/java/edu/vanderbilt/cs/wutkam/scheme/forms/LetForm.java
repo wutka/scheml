@@ -52,10 +52,15 @@ public class LetForm implements Form {
             }
             letDeclarations.add(new LetExpr.Declaration(sym.value, value));
         }
-        Expression body = aList.elements.get(2);
-        if (body instanceof ListExpr) {
-            body = FormExpander.expand((ListExpr) body, false);
+
+        List<Expression> body = new ArrayList<>();
+        for (Expression expr: aList.elements.subList(2, aList.elements.size())) {
+            if (expr instanceof ListExpr) {
+                expr = FormExpander.expand((ListExpr) body, false);
+            }
+            body.add(expr);
         }
+         
         return new LetExpr(letDeclarations, isLetStar, body);
     }
 }

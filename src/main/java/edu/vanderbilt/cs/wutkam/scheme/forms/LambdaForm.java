@@ -18,21 +18,18 @@ import java.util.List;
 public class LambdaForm implements Form {
     @Override
     public Expression expandForm(ListExpr aList, boolean isTopLevel) throws LispException {
-        if (aList.elements.size() != 3) {
+        if (aList.elements.size() < 3) {
             throw new LispException("lambda should contain a parameter list and a body in "+aList);
         }
         Expression paramsExpr = aList.elements.get(1);
         if (!(paramsExpr instanceof ListExpr)) {
             throw new LispException("Lambda parameters must be a list in "+paramsExpr);
         }
-        return createFunctionDefinition((ListExpr)paramsExpr, aList.elements.get(2));
+        return createFunctionDefinition((ListExpr)paramsExpr, aList.elements.subList(2, aList.elements.size()));
     }
 
-    protected static FunctionExpr createFunctionDefinition(ListExpr paramList, Expression functionBody)
+    protected static FunctionExpr createFunctionDefinition(ListExpr paramList, List<Expression> functionBody)
         throws LispException {
-        if (paramList.elements.size() == 0) {
-            throw new LispException("Empty function header in "+paramList);
-        }
 
         List<SymbolExpr> headerSyms = new ArrayList<>();
         for (Expression expr: paramList.elements) {
@@ -45,9 +42,13 @@ public class LambdaForm implements Form {
             }
             headerSyms.add(sym);
         }
-        if (functionBody instanceof ListExpr) {
-            functionBody = FormExpander.expand((ListExpr) functionBody, false);
+        List<Expression> body = new ArrayList<>();
+        for (Expression expr: functionBody) {
+            if (expr instanceof ListExpr) {
+                expr = FormExpander.expand((ListExpr) expr, false);
+            }
+            body.add(expr);
         }
-        return new FunctionExpr(headerSyms.size(), headerSyms, functionBody);
+        return new FunctionExpr(headerSyms.size(), headerSyms, body);
     }
 }

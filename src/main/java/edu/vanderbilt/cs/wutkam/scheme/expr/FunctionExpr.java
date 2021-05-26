@@ -15,20 +15,20 @@ import java.util.List;
 public class FunctionExpr implements Expression {
     public final int arity;
     public final List<Expression> partialArgs;
-    public final Expression targetExpression;
+    public final List<Expression> targetExpressions;
     public final List<SymbolExpr> parameterList;
 
-    public FunctionExpr(int arity, List<SymbolExpr> parameterList, Expression targetExpression) {
+    public FunctionExpr(int arity, List<SymbolExpr> parameterList, List<Expression> targetExpressions) {
         this.arity = arity;
         this.parameterList = parameterList;
-        this.targetExpression = targetExpression;
+        this.targetExpressions = targetExpressions;
         this.partialArgs = new ArrayList<>();
     }
 
     public FunctionExpr(FunctionExpr partialFunc, List<Expression> partialArgs) {
         this.arity = partialFunc.arity;
         this.parameterList = partialFunc.parameterList;
-        this.targetExpression = partialFunc.targetExpression;
+        this.targetExpressions = partialFunc.targetExpressions;
         this.partialArgs = new ArrayList<>();
         this.partialArgs.addAll(partialFunc.partialArgs);
         this.partialArgs.addAll(partialArgs);
@@ -54,7 +54,11 @@ public class FunctionExpr implements Expression {
                     funcEnv.define(parameterList.get(i).value, arguments.get(i-partialArgs.size()));
                 }
             }
-            return targetExpression.evaluate(funcEnv);
+            Expression last = null;
+            for (Expression target: targetExpressions) {
+                last = target.evaluate(funcEnv);
+            }
+            return last;
         } else {
             return new FunctionExpr(this, arguments);
         }
