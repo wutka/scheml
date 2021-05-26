@@ -15,7 +15,7 @@ import java.util.List;
  * Date: 5/26/21
  * Time: 11:21 AM
  */
-public abstract class BuiltinFunctionExpr extends FunctionExpr {
+public class BuiltinFunctionExpr extends FunctionExpr {
     public String name;
     public BuiltinFunction builtinFunc;
 

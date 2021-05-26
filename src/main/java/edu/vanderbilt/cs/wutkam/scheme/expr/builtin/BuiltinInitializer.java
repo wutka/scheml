@@ -1,6 +1,7 @@
 package edu.vanderbilt.cs.wutkam.scheme.expr.builtin;
 
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
+import edu.vanderbilt.cs.wutkam.scheme.expr.StringExpr;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
 
 /**
@@ -37,6 +38,7 @@ public class BuiltinInitializer {
         new Head("head"),
         new Tail("tail"),
         new Null("null?"),
+        new Print("print"),
     };
 
     public static void initializeBuiltins(Environment<Expression> env) {

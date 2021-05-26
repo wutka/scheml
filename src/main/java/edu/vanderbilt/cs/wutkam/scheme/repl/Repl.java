@@ -2,6 +2,7 @@ package edu.vanderbilt.cs.wutkam.scheme.repl;
 
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.ListExpr;
+import edu.vanderbilt.cs.wutkam.scheme.expr.VoidExpr;
 import edu.vanderbilt.cs.wutkam.scheme.forms.FormExpander;
 import edu.vanderbilt.cs.wutkam.scheme.parser.Parser;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
@@ -32,7 +33,9 @@ public class Repl {
                         expr = FormExpander.expand((ListExpr) expr, true);
                     }
                     expr = expr.evaluate(SchemeRuntime.getTopLevel());
-                    System.out.println(expr);
+                    if (!(expr instanceof VoidExpr)) {
+                        System.out.println(expr);
+                    }
                 }
             } catch (Exception exc) {
                 exc.printStackTrace(System.out);
