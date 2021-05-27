@@ -56,7 +56,7 @@ public class LetForm implements Form {
         List<Expression> body = new ArrayList<>();
         for (Expression expr: aList.elements.subList(2, aList.elements.size())) {
             if (expr instanceof ListExpr) {
-                expr = FormExpander.expand((ListExpr) body, false);
+                expr = FormExpander.expand((ListExpr) expr, false);
             }
             body.add(expr);
         }
