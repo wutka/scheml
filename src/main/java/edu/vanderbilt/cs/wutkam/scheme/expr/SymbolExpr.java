@@ -2,6 +2,9 @@ package edu.vanderbilt.cs.wutkam.scheme.expr;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
+import edu.vanderbilt.cs.wutkam.scheme.type.BooleanType;
+import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
+import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
 import java.util.Objects;
 
@@ -18,6 +21,16 @@ public class SymbolExpr implements Expression {
             throw new LispException("Unknown symbol "+value);
         }
         return expr.evaluate(env);
+    }
+
+    @Override
+    public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
+        TypeRef myType = env.lookup(value);
+        if (myType == null) {
+            throw new UnifyException("Unknown symbol - " + value);
+        }
+        TypeRef typeCopy = new TypeRef(myType.getType().copy());
+        typeRef.unify(typeCopy);
     }
 
     @Override

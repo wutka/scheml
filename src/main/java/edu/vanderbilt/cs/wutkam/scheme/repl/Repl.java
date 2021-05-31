@@ -6,6 +6,8 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.VoidExpr;
 import edu.vanderbilt.cs.wutkam.scheme.forms.FormExpander;
 import edu.vanderbilt.cs.wutkam.scheme.parser.Parser;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
+import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
+import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
 import java.io.DataInputStream;
 import java.io.FileReader;
@@ -21,10 +23,14 @@ public class Repl {
                 String line = dataIn.readLine();
                 if (line == null) System.exit(0);
                 List<Expression> exprs;
+                boolean displayType = false;
                 if (line.startsWith(":r ")) {
                     String filename = line.substring(3).trim();
                     FileReader in = new FileReader(filename);
                     exprs = Parser.parse(in);
+                } else if (line.startsWith(":t ")) {
+                    exprs = Parser.parse(line.substring(3));
+                    displayType = true;
                 } else {
                     exprs = Parser.parse(line);
                 }
@@ -33,8 +39,20 @@ public class Repl {
                         expr = FormExpander.expand((ListExpr) expr, true);
                     }
                     expr = expr.evaluate(SchemeRuntime.getTopLevel());
-                    if (!(expr instanceof VoidExpr)) {
-                        System.out.println(expr);
+                    if (displayType) {
+                        TypeRef exprType = new TypeRef();
+                        try {
+                            expr.unify(exprType, SchemeRuntime.getUnifyTopLevel());
+                            System.out.print(expr);
+                            System.out.print(" : ");
+                            System.out.println(exprType.getType());
+                        } catch (UnifyException exc) {
+                            System.out.println("Error unifying expression: "+expr+"\n"+exc.getMessage());
+                        }
+                    } else {
+                        if (!(expr instanceof VoidExpr)) {
+                            System.out.println(expr);
+                        }
                     }
                 }
             } catch (Exception exc) {

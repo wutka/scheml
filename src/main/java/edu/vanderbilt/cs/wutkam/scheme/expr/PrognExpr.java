@@ -2,6 +2,8 @@ package edu.vanderbilt.cs.wutkam.scheme.expr;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
+import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
+import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
 import java.util.List;
 
@@ -25,5 +27,20 @@ public class PrognExpr implements Expression {
             last = expr.evaluate(env);
         }
         return last;
+    }
+
+    @Override
+    public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
+        TypeRef last = null;
+        for (Expression expr: body) {
+            TypeRef exprType = new TypeRef();
+            try {
+                expr.unify(exprType, env);
+            } catch (UnifyException exc)  {
+                throw UnifyException.addCause("Error unifying expression in PROGN", exc);
+            }
+            last = exprType;
+        }
+        typeRef.unify(last);
     }
 }

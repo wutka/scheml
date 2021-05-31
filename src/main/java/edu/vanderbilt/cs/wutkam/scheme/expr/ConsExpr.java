@@ -2,6 +2,8 @@ package edu.vanderbilt.cs.wutkam.scheme.expr;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
+import edu.vanderbilt.cs.wutkam.scheme.type.ConsType;
+import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
 import java.util.List;
 
@@ -37,6 +39,12 @@ public class ConsExpr implements Expression {
             head = null;
             tail = null;
         }
+    }
+
+    @Override
+    public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
+        TypeRef thisType = new TypeRef(new ConsType());
+        typeRef.unify(thisType);
     }
 
     @Override

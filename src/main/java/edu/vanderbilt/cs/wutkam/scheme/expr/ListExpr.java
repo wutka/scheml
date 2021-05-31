@@ -2,6 +2,7 @@ package edu.vanderbilt.cs.wutkam.scheme.expr;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
+import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,11 @@ public class ListExpr implements Expression {
             parameterList.add(elements.get(i).evaluate(env));
         }
         return targetFunction.apply(parameterList, env);
+    }
+
+    @Override
+    public void unify(TypeRef ref, Environment<TypeRef> env) throws LispException {
+        throw new LispException("Tried to unify against internal ListExpr");
     }
 
     @Override

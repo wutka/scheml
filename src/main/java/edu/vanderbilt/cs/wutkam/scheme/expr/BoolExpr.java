@@ -1,5 +1,10 @@
 package edu.vanderbilt.cs.wutkam.scheme.expr;
 
+import edu.vanderbilt.cs.wutkam.scheme.LispException;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
+import edu.vanderbilt.cs.wutkam.scheme.type.BooleanType;
+import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
+
 import java.util.Objects;
 
 /**
@@ -13,6 +18,12 @@ public class BoolExpr implements Expression {
 
     public BoolExpr(boolean value) {
         this.value = value;
+    }
+
+    @Override
+    public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
+        TypeRef myType = new TypeRef(BooleanType.TYPE);
+        typeRef.unify(myType);
     }
 
     @Override

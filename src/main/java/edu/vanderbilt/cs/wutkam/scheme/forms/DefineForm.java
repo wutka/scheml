@@ -5,7 +5,10 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.FunctionExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.ListExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.SymbolExpr;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
+import edu.vanderbilt.cs.wutkam.scheme.type.FunctionType;
+import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
 import java.util.List;
 
@@ -62,6 +65,20 @@ public class DefineForm implements Form {
                 new ListExpr(functionHeader.elements.subList(1, functionHeader.elements.size())),
                 functionBody);
         SchemeRuntime.getTopLevel().define(((SymbolExpr)functionName).value, functionExpr);
+
+        Environment<TypeRef> unifyTopLevel = SchemeRuntime.getUnifyTopLevel();
+
+        TypeRef[] paramTypes = new TypeRef[functionExpr.arity];
+        for (int i=0; i < paramTypes.length; i++) paramTypes[i] = new TypeRef();
+
+        FunctionType origFuncType = new FunctionType(functionExpr.arity, paramTypes, new TypeRef());
+        unifyTopLevel.define(((SymbolExpr)functionName).value, new TypeRef(origFuncType));
+
+        TypeRef functionType = new TypeRef();
+        functionExpr.unify(functionType, SchemeRuntime.getUnifyTopLevel());
+        System.out.println(functionType.getType().toString());
+
+        unifyTopLevel.define(((SymbolExpr)functionName).value, new TypeRef(functionType.getType().copy()));
 
         return functionExpr;
     }

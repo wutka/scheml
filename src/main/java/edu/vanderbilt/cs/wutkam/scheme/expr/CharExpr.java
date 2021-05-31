@@ -1,5 +1,10 @@
 package edu.vanderbilt.cs.wutkam.scheme.expr;
 
+import edu.vanderbilt.cs.wutkam.scheme.LispException;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
+import edu.vanderbilt.cs.wutkam.scheme.type.CharType;
+import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
+
 import java.util.Objects;
 
 public class CharExpr implements Expression {
@@ -7,6 +12,12 @@ public class CharExpr implements Expression {
 
     public CharExpr(char value) {
         this.value = value;
+    }
+
+    @Override
+    public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
+        TypeRef myType = new TypeRef(CharType.TYPE);
+        typeRef.unify(myType);
     }
 
     @Override

@@ -2,6 +2,9 @@ package edu.vanderbilt.cs.wutkam.scheme.expr;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
+import edu.vanderbilt.cs.wutkam.scheme.type.BooleanType;
+import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
+import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -33,6 +36,27 @@ public class IfExpr implements Expression {
         } else {
             throw new LispException("If expression test did not evaluate to a boolean");
         }
+    }
+
+    @Override
+    public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
+        TypeRef testType = new TypeRef(BooleanType.TYPE);
+        try {
+            test.unify(testType, env);
+        } catch (UnifyException exc) {
+            throw UnifyException.addCause("Test for if expression must be a boolean", exc);
+        }
+        try {
+            trueOption.unify(typeRef, env);
+        } catch (UnifyException exc) {
+            throw UnifyException.addCause("Can't unify true path in if expression", exc);
+        }
+        try {
+            falseOption.unify(typeRef, env);
+        } catch (UnifyException exc) {
+            throw UnifyException.addCause("Can't unify false path in if expression", exc);
+        }
+
     }
 
     public String toString() {

@@ -22,7 +22,6 @@ public class FormExpander {
         specialForms.put("if", new IfForm());
         specialForms.put("lambda", new LambdaForm());
         specialForms.put("define", new DefineForm());
-        specialForms.put("quote", new QuoteForm());
         specialForms.put("let", new LetForm());
         specialForms.put("let*", new LetForm());
         specialForms.put("progn", new PrognForm());
