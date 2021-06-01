@@ -50,6 +50,9 @@ public class BuiltinInitializer {
         new BuiltinUnaryFunctionExpr<>("neg", "int -> int", (Integer a) -> -a),
         new BuiltinUnaryFunctionExpr<>("neg.", "double -> double", (Double a) -> -a),
 
+        new BuiltinUnaryFunctionExpr<>("int->double", "int->double", (Integer a) -> (double) a),
+        new BuiltinUnaryFunctionExpr<>("double->int", "double->int", (Double a) -> a.intValue()),
+
         new BuiltinBinaryFunctionExpr<>("and", "bool -> bool -> bool", (Boolean a, Boolean b) -> a && b),
         new BuiltinBinaryFunctionExpr<>("or", "bool -> bool -> bool", (Boolean a, Boolean b) -> a || b),
         new BuiltinBinaryFunctionExpr<>("xor", "bool -> bool -> bool", (Boolean a, Boolean b) -> a ^ b),

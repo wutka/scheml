@@ -45,6 +45,11 @@ public class DefineForm implements Form {
             expr = FormExpander.expand((ListExpr) expr, false);
         }
         SchemeRuntime.getTopLevel().define(sym.value, expr);
+
+        TypeRef typeRef = new TypeRef();
+        expr.unify(typeRef, SchemeRuntime.getUnifyTopLevel());
+        SchemeRuntime.getUnifyTopLevel().define(sym.value, typeRef);
+
         return expr;
     }
 
@@ -76,7 +81,6 @@ public class DefineForm implements Form {
 
         TypeRef functionType = new TypeRef();
         functionExpr.unify(functionType, SchemeRuntime.getUnifyTopLevel());
-        System.out.println(functionType.getType().toString());
 
         unifyTopLevel.define(((SymbolExpr)functionName).value, new TypeRef(functionType.getType().copy()));
 

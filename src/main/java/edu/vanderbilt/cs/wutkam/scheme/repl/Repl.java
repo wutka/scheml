@@ -19,7 +19,8 @@ public class Repl {
         DataInputStream dataIn = new DataInputStream(System.in);
         for (;;) {
             try {
-                System.out.print(">"); System.out.flush();
+                System.out.print(">");
+                System.out.flush();
                 String line = dataIn.readLine();
                 if (line == null) System.exit(0);
                 List<Expression> exprs;
@@ -34,7 +35,7 @@ public class Repl {
                 } else {
                     exprs = Parser.parse(line);
                 }
-                for (Expression expr: exprs) {
+                for (Expression expr : exprs) {
                     if (expr instanceof ListExpr) {
                         expr = FormExpander.expand((ListExpr) expr, true);
                     }
@@ -47,7 +48,7 @@ public class Repl {
                             System.out.print(" : ");
                             System.out.println(exprType.getType());
                         } catch (UnifyException exc) {
-                            System.out.println("Error unifying expression: "+expr+"\n"+exc.getMessage());
+                            System.out.println("Error unifying expression: " + expr + "\n" + exc.getMessage());
                         }
                     } else {
                         if (!(expr instanceof VoidExpr)) {
@@ -55,6 +56,8 @@ public class Repl {
                         }
                     }
                 }
+            } catch (UnifyException exc) {
+                System.out.println("Unification error:\n"+exc.getMessage());
             } catch (Exception exc) {
                 exc.printStackTrace(System.out);
             }
