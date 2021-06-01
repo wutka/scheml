@@ -17,4 +17,6 @@ public interface Expression {
     }
 
     void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException;
+
+    default Object toJavaValue() { return this; }
 }

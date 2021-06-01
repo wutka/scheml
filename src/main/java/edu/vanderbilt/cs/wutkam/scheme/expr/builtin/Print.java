@@ -14,7 +14,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.VoidExpr;
  */
 public class Print extends BuiltinFunctionExpr {
     public Print(String name) {
-        super(name, 1);
+        super(name, "string -> void");
     }
 
     @Override

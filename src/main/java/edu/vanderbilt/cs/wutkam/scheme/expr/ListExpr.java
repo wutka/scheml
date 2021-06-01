@@ -2,7 +2,9 @@ package edu.vanderbilt.cs.wutkam.scheme.expr;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
+import edu.vanderbilt.cs.wutkam.scheme.type.FunctionType;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
+import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +42,46 @@ public class ListExpr implements Expression {
 
     @Override
     public void unify(TypeRef ref, Environment<TypeRef> env) throws LispException {
-        throw new LispException("Tried to unify against internal ListExpr");
+        if (elements.size() == 0) {
+            throw new LispException("Cannot unify an empty list");
+        }
+
+        Expression targetExpression = elements.get(0);
+        TypeRef targetType = new TypeRef();
+        try {
+            targetExpression.unify(targetType, env);
+        } catch (UnifyException exc) {
+            throw UnifyException.addCause("Unable to unify application target", exc);
+        }
+
+        FunctionType targetFunc;
+        if (!(targetType.getType() instanceof FunctionType)) {
+            TypeRef[] paramTypes = new TypeRef[elements.size()-1];
+            for (int i=0; i < paramTypes.length; i++) paramTypes[i] = new TypeRef();
+            TypeRef returnType = new TypeRef();
+            targetFunc = new FunctionType(paramTypes.length, paramTypes, returnType);
+        } else {
+            targetFunc = (FunctionType) targetType.getType();
+        }
+
+
+        List<Expression> parameters = elements.subList(1, elements.size());
+        if (parameters.size() > targetFunc.arity) {
+            throw new UnifyException("Too many parameters in apply, expected "+targetFunc.arity+", got "+
+                    parameters.size());
+        }
+
+        TypeRef[] unifiedParams = new TypeRef[parameters.size()];
+        for (int i=0; i < parameters.size(); i++) {
+            unifiedParams[i] = new TypeRef();
+            parameters.get(i).unify(unifiedParams[i], env);
+        }
+
+        for (int i=0; i < parameters.size(); i++) {
+            unifiedParams[i].unify(targetFunc.paramTypes[i]);
+        }
+
+        ref.unify(targetFunc.returnType);
     }
 
     @Override

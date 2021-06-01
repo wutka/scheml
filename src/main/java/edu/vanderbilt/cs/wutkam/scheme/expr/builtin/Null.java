@@ -13,7 +13,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
  */
 public class Null extends BuiltinFunctionExpr {
     public Null(String name) {
-        super(name, 1);
+        super(name, "cons 'a -> bool");
     }
 
     @Override

@@ -27,6 +27,9 @@ public class BoolExpr implements Expression {
     }
 
     @Override
+    public Object toJavaValue() { return value; }
+
+    @Override
     public String toString()
     {
         return value ? "#t" : "#f";

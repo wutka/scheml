@@ -6,7 +6,9 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.ListExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.SymbolExpr;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,6 +24,7 @@ public class FormExpander {
         specialForms.put("if", new IfForm());
         specialForms.put("lambda", new LambdaForm());
         specialForms.put("define", new DefineForm());
+        specialForms.put("list", new ListForm());
         specialForms.put("let", new LetForm());
         specialForms.put("let*", new LetForm());
         specialForms.put("progn", new PrognForm());
@@ -50,6 +53,15 @@ public class FormExpander {
                 return expander.expandForm(aList, isTopLevel);
             }
         }
-        return aList;
+
+        List<Expression> expanded = new ArrayList<>();
+        for (Expression expr: aList.elements) {
+            if (expr instanceof ListExpr) {
+                expanded.add(FormExpander.expand((ListExpr) expr, false));
+            } else {
+                expanded.add(expr);
+            }
+        }
+        return new ListExpr(expanded);
     }
 }

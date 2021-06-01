@@ -15,6 +15,9 @@ public class StringExpr implements Expression {
     }
 
     @Override
+    public Object toJavaValue() { return value; }
+
+    @Override
     public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
         TypeRef myType = new TypeRef(StringType.TYPE);
         typeRef.unify(myType);

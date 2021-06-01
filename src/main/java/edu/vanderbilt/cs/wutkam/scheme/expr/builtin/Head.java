@@ -12,7 +12,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
  */
 public class Head extends BuiltinFunctionExpr {
     public Head(String name) {
-        super(name, 1);
+        super(name, "cons 'a -> 'a");
     }
 
     @Override

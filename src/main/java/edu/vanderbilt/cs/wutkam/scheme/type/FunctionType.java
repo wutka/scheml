@@ -53,7 +53,6 @@ public class FunctionType extends Type {
                     } else {
                         funcChar++;
                     }
-                    if (!first) builder.append(" -> ");
                 }
                 if (!first) builder.append(" -> ");
                 builder.append(typeParams[i]);

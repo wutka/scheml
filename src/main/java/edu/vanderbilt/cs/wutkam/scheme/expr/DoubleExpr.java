@@ -14,13 +14,16 @@ public class DoubleExpr implements Expression {
        this.value = value;
    }
 
-    @Override
-    public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
-        TypeRef myType = new TypeRef(DoubleType.TYPE);
-        typeRef.unify(myType);
-    }
+   @Override
+   public Object toJavaValue() { return value; }
 
-    @Override
+   @Override
+   public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
+       TypeRef myType = new TypeRef(DoubleType.TYPE);
+       typeRef.unify(myType);
+   }
+
+   @Override
    public String toString() {
        return Double.toString(value);
    }

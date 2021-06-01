@@ -14,7 +14,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.StringExpr;
  */
 public class StringToList extends BuiltinFunctionExpr {
     public StringToList(String name) {
-        super(name, 1);
+        super(name, "string -> cons char");
     }
 
     @Override

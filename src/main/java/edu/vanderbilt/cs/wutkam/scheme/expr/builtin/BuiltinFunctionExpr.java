@@ -1,10 +1,10 @@
 package edu.vanderbilt.cs.wutkam.scheme.expr.builtin;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
-import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
-import edu.vanderbilt.cs.wutkam.scheme.expr.FunctionExpr;
-import edu.vanderbilt.cs.wutkam.scheme.expr.SymbolExpr;
+import edu.vanderbilt.cs.wutkam.scheme.expr.*;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
+import edu.vanderbilt.cs.wutkam.scheme.type.FunctionType;
+import edu.vanderbilt.cs.wutkam.scheme.type.Type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,13 +19,13 @@ public class BuiltinFunctionExpr extends FunctionExpr {
     public String name;
     public BuiltinFunction builtinFunc;
 
-    protected BuiltinFunctionExpr(String name, int arity) {
-        super(arity, makeArgList(arity), null);
+    protected BuiltinFunctionExpr(String name, String signature) {
+        super(signature);
         this.name = name;
     }
 
-    public BuiltinFunctionExpr(String name, int arity, BuiltinFunction builtinFunc) {
-        super(arity, makeArgList(arity), null);
+    public BuiltinFunctionExpr(String name, String signature, BuiltinFunction builtinFunc) {
+        super(signature);
         this.name = name;
         this.builtinFunc = builtinFunc;
     }
@@ -53,6 +53,21 @@ public class BuiltinFunctionExpr extends FunctionExpr {
 
     protected Expression executeBuiltin(Expression[] args) throws LispException {
         return builtinFunc.apply(args);
+    }
+
+    protected Expression fromJavaValue(Object obj) {
+        if (obj instanceof Boolean) {
+            return new BoolExpr((Boolean) obj);
+        } else if (obj instanceof Character) {
+            return new CharExpr((Character) obj);
+        } else if (obj instanceof Double) {
+            return new DoubleExpr((Double) obj);
+        } else if (obj instanceof Integer) {
+            return new IntExpr((Integer) obj);
+        } else if (obj instanceof String) {
+            return new StringExpr((String) obj);
+        }
+        return (Expression) obj;
     }
 
     static List<SymbolExpr> makeArgList(int n) {

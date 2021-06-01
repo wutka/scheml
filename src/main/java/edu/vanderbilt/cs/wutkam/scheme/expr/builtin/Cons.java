@@ -14,7 +14,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.StringExpr;
  */
 public class Cons extends BuiltinFunctionExpr {
     public Cons(String name) {
-        super(name, 2);
+        super(name, "'a -> cons 'a -> cons 'a");
     }
 
     @Override

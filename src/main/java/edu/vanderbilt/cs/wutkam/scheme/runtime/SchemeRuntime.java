@@ -17,7 +17,7 @@ public class SchemeRuntime {
     protected static final Environment<TypeRef> topLevelUnifyEnvironment = new Environment<TypeRef>();
 
     static {
-        BuiltinInitializer.initializeBuiltins(topLevelEnvironment);
+        BuiltinInitializer.initializeBuiltins(topLevelEnvironment, topLevelUnifyEnvironment);
     }
 
     public static Environment<Expression> getTopLevel() { return topLevelEnvironment; }
