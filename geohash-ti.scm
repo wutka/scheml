@@ -13,7 +13,7 @@
                         curr-bit bits)
   (if (= curr-bit bits-of-precision) (reverse bits)
     (let ((middle (/. (+. bottom top) 2.0)))
-       (if (< value-to-hash middle)
+       (if (<. value-to-hash middle)
            (geohash-1d-rec value-to-hash bottom middle bits-of-precision
                                          (+ curr-bit 1) (cons #\0 bits))
            (geohash-1d-rec value-to-hash middle top bits-of-precision

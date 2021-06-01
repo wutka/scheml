@@ -43,8 +43,17 @@ public class ConsExpr implements Expression {
 
     @Override
     public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
-        TypeRef thisType = new TypeRef(new ConsType());
-        typeRef.unify(thisType);
+        TypeRef thisHeadType = new TypeRef();
+        if (head != null) {
+            head.unify(thisHeadType, env);
+        }
+        TypeRef thisTailType = new TypeRef(new ConsType(thisHeadType));
+        if (tail != null) {
+            tail.unify(thisTailType, env);
+
+        }
+
+        typeRef.unify(thisTailType);
     }
 
     @Override

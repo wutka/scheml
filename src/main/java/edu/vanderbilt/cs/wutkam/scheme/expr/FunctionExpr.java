@@ -54,6 +54,11 @@ public class FunctionExpr implements Expression {
     }
 
     @Override
+    public String toString() {
+        return "(function)";
+    }
+
+    @Override
     public Expression evaluate(Environment<Expression> env) throws LispException {
         return Expression.super.evaluate(env);
     }
@@ -130,8 +135,8 @@ public class FunctionExpr implements Expression {
         try {
             PushbackReader pushback = new PushbackReader(new StringReader(signature));
             StringBuilder currSymbol = new StringBuilder();
-            Stack<List<Type>> typeStack = new Stack<>();
-            Map<String,Type> symbolNameMap = new HashMap<>();
+            Stack<List<TypeRef>> typeStack = new Stack<>();
+            Map<String,TypeRef> symbolNameMap = new HashMap<>();
 
             typeStack.push(new ArrayList<>());
 
@@ -152,17 +157,17 @@ public class FunctionExpr implements Expression {
                 } else if (ch == '(') {
                     typeStack.push(new ArrayList<>());
                 } else if (ch == ')') {
-                    List<Type> nestedList = typeStack.pop();
+                    List<TypeRef> nestedList = typeStack.pop();
                     if (nestedList.size() == 1) {
                         throw new RuntimeException("Parenthesized expression should be a function or a construction, but had only one item");
                     }
 
                     TypeRef[] paramTypes = new TypeRef[nestedList.size()-1];
                     for (int i=0; i < paramTypes.length; i++) {
-                        paramTypes[i] = new TypeRef(nestedList.get(i));
+                        paramTypes[i] = nestedList.get(i);
                     }
-                    TypeRef returnType = new TypeRef(nestedList.get(nestedList.size()-1));
-                    typeStack.peek().add(new FunctionType(paramTypes.length, paramTypes, returnType));
+                    TypeRef returnType = nestedList.get(nestedList.size()-1);
+                    typeStack.peek().add(new TypeRef(new FunctionType(paramTypes.length, paramTypes, returnType)));
                 } else {
                     currSymbol.append(ch);
                 }
@@ -171,15 +176,15 @@ public class FunctionExpr implements Expression {
             if (symbolName.length() > 0) {
                 typeStack.peek().add(parseSymbolName(symbolName, symbolNameMap));
             }
-            List<Type> nestedList = typeStack.pop();
+            List<TypeRef> nestedList = typeStack.pop();
             if (nestedList.size() == 1) {
                 throw new RuntimeException("Parenthesized expression should be a function, but had only one item");
             } else {
                 TypeRef[] paramTypes = new TypeRef[nestedList.size()-1];
                 for (int i=0; i < paramTypes.length; i++) {
-                    paramTypes[i] = new TypeRef(nestedList.get(i));
+                    paramTypes[i] = nestedList.get(i);
                 }
-                TypeRef returnType = new TypeRef(nestedList.get(nestedList.size()-1));
+                TypeRef returnType = nestedList.get(nestedList.size()-1);
                 return new FunctionType(paramTypes.length, paramTypes, returnType);
             }
 
@@ -188,33 +193,33 @@ public class FunctionExpr implements Expression {
         }
     }
 
-    protected static Type parseSymbolName(String symbolName, Map<String,Type> symbolNameMap) {
+    protected static TypeRef parseSymbolName(String symbolName, Map<String,TypeRef> symbolNameMap) {
         String[] parts = symbolName.split(" ");
         if (parts[0].equals("cons")) {
             if (parts.length < 2) {
                 throw new RuntimeException("cons type needs a parameter");
             }
-            Type containedType = parseSymbolName(parts[1], symbolNameMap);
-            return new ConsType(containedType);
+            TypeRef containedType = parseSymbolName(parts[1], symbolNameMap);
+            return new TypeRef(new ConsType(containedType));
         } else if (parts[0].startsWith("'")) {
-            Type parametricType = symbolNameMap.get(parts[0]);
+            TypeRef parametricType = symbolNameMap.get(parts[0]);
             if (parametricType == null) {
-                parametricType = new EmptyType();
+                parametricType = new TypeRef();
                 symbolNameMap.put(parts[0], parametricType);
             }
             return parametricType;
         } else if (parts[0].equals("bool")) {
-            return BooleanType.TYPE;
+            return new TypeRef(BooleanType.TYPE);
         } else if (parts[0].equals("char")) {
-            return CharType.TYPE;
+            return new TypeRef(CharType.TYPE);
         } else if (parts[0].equals("double")) {
-            return DoubleType.TYPE;
+            return new TypeRef(DoubleType.TYPE);
         } else if (parts[0].equals("int")) {
-            return IntType.TYPE;
+            return new TypeRef(IntType.TYPE);
         } else if (parts[0].equals("string")) {
-            return StringType.TYPE;
+            return new TypeRef(StringType.TYPE);
         } else if (parts[0].equals("void")) {
-            return VoidType.TYPE;
+            return new TypeRef(VoidType.TYPE);
         }
         throw new RuntimeException("Unknown type in type signature: "+parts[0]);
     }

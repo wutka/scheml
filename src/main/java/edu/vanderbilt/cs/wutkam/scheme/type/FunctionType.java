@@ -1,5 +1,7 @@
 package edu.vanderbilt.cs.wutkam.scheme.type;
 
+import java.util.Map;
+
 public class FunctionType extends Type {
     public int arity;
     public TypeRef returnType;
@@ -18,76 +20,32 @@ public class FunctionType extends Type {
         this.returnType = returnType;
     }
 
-    public FunctionType copy() {
-        TypeRef[] newParamTypes = new TypeRef[arity];
-        for (int i=0; i < arity; i++) {
-            newParamTypes[i] = new TypeRef(paramTypes[i].getType().copy());
-        }
-        TypeRef newReturnType = new TypeRef(returnType.getType().copy());
-
-        return new FunctionType(arity, newParamTypes, newReturnType);
-    }
-
     @Override
-    public String toString() {
+    public String toSignatureString(TypeSymbolGenerator symGen) {
         String[] typeParams = new String[arity];
-        char funcChar = 'a';
-
-        StringBuilder builder = new StringBuilder();
 
         boolean first = true;
+        StringBuilder builder = new StringBuilder();
         for (int i=0; i < arity; i++) {
-            if (!paramTypes[i].isFull()) {
-                boolean found = false;
-                for (int j = 0; j < i; j++) {
-                    if (paramTypes[j].getType().equals(paramTypes[i].getType())) {
-                        typeParams[i] = typeParams[j];
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    typeParams[i] = "'" + funcChar;
-                    if (funcChar == 'z') {
-                        funcChar = 'A';
-                    } else {
-                        funcChar++;
-                    }
-                }
-                if (!first) builder.append(" -> ");
-                builder.append(typeParams[i]);
+            if (!first) builder.append(" -> ");
+            if (paramTypes[i].getType() instanceof FunctionType) {
+                builder.append("(");
+                builder.append(paramTypes[i].getType().toSignatureString(symGen));
+                builder.append(")");
             } else {
-                if (!first) builder.append(" -> ");
-                if (paramTypes[i].getType() instanceof FunctionType) {
-                    builder.append("(");
-                    builder.append(paramTypes[i].toString());
-                    builder.append(")");
-                } else {
-                    builder.append(paramTypes[i].getType().toString());
-                }
+                builder.append(paramTypes[i].getType().toSignatureString(symGen));
             }
             first = false;
         }
 
-        if (arity == 0) {
-            builder.append(VoidType.TYPE.toString());
-        }
-
         builder.append(" -> ");
-        boolean found = false;
-        if (!returnType.isFull()) {
-            for (int i=0; i < arity; i++) {
-                if (paramTypes[i].getType().equals(returnType.getType())) {
-                    builder.append(typeParams[i]);
-                    found = true;
-                }
-            }
-            if (!found) {
-                builder.append("'");
-                builder.append(funcChar);
-            }
+        if (returnType.getType() instanceof FunctionType) {
+            builder.append("(");
+            builder.append(returnType.getType().toSignatureString(symGen));
+            builder.append(")");
+
         } else {
-            builder.append(returnType.getType().toString());
+            builder.append(returnType.getType().toSignatureString(symGen));
         }
 
         return builder.toString();

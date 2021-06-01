@@ -40,12 +40,12 @@ public class BuiltinInitializer {
         new BuiltinBinaryFunctionExpr<>(">", "int -> int -> bool", (Integer a, Integer b) -> a > b),
         new BuiltinBinaryFunctionExpr<>(">=", "int -> int -> bool", (Integer a, Integer b) -> a >= b),
 
-        new BuiltinBinaryFunctionExpr<>("=", "double -> double -> bool", (Double a, Double b) -> a.equals(b)),
-        new BuiltinBinaryFunctionExpr<>("!=", "double -> double -> bool", (Double a, Double b) -> !a.equals(b)),
-        new BuiltinBinaryFunctionExpr<>("<", "double -> double -> bool", (Double a, Double b) -> a < b),
-        new BuiltinBinaryFunctionExpr<>("<=", "double -> double -> bool", (Double a, Double b) -> a <= b),
-        new BuiltinBinaryFunctionExpr<>(">", "double -> double -> bool", (Double a, Double b) -> a > b),
-        new BuiltinBinaryFunctionExpr<>(">=", "double -> double -> bool", (Double a, Double b) -> a >= b),
+        new BuiltinBinaryFunctionExpr<>("=.", "double -> double -> bool", (Double a, Double b) -> a.equals(b)),
+        new BuiltinBinaryFunctionExpr<>("!=.", "double -> double -> bool", (Double a, Double b) -> !a.equals(b)),
+        new BuiltinBinaryFunctionExpr<>("<.", "double -> double -> bool", (Double a, Double b) -> a < b),
+        new BuiltinBinaryFunctionExpr<>("<=.", "double -> double -> bool", (Double a, Double b) -> a <= b),
+        new BuiltinBinaryFunctionExpr<>(">.", "double -> double -> bool", (Double a, Double b) -> a > b),
+        new BuiltinBinaryFunctionExpr<>(">=.", "double -> double -> bool", (Double a, Double b) -> a >= b),
 
         new BuiltinUnaryFunctionExpr<>("neg", "int -> int", (Integer a) -> -a),
         new BuiltinUnaryFunctionExpr<>("neg.", "double -> double", (Double a) -> -a),
@@ -56,6 +56,7 @@ public class BuiltinInitializer {
         new BuiltinBinaryFunctionExpr<>("and", "bool -> bool -> bool", (Boolean a, Boolean b) -> a && b),
         new BuiltinBinaryFunctionExpr<>("or", "bool -> bool -> bool", (Boolean a, Boolean b) -> a || b),
         new BuiltinBinaryFunctionExpr<>("xor", "bool -> bool -> bool", (Boolean a, Boolean b) -> a ^ b),
+
         new ListToString("list->string"),
         new StringToList("string->list"),
         new Equals("equals?"),

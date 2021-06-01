@@ -16,8 +16,8 @@ public class EmptyType extends Type {
         this.id = id;
     }
 
-    public String toString() {
-        return id;
+    public String toSignatureString(TypeSymbolGenerator symGen) {
+        return symGen.generateSymbol(this.id);
     }
 
     @Override

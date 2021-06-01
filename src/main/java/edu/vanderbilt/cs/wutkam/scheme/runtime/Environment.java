@@ -30,6 +30,14 @@ public class Environment<T> {
         return null;
     }
 
+    public boolean isTopLevel(String symbol) {
+        T result = symbols.get(symbol);
+        if (result != null) {
+            return next == null;
+        }
+        return next.isTopLevel(symbol);
+    }
+
     public void define(String name, T expr) {
         symbols.put(name, expr);
     }

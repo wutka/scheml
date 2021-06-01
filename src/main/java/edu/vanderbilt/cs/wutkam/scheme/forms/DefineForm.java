@@ -10,6 +10,7 @@ import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.FunctionType;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -79,10 +80,10 @@ public class DefineForm implements Form {
         FunctionType origFuncType = new FunctionType(functionExpr.arity, paramTypes, new TypeRef());
         unifyTopLevel.define(((SymbolExpr)functionName).value, new TypeRef(origFuncType));
 
-        TypeRef functionType = new TypeRef();
+        TypeRef functionType = new TypeRef(origFuncType);
         functionExpr.unify(functionType, SchemeRuntime.getUnifyTopLevel());
 
-        unifyTopLevel.define(((SymbolExpr)functionName).value, new TypeRef(functionType.getType().copy()));
+        unifyTopLevel.define(((SymbolExpr)functionName).value, functionType.copy(new HashMap<>()));
 
         return functionExpr;
     }

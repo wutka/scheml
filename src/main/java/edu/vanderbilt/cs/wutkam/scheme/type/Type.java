@@ -1,7 +1,12 @@
 package edu.vanderbilt.cs.wutkam.scheme.type;
 
-public class Type {
-    public Type copy() {
-        return this;
+import java.util.Map;
+
+public abstract class Type {
+    @Override
+    public String toString() {
+        return toSignatureString(new TypeSymbolGenerator());
     }
+
+    public abstract String toSignatureString(TypeSymbolGenerator gen);
 }

@@ -6,6 +6,7 @@ import edu.vanderbilt.cs.wutkam.scheme.type.BooleanType;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
+import java.util.HashMap;
 import java.util.Objects;
 
 public class SymbolExpr implements Expression {
@@ -29,8 +30,12 @@ public class SymbolExpr implements Expression {
         if (myType == null) {
             throw new UnifyException("Unknown symbol - " + value);
         }
-        TypeRef typeCopy = new TypeRef(myType.getType().copy());
-        typeRef.unify(typeCopy);
+        if (env.isTopLevel(value)) {
+            TypeRef typeCopy = myType.copy(new HashMap<>());
+            typeRef.unify(typeCopy);
+        } else {
+            typeRef.unify(myType);
+        }
     }
 
     @Override

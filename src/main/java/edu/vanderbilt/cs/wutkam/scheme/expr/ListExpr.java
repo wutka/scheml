@@ -7,6 +7,7 @@ import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -81,6 +82,16 @@ public class ListExpr implements Expression {
             unifiedParams[i].unify(targetFunc.paramTypes[i]);
         }
 
+        if (targetExpression instanceof SymbolExpr) {
+            SymbolExpr sym = (SymbolExpr) targetExpression;
+            TypeRef envRef = env.lookup(sym.value);
+            if (envRef != null) {
+                if (env.isTopLevel(sym.value)) {
+                    envRef = envRef.copy(new HashMap<>());
+                }
+                envRef.unify(new TypeRef(targetFunc));
+            }
+        }
         ref.unify(targetFunc.returnType);
     }
 

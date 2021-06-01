@@ -1,5 +1,7 @@
 package edu.vanderbilt.cs.wutkam.scheme.type;
 
+import java.util.HashMap;
+
 public class ConsType extends Type {
     public TypeRef elementType;
 
@@ -11,14 +13,11 @@ public class ConsType extends Type {
         elementType = new TypeRef(type);
     }
 
-    public ConsType copy() {
-        return new ConsType(elementType.getType().copy());
+    public ConsType(TypeRef typeRef) {
+        this.elementType = typeRef;
     }
-    public String toString() {
-        if (!elementType.isFull()) {
-            return "cons 'a";
-        } else {
-            return "cons "+elementType.getType().toString();
-        }
+
+    public String toSignatureString(TypeSymbolGenerator symGen) {
+        return "cons "+elementType.getType().toSignatureString(symGen);
     }
 }

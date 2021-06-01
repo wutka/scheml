@@ -13,7 +13,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
  */
 public class Equals extends BuiltinFunctionExpr {
     public Equals(String name) {
-        super(name, "'a -> 'a");
+        super(name, "'a -> 'a -> bool");
     }
 
     @Override
