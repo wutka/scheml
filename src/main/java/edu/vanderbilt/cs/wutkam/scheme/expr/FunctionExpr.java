@@ -134,7 +134,14 @@ public class FunctionExpr implements Expression {
             throw UnifyException.addCause("Can't unify function return type", exc);
         }
 
-        FunctionType thisType = new FunctionType(arity, paramTypeRefs, returnType);
+        if (partialArgs.size() > 0) {
+            TypeRef[] newParamTypeRefs = new TypeRef[arity - partialArgs.size()];
+            for (int i=0; i < newParamTypeRefs.length; i++) {
+                newParamTypeRefs[i] = paramTypeRefs[i+partialArgs.size()];
+            }
+            paramTypeRefs = newParamTypeRefs;
+        }
+        FunctionType thisType = new FunctionType(paramTypeRefs.length, paramTypeRefs, returnType);
         try {
             typeRef.unify(new TypeRef(thisType));
         } catch (UnifyException exc) {

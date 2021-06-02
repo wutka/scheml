@@ -5,6 +5,8 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.*;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheme.type.FunctionType;
 import edu.vanderbilt.cs.wutkam.scheme.type.Type;
+import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
+import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,8 @@ public class BuiltinFunctionExpr extends FunctionExpr {
     public BuiltinFunctionExpr(BuiltinFunctionExpr origFunc, List<Expression> partialArgs) {
         super(origFunc, partialArgs);
         this.builtinFunc = origFunc.builtinFunc;
+        this.paramTypes = origFunc.paramTypes;
+        this.returnType = origFunc.returnType;
     }
 
     protected Expression apply(List<Expression> arguments, Environment<Expression> env)
@@ -83,23 +87,27 @@ public class BuiltinFunctionExpr extends FunctionExpr {
         return (Expression) obj;
     }
 
-    static List<SymbolExpr> makeArgList(int n) {
-        char argChar = 'a';
-        ArrayList<SymbolExpr> symbolList = new ArrayList<>();
-        for (int i=0; i < n; i++) {
-            String argName;
-            if (i < 52) {
-                argName = ""+argChar;
-            } else {
-                argName = "arg"+i;
-            }
-            symbolList.add(new SymbolExpr("" + argName));
-            if (argChar == 'z') {
-                argChar = 'A';
-            } else {
-                argChar++;
+
+    @Override
+    public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
+        for (int i = 0; i < partialArgs.size(); i++) {
+            try {
+                partialArgs.get(i).unify(paramTypes[i], env);
+            } catch (UnifyException exc) {
+                throw UnifyException.addCause("Cannot unify function parameter " + paramTypes[i].getType(), exc);
             }
         }
-        return symbolList;
+
+        TypeRef[] newParamTypeRefs = new TypeRef[arity - partialArgs.size()];
+        for (int i=0; i < newParamTypeRefs.length; i++) {
+            newParamTypeRefs[i] = paramTypes[i+partialArgs.size()];
+        }
+        FunctionType thisType = new FunctionType(newParamTypeRefs.length, newParamTypeRefs, returnType);
+        try {
+            typeRef.unify(new TypeRef(thisType));
+        } catch (UnifyException exc) {
+            throw UnifyException.addCause("Can't unify function with "+typeRef.getType(), exc);
+        }
     }
+
 }
