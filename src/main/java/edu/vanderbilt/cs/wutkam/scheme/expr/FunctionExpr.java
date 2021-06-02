@@ -86,7 +86,10 @@ public class FunctionExpr implements Expression {
                 }
             }
             if (this.partialFunc != null) {
-                return partialFunc.apply(arguments, env);
+                List<Expression> allArguments = new ArrayList<>();
+                allArguments.addAll(partialArgs);
+                allArguments.addAll(arguments);
+                return partialFunc.apply(allArguments, env);
             } else {
                 Expression last = null;
                 for (Expression target : targetExpressions) {

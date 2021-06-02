@@ -92,7 +92,17 @@ public class ListExpr implements Expression {
                 envRef.unify(new TypeRef(targetFunc));
             }
         }
-        ref.unify(targetFunc.returnType);
+
+        if (parameters.size() < targetFunc.arity) {
+            TypeRef[] newParamTypes = new TypeRef[parameters.size()];
+            for (int i=0; i < newParamTypes.length; i++) {
+                newParamTypes[i] = targetFunc.paramTypes[i+parameters.size()];
+            }
+            FunctionType newTargetFunc = new FunctionType(newParamTypes.length, newParamTypes, targetFunc.returnType);
+            ref.unify(new TypeRef(newTargetFunc));
+        } else {
+            ref.unify(targetFunc.returnType);
+        }
     }
 
     @Override
