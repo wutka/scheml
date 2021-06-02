@@ -30,6 +30,11 @@ public class BuiltinFunctionExpr extends FunctionExpr {
         this.builtinFunc = builtinFunc;
     }
 
+    public BuiltinFunctionExpr(BuiltinFunctionExpr origFunc, List<Expression> partialArgs) {
+        super(origFunc, partialArgs);
+        this.builtinFunc = origFunc.builtinFunc;
+    }
+
     protected Expression apply(List<Expression> arguments, Environment<Expression> env)
             throws LispException {
         if (arguments.size() + partialArgs.size() > arity) {
@@ -45,9 +50,17 @@ public class BuiltinFunctionExpr extends FunctionExpr {
                     args[i] = arguments.get(i-partialArgs.size()).evaluate(env);
                 }
             }
-            return executeBuiltin(args);
+            if (this.partialFunc != null) {
+                if (this.partialFunc instanceof BuiltinFunctionExpr) {
+                    return ((BuiltinFunctionExpr) this.partialFunc).executeBuiltin(args);
+                } else {
+                    throw new LispException("Unable to execute partial builtin function");
+                }
+            } else {
+                return executeBuiltin(args);
+            }
         } else {
-            return new FunctionExpr(this, arguments);
+            return new BuiltinFunctionExpr(this, arguments);
         }
     }
 

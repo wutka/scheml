@@ -19,6 +19,7 @@ public class FunctionExpr implements Expression {
     public final List<Expression> partialArgs;
     public final List<Expression> targetExpressions;
     public final List<SymbolExpr> parameterList;
+    public final FunctionExpr partialFunc;
 
     public TypeRef[] paramTypes;
     public TypeRef returnType;
@@ -28,6 +29,7 @@ public class FunctionExpr implements Expression {
         this.parameterList = parameterList;
         this.targetExpressions = targetExpressions;
         this.partialArgs = new ArrayList<>();
+        this.partialFunc = null;
     }
 
     public FunctionExpr(String signature) {
@@ -38,7 +40,9 @@ public class FunctionExpr implements Expression {
         this.partialArgs = new ArrayList<>();
         this.paramTypes = functionType.paramTypes;
         this.returnType = functionType.returnType;
+        this.partialFunc = null;
     }
+
     public FunctionExpr(FunctionExpr partialFunc, List<Expression> partialArgs) {
         this.arity = partialFunc.arity;
         this.parameterList = partialFunc.parameterList;
@@ -46,6 +50,7 @@ public class FunctionExpr implements Expression {
         this.partialArgs = new ArrayList<>();
         this.partialArgs.addAll(partialFunc.partialArgs);
         this.partialArgs.addAll(partialArgs);
+        this.partialFunc = partialFunc;
     }
 
     public void setType(TypeRef[] paramTypes, TypeRef returnType) {
@@ -71,18 +76,24 @@ public class FunctionExpr implements Expression {
 
         if (arguments.size() + partialArgs.size() == arity) {
             Environment<Expression> funcEnv = new Environment<>(env);
-            for (int i=0; i < arity; i++) {
-                if (i < partialArgs.size()) {
-                    funcEnv.define(parameterList.get(i).value, partialArgs.get(i));
-                } else {
-                    funcEnv.define(parameterList.get(i).value, arguments.get(i-partialArgs.size()));
+            if (parameterList != null) {
+                for (int i=0; i < arity; i++) {
+                    if (i < partialArgs.size()) {
+                        funcEnv.define(parameterList.get(i).value, partialArgs.get(i));
+                    } else {
+                        funcEnv.define(parameterList.get(i).value, arguments.get(i - partialArgs.size()));
+                    }
                 }
             }
-            Expression last = null;
-            for (Expression target: targetExpressions) {
-                last = target.evaluate(funcEnv);
+            if (this.partialFunc != null) {
+                return partialFunc.apply(arguments, env);
+            } else {
+                Expression last = null;
+                for (Expression target : targetExpressions) {
+                    last = target.evaluate(funcEnv);
+                }
+                return last;
             }
-            return last;
         } else {
             return new FunctionExpr(this, arguments);
         }
