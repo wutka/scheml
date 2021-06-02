@@ -2,27 +2,33 @@ package edu.vanderbilt.cs.wutkam.scheme.type;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class TypeRef {
-    TypeHolder typeHolder;
+    Type type;
+    Set<TypeRef> linked;
 
     public TypeRef() {
-        Type type = new EmptyType();
-        typeHolder = new TypeHolder(type);
+        type = new EmptyType();
+        linked = new HashSet<>();
+        linked.add(this);
     }
 
     public TypeRef(Type type) {
-        typeHolder = new TypeHolder(type);
+        this.type = type;
+        linked = new HashSet<>();
+        linked.add(this);
     }
 
     public boolean isFull() {
-        return !(typeHolder.getType() instanceof EmptyType);
+        return !(type instanceof EmptyType);
     }
 
     public TypeRef copy(Map<String,TypeRef> linkageMap) {
-        if (typeHolder.type instanceof EmptyType) {
-            EmptyType thisType = (EmptyType) typeHolder.type;
+        if (type instanceof EmptyType) {
+            EmptyType thisType = (EmptyType) type;
             TypeRef newCopy = linkageMap.get(thisType.id);
             if (newCopy == null) {
                 newCopy = new TypeRef();
@@ -30,11 +36,11 @@ public class TypeRef {
             }
             return newCopy;
         }
-        else if (typeHolder.type instanceof ConsType) {
-            ConsType thisType = (ConsType) typeHolder.type;
+        else if (type instanceof ConsType) {
+            ConsType thisType = (ConsType) type;
             return new TypeRef(new ConsType(thisType.elementType.copy(linkageMap)));
-        } else if (typeHolder.type instanceof FunctionType) {
-            FunctionType thisType = (FunctionType) typeHolder.type;
+        } else if (type instanceof FunctionType) {
+            FunctionType thisType = (FunctionType) type;
             TypeRef[] paramTypes = new TypeRef[thisType.arity];
             for (int i=0; i < paramTypes.length; i++) {
                 paramTypes[i] = thisType.paramTypes[i].copy(linkageMap);
@@ -47,14 +53,26 @@ public class TypeRef {
     }
 
     public Type getType() {
-        return typeHolder.getType();
+        return type;
     }
 
     public void setType(Type other) throws LispException {
-        if (!(typeHolder.getType() instanceof EmptyType)) {
-            throw new LispException("Tried to set type in full TypeRef");
+        if (this.type instanceof EmptyType) {
+            for (TypeRef link : linked) {
+                link.type = other;
+            }
         }
-        this.typeHolder.setType(other);
+    }
+
+    public void link(TypeRef other) throws LispException {
+        linked.addAll(other.linked);
+        for (TypeRef otherRef: linked) {
+            otherRef.linked.addAll(linked);
+        }
+        if (!linked.equals(other.linked)) {
+            throw new RuntimeException("linked TypeRef mismatch");
+        }
+        setType(this.type);
     }
 
     public void unify(TypeRef other) throws LispException {
@@ -105,10 +123,10 @@ public class TypeRef {
                 other.setType(this.getType());
             }
         } else if (other.isFull()) {
-            this.typeHolder.setType(other.getType());
-            this.typeHolder.link(other.typeHolder);
+            this.setType(other.getType());
+            this.link(other);
         } else {
-            this.typeHolder.link(other.typeHolder);
+            this.link(other);
         }
     }
 }
