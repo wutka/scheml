@@ -60,6 +60,10 @@ public class Parser {
                     } else {
                         expressionStack.peek().add(listExpr);
                     }
+                } else if (ch == ';') {
+                    while (((ch = (char) pushback.read()) != (char) -1)) {
+                        if ((ch == '\r') || (ch == '\n')) break;
+                    }
                 } else if (ch == '"') {
                     StringBuilder builder = new StringBuilder();
                     boolean escape = false;

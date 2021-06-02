@@ -1,4 +1,3 @@
-
 (define (assert-equals a b)
   (if (equals? a b) (print "PASSED\n")
       (progn
@@ -8,6 +7,7 @@
         (print b)
         (print "\n"))))
 
+; These are the 1-D tests from assignment 1
 (assert-equals "00000" (list->string (geohash-1d LONGITUDE-MIN LONGITUDE-MIN LONGITUDE-MAX 5)))
 (assert-equals "00000" (list->string (geohash-1d LATITUDE-MIN LATITUDE-MIN LATITUDE-MAX 5)))
 (assert-equals "11111" (list->string (geohash-1d LONGITUDE-MAX LONGITUDE-MIN LONGITUDE-MAX 5)))
@@ -23,6 +23,7 @@
 (assert-equals "00001" (list->string (geohash-1d -158.5 LONGITUDE-MIN LONGITUDE-MAX 5)))
 (assert-equals "00000" (list->string (geohash-1d -169.75 LONGITUDE-MIN LONGITUDE-MAX 5)))
 
+; These are the 2-D tests from assignment 1
 (assert-equals "0000000000" (geohash LATITUDE-MIN LONGITUDE-MIN 10))
 (assert-equals "0101010101" (geohash LATITUDE-MIN LONGITUDE-MAX 10))
 (assert-equals "01010101010" (geohash LATITUDE-MIN LONGITUDE-MAX 11))
