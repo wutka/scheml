@@ -39,14 +39,16 @@ public class Repl {
                     if (expr instanceof ListExpr) {
                         expr = FormExpander.expand((ListExpr) expr, true);
                     }
+                    TypeRef exprType = new TypeRef();
+                    expr.unify(exprType, SchemeRuntime.getUnifyTopLevel());
                     expr = expr.evaluate(SchemeRuntime.getTopLevel());
                     if (displayType) {
-                        TypeRef exprType = new TypeRef();
+                        TypeRef resultType = new TypeRef();
                         try {
-                            expr.unify(exprType, SchemeRuntime.getUnifyTopLevel());
+                            expr.unify(resultType, SchemeRuntime.getUnifyTopLevel());
                             System.out.print(expr);
                             System.out.print(" : ");
-                            System.out.println(exprType.getType());
+                            System.out.println(resultType.getType());
                         } catch (UnifyException exc) {
                             System.out.println("Error unifying expression: " + expr + "\n" + exc.getMessage());
                         }
