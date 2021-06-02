@@ -16,12 +16,12 @@ public class SymbolExpr implements Expression {
         this.value = value;
     }
 
-    public Expression evaluate(Environment<Expression> env) throws LispException {
+    public Expression evaluate(Environment<Expression> env, boolean inTailPosition) throws LispException {
         Expression expr = env.lookup(value);
         if (expr == null) {
             throw new LispException("Unknown symbol "+value);
         }
-        return expr.evaluate(env);
+        return expr.evaluate(env, false);
     }
 
     @Override

@@ -59,8 +59,9 @@ public class FunctionExpr implements Expression, Applicable {
             }
         }
         Expression last = null;
-        for (Expression target : targetExpressions) {
-            last = target.evaluate(funcEnv);
+        for (int i=0; i < targetExpressions.size(); i++) {
+            Expression target = targetExpressions.get(i);
+            last = target.evaluate(funcEnv, i == targetExpressions.size()-1);
         }
 
         return last;

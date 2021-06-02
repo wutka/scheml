@@ -25,13 +25,13 @@ public class IfExpr implements Expression {
     }
 
     @Override
-    public Expression evaluate(Environment<Expression> env) throws LispException {
-        Expression testResult = test.evaluate(env);
+    public Expression evaluate(Environment<Expression> env, boolean inTailPosition) throws LispException {
+        Expression testResult = test.evaluate(env, false);
         if (testResult instanceof BoolExpr) {
             if (((BoolExpr)testResult).value) {
-                return trueOption.evaluate(env);
+                return trueOption.evaluate(env, inTailPosition);
             } else {
-                return falseOption.evaluate(env);
+                return falseOption.evaluate(env, inTailPosition);
             }
         } else {
             throw new LispException("If expression test did not evaluate to a boolean");

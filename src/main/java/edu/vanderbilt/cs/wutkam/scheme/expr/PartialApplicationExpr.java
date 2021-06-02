@@ -103,11 +103,6 @@ public class PartialApplicationExpr implements Expression, Applicable {
     }
 
     @Override
-    public Expression evaluate(Environment<Expression> env) throws LispException {
-        return Expression.super.evaluate(env);
-    }
-
-    @Override
     public String toString() {
         return "(partial function)";
     }

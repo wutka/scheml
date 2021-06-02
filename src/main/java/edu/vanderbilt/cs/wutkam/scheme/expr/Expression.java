@@ -12,7 +12,7 @@ import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
  */
 
 public interface Expression {
-    default Expression evaluate(Environment<Expression> env) throws LispException {
+    default Expression evaluate(Environment<Expression> env, boolean inTailPosition) throws LispException {
         return this;
     }
 

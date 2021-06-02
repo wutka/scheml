@@ -22,24 +22,32 @@ public class ListExpr implements Expression {
         this.elements = elements;
     }
 
-    public Expression evaluate(Environment<Expression> env) throws LispException {
+    public Expression evaluate(Environment<Expression> env, boolean inTailPosition) throws LispException {
         if (elements.size() == 0) {
             throw new LispException("Cannot evaluate an empty list");
         }
         Expression targetExpression = elements.get(0);
-        Expression maybeFunctionExpr = targetExpression.evaluate(env);
+        Expression maybeFunctionExpr = targetExpression.evaluate(env, false);
 
         if (!(maybeFunctionExpr instanceof Applicable)) {
             throw new LispException("Expression "+maybeFunctionExpr.toString()+" is not a function");
         }
-        Applicable targetFunction = (Applicable) targetExpression.evaluate(env);
+        Applicable targetFunction = (Applicable) targetExpression.evaluate(env, false);
 
         ArrayList<Expression> parameterList = new ArrayList<>();
         for (int i=1; i < elements.size(); i++) {
-            parameterList.add(elements.get(i).evaluate(env));
+            parameterList.add(elements.get(i).evaluate(env, false));
         }
 
-        return targetFunction.apply(parameterList, env);
+        if (inTailPosition) {
+            return new TailCallExpr(targetFunction, parameterList, env);
+        } else {
+            Expression result = targetFunction.apply(parameterList, env);
+            while (result instanceof TailCallExpr) {
+                result = result.evaluate(env, false);
+            }
+            return result;
+        }
     }
 
     @Override

@@ -21,10 +21,11 @@ public class PrognExpr implements Expression {
     }
     
     @Override
-    public Expression evaluate(Environment<Expression> env) throws LispException {
+    public Expression evaluate(Environment<Expression> env, boolean inTailPosition) throws LispException {
         Expression last = null;
-        for (Expression expr: body) {
-            last = expr.evaluate(env);
+        for (int i=0; i < body.size(); i++) {
+            Expression expr = body.get(i);
+            last = expr.evaluate(env, inTailPosition && (i == body.size() - 1));
         }
         return last;
     }

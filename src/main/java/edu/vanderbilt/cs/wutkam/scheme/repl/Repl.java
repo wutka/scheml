@@ -41,7 +41,7 @@ public class Repl {
                     }
                     TypeRef exprType = new TypeRef();
                     expr.unify(exprType, SchemeRuntime.getUnifyTopLevel());
-                    expr = expr.evaluate(SchemeRuntime.getTopLevel());
+                    expr = expr.evaluate(SchemeRuntime.getTopLevel(), false);
                     if (displayType) {
                         TypeRef resultType = new TypeRef();
                         try {

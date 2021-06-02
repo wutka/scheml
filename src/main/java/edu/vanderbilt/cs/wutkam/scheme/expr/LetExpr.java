@@ -24,21 +24,22 @@ public class LetExpr implements Expression {
         this.body = body;
     }
     @Override
-    public Expression evaluate(Environment<Expression> env) throws LispException {
+    public Expression evaluate(Environment<Expression> env, boolean inTailPosition) throws LispException {
         Environment<Expression> letEnv = new Environment<>(env);
         for (Declaration dec: declarations) {
             if (isLetStar) {
                 // Put the expression value into the environment before evaluating so that
                 // a let can contain a recursive function
                 letEnv.define(dec.name, dec.value);
-                letEnv.define(dec.name, dec.value.evaluate(letEnv));
+                letEnv.define(dec.name, dec.value.evaluate(letEnv, false));
             } else {
-                letEnv.define(dec.name, dec.value.evaluate(env));
+                letEnv.define(dec.name, dec.value.evaluate(env, false));
             }
         }
         Expression last = null;
-        for (Expression expr: body) {
-            last = expr.evaluate(letEnv);
+        for (int i=0; i < body.size(); i++) {
+            Expression expr = body.get(i);
+            last = expr.evaluate(letEnv, inTailPosition && (i == body.size() - 1));
         }
         return last;
     }

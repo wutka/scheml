@@ -44,7 +44,7 @@ public class BuiltinFunctionExpr extends FunctionExpr {
 
         Expression[] args = new Expression[arity];
         for (int i=0; i < arity; i++) {
-            args[i] = arguments.get(i).evaluate(env);
+            args[i] = arguments.get(i).evaluate(env, false);
         }
         return executeBuiltin(args);
     }
