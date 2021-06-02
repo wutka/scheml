@@ -30,6 +30,10 @@ public class Environment<T> {
         return null;
     }
 
+    public Environment<T> previous() {
+        return next;
+    }
+
     public boolean isTopLevel(String symbol) {
         T result = symbols.get(symbol);
         if (result != null) {

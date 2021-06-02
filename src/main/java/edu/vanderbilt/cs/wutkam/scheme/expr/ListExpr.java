@@ -40,7 +40,7 @@ public class ListExpr implements Expression {
         }
 
         if (inTailPosition) {
-            return new TailCallExpr(targetFunction, parameterList, env);
+            return new TailCallExpr(targetFunction, parameterList, env.previous());
         } else {
             Expression result = targetFunction.apply(parameterList, env);
             while (result instanceof TailCallExpr) {
