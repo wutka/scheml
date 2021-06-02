@@ -29,15 +29,16 @@ public class ListExpr implements Expression {
         Expression targetExpression = elements.get(0);
         Expression maybeFunctionExpr = targetExpression.evaluate(env);
 
-        if (!(maybeFunctionExpr instanceof FunctionExpr)) {
+        if (!(maybeFunctionExpr instanceof Applicable)) {
             throw new LispException("Expression "+maybeFunctionExpr.toString()+" is not a function");
         }
-        FunctionExpr targetFunction = (FunctionExpr) targetExpression.evaluate(env);
+        Applicable targetFunction = (Applicable) targetExpression.evaluate(env);
 
         ArrayList<Expression> parameterList = new ArrayList<>();
         for (int i=1; i < elements.size(); i++) {
             parameterList.add(elements.get(i).evaluate(env));
         }
+
         return targetFunction.apply(parameterList, env);
     }
 

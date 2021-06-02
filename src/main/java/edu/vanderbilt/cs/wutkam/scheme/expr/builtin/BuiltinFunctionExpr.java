@@ -32,40 +32,21 @@ public class BuiltinFunctionExpr extends FunctionExpr {
         this.builtinFunc = builtinFunc;
     }
 
-    public BuiltinFunctionExpr(BuiltinFunctionExpr origFunc, List<Expression> partialArgs) {
-        super(origFunc, partialArgs);
-        this.builtinFunc = origFunc.builtinFunc;
-        this.paramTypes = origFunc.paramTypes;
-        this.returnType = origFunc.returnType;
-    }
-
-    protected Expression apply(List<Expression> arguments, Environment<Expression> env)
+    public Expression apply(List<Expression> arguments, Environment<Expression> env)
             throws LispException {
-        if (arguments.size() + partialArgs.size() > arity) {
+        if (arguments.size() > arity) {
             throw new LispException("Too many parameters passed to function "+this);
         }
 
-        if (arguments.size() + partialArgs.size() == arity) {
-            Expression[] args = new Expression[arity];
-            for (int i=0; i < arity; i++) {
-                if (i < partialArgs.size()) {
-                    args[i] = partialArgs.get(i).evaluate(env);
-                } else {
-                    args[i] = arguments.get(i-partialArgs.size()).evaluate(env);
-                }
-            }
-            if (this.partialFunc != null) {
-                if (this.partialFunc instanceof BuiltinFunctionExpr) {
-                    return ((BuiltinFunctionExpr) this.partialFunc).executeBuiltin(args);
-                } else {
-                    throw new LispException("Unable to execute partial builtin function");
-                }
-            } else {
-                return executeBuiltin(args);
-            }
-        } else {
-            return new BuiltinFunctionExpr(this, arguments);
+        if (arguments.size() < arity) {
+            return new PartialApplicationExpr(this, arguments);
         }
+
+        Expression[] args = new Expression[arity];
+        for (int i=0; i < arity; i++) {
+            args[i] = arguments.get(i).evaluate(env);
+        }
+        return executeBuiltin(args);
     }
 
     protected Expression executeBuiltin(Expression[] args) throws LispException {
@@ -90,19 +71,8 @@ public class BuiltinFunctionExpr extends FunctionExpr {
 
     @Override
     public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
-        for (int i = 0; i < partialArgs.size(); i++) {
-            try {
-                partialArgs.get(i).unify(paramTypes[i], env);
-            } catch (UnifyException exc) {
-                throw UnifyException.addCause("Cannot unify function parameter " + paramTypes[i].getType(), exc);
-            }
-        }
 
-        TypeRef[] newParamTypeRefs = new TypeRef[arity - partialArgs.size()];
-        for (int i=0; i < newParamTypeRefs.length; i++) {
-            newParamTypeRefs[i] = paramTypes[i+partialArgs.size()];
-        }
-        FunctionType thisType = new FunctionType(newParamTypeRefs.length, newParamTypeRefs, returnType);
+        FunctionType thisType = new FunctionType(arity, paramTypes, returnType);
         try {
             typeRef.unify(new TypeRef(thisType));
         } catch (UnifyException exc) {

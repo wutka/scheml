@@ -15,7 +15,7 @@ import java.util.List;
 
 public class Repl {
     public static void main(String[] args) {
-        System.out.println("\n\n\nScheme-ish Repl\n\n");
+        System.out.println("\nScheme-ish Repl");
         DataInputStream dataIn = new DataInputStream(System.in);
         for (;;) {
             try {
@@ -59,7 +59,9 @@ public class Repl {
                     }
                 }
             } catch (UnifyException exc) {
-                System.out.println("Unification error:\n"+exc.getMessage());
+                System.out.println("Unification error:\n" + exc.getMessage());
+            } catch (StackOverflowError exc) {
+                System.out.println("Stack overflow");
             } catch (Exception exc) {
                 exc.printStackTrace(System.out);
             }

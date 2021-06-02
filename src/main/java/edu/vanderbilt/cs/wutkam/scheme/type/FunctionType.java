@@ -22,8 +22,6 @@ public class FunctionType extends Type {
 
     @Override
     public String toSignatureString(TypeSymbolGenerator symGen) {
-        String[] typeParams = new String[arity];
-
         boolean first = true;
         StringBuilder builder = new StringBuilder();
         for (int i=0; i < arity; i++) {
@@ -37,6 +35,7 @@ public class FunctionType extends Type {
             }
             first = false;
         }
+        if (arity == 0) builder.append("void");
 
         builder.append(" -> ");
         if (returnType.getType() instanceof FunctionType) {

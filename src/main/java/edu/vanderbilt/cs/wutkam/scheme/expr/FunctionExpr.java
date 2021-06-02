@@ -14,12 +14,10 @@ import java.util.*;
  * Date: 5/25/21
  * Time: 2:07 PM
  */
-public class FunctionExpr implements Expression {
+public class FunctionExpr implements Expression, Applicable {
     public final int arity;
-    public final List<Expression> partialArgs;
     public final List<Expression> targetExpressions;
     public final List<SymbolExpr> parameterList;
-    public final FunctionExpr partialFunc;
 
     public TypeRef[] paramTypes;
     public TypeRef returnType;
@@ -28,8 +26,6 @@ public class FunctionExpr implements Expression {
         this.arity = arity;
         this.parameterList = parameterList;
         this.targetExpressions = targetExpressions;
-        this.partialArgs = new ArrayList<>();
-        this.partialFunc = null;
     }
 
     public FunctionExpr(String signature) {
@@ -37,25 +33,8 @@ public class FunctionExpr implements Expression {
         this.arity = functionType.arity;
         this.parameterList = null;
         this.targetExpressions = null;
-        this.partialArgs = new ArrayList<>();
         this.paramTypes = functionType.paramTypes;
         this.returnType = functionType.returnType;
-        this.partialFunc = null;
-    }
-
-    public FunctionExpr(FunctionExpr partialFunc, List<Expression> partialArgs) {
-        this.arity = partialFunc.arity;
-        this.parameterList = partialFunc.parameterList;
-        this.targetExpressions = partialFunc.targetExpressions;
-        this.partialArgs = new ArrayList<>();
-        this.partialArgs.addAll(partialFunc.partialArgs);
-        this.partialArgs.addAll(partialArgs);
-        this.partialFunc = partialFunc;
-    }
-
-    public void setType(TypeRef[] paramTypes, TypeRef returnType) {
-        this.paramTypes = paramTypes;
-        this.returnType = returnType;
     }
 
     @Override
@@ -63,57 +42,34 @@ public class FunctionExpr implements Expression {
         return "(function)";
     }
 
-    @Override
-    public Expression evaluate(Environment<Expression> env) throws LispException {
-        return Expression.super.evaluate(env);
-    }
-
-    protected Expression apply(List<Expression> arguments, Environment<Expression> env)
+    public Expression apply(List<Expression> arguments, Environment<Expression> env)
         throws LispException {
-        if (arguments.size() + partialArgs.size() > arity) {
+        if (arguments.size() > arity) {
             throw new LispException("Too many parameters passed to function "+this);
         }
 
-        if (arguments.size() + partialArgs.size() == arity) {
-            Environment<Expression> funcEnv = new Environment<>(env);
-            if (parameterList != null) {
-                for (int i=0; i < arity; i++) {
-                    if (i < partialArgs.size()) {
-                        funcEnv.define(parameterList.get(i).value, partialArgs.get(i));
-                    } else {
-                        funcEnv.define(parameterList.get(i).value, arguments.get(i - partialArgs.size()));
-                    }
-                }
-            }
-            if (this.partialFunc != null) {
-                List<Expression> allArguments = new ArrayList<>();
-                allArguments.addAll(partialArgs);
-                allArguments.addAll(arguments);
-                return partialFunc.apply(allArguments, env);
-            } else {
-                Expression last = null;
-                for (Expression target : targetExpressions) {
-                    last = target.evaluate(funcEnv);
-                }
-                return last;
-            }
-        } else {
-            return new FunctionExpr(this, arguments);
+        if (arguments.size() < arity) {
+            return new PartialApplicationExpr(this, arguments);
         }
+
+        Environment<Expression> funcEnv = new Environment<>(env);
+        if (parameterList != null) {
+            for (int i=0; i < arity; i++) {
+                funcEnv.define(parameterList.get(i).value, arguments.get(i));
+            }
+        }
+        Expression last = null;
+        for (Expression target : targetExpressions) {
+            last = target.evaluate(funcEnv);
+        }
+
+        return last;
     }
 
     @Override
     public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
         TypeRef[] paramTypeRefs = new TypeRef[arity];
         for (int i = 0; i < paramTypeRefs.length; i++) paramTypeRefs[i] = new TypeRef();
-
-        for (int i = 0; i < partialArgs.size(); i++) {
-            try {
-                partialArgs.get(i).unify(paramTypeRefs[i], env);
-            } catch (UnifyException exc) {
-                throw UnifyException.addCause("Cannot unify function parameter " + paramTypeRefs[i].getType(), exc);
-            }
-        }
 
         Environment<TypeRef> funcEnv = new Environment<>(env);
         for (int i = 0; i < arity; i++) {
@@ -137,14 +93,8 @@ public class FunctionExpr implements Expression {
             throw UnifyException.addCause("Can't unify function return type", exc);
         }
 
-        if (partialArgs.size() > 0) {
-            TypeRef[] newParamTypeRefs = new TypeRef[arity - partialArgs.size()];
-            for (int i=0; i < newParamTypeRefs.length; i++) {
-                newParamTypeRefs[i] = paramTypeRefs[i+partialArgs.size()];
-            }
-            paramTypeRefs = newParamTypeRefs;
-        }
         FunctionType thisType = new FunctionType(paramTypeRefs.length, paramTypeRefs, returnType);
+
         try {
             typeRef.unify(new TypeRef(thisType));
         } catch (UnifyException exc) {

@@ -28,6 +28,9 @@ public class LetExpr implements Expression {
         Environment<Expression> letEnv = new Environment<>(env);
         for (Declaration dec: declarations) {
             if (isLetStar) {
+                // Put the expression value into the environment before evaluating so that
+                // a let can contain a recursive function
+                letEnv.define(dec.name, dec.value);
                 letEnv.define(dec.name, dec.value.evaluate(letEnv));
             } else {
                 letEnv.define(dec.name, dec.value.evaluate(env));
@@ -47,6 +50,9 @@ public class LetExpr implements Expression {
             TypeRef declTypeRef = new TypeRef();
             try {
                 if (isLetStar) {
+                    // Put a typeref into the environment before unifying with the expression
+                    // to allow the expression to refer to decl.name
+                    letEnv.define(decl.name, declTypeRef);
                     decl.value.unify(declTypeRef, letEnv);
                 } else {
                     decl.value.unify(declTypeRef, env);
