@@ -37,6 +37,14 @@ public class FunctionExpr implements Expression, Applicable {
         this.returnType = functionType.returnType;
     }
 
+    public FunctionExpr(List<TypeRef> paramTypesList, TypeRef returnType) {
+        this.arity = paramTypesList.size();
+        this.parameterList = null;
+        this.targetExpressions = null;
+        this.paramTypes = paramTypesList.toArray(new TypeRef[paramTypesList.size()]);
+        this.returnType = returnType;
+    }
+
     @Override
     public String toString() {
         return "(function)";
