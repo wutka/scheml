@@ -29,7 +29,16 @@ public class FunctionExpr implements Expression, Applicable {
     }
 
     public FunctionExpr(String signature) {
-        FunctionType functionType = parseSignature(signature);
+        Type type = null;
+        try {
+            type = Type.parseTypeSignature(signature);
+        } catch (LispException exc) {
+            throw new RuntimeException("Error parsing signature: "+signature, exc);
+        }
+        if (!(type instanceof FunctionType)) {
+            throw new RuntimeException("Signature "+signature+" is not a function");
+        }
+        FunctionType functionType = (FunctionType) type;
         this.arity = functionType.arity;
         this.parameterList = null;
         this.targetExpressions = null;
@@ -109,98 +118,5 @@ public class FunctionExpr implements Expression, Applicable {
         } catch (UnifyException exc) {
             throw UnifyException.addCause("Can't unify function with "+typeRef.getType(), exc);
         }
-    }
-
-    protected static FunctionType parseSignature(String signature) {
-        try {
-            PushbackReader pushback = new PushbackReader(new StringReader(signature));
-            StringBuilder currSymbol = new StringBuilder();
-            Stack<List<TypeRef>> typeStack = new Stack<>();
-            Map<String,TypeRef> symbolNameMap = new HashMap<>();
-
-            typeStack.push(new ArrayList<>());
-
-            char ch;
-            while ((ch = (char) pushback.read()) != (char) -1) {
-                if (ch == '-') {
-                    char ch2 = (char) pushback.read();
-                    if (ch2 == (char) -1) {
-                        throw new RuntimeException("Unexpected end of string after -");
-                    }
-                    if (ch2 != '>') {
-                        throw new RuntimeException("Expected > after -");
-                    }
-
-                    String symbolName = currSymbol.toString().trim();
-                    typeStack.peek().add(parseSymbolName(symbolName, symbolNameMap));
-                    currSymbol = new StringBuilder();
-                } else if (ch == '(') {
-                    typeStack.push(new ArrayList<>());
-                } else if (ch == ')') {
-                    List<TypeRef> nestedList = typeStack.pop();
-                    if (nestedList.size() == 1) {
-                        throw new RuntimeException("Parenthesized expression should be a function or a construction, but had only one item");
-                    }
-
-                    TypeRef[] paramTypes = new TypeRef[nestedList.size()-1];
-                    for (int i=0; i < paramTypes.length; i++) {
-                        paramTypes[i] = nestedList.get(i);
-                    }
-                    TypeRef returnType = nestedList.get(nestedList.size()-1);
-                    typeStack.peek().add(new TypeRef(new FunctionType(paramTypes.length, paramTypes, returnType)));
-                } else {
-                    currSymbol.append(ch);
-                }
-            }
-            String symbolName = currSymbol.toString().trim();
-            if (symbolName.length() > 0) {
-                typeStack.peek().add(parseSymbolName(symbolName, symbolNameMap));
-            }
-            List<TypeRef> nestedList = typeStack.pop();
-            if (nestedList.size() == 1) {
-                throw new RuntimeException("Parenthesized expression should be a function, but had only one item");
-            } else {
-                TypeRef[] paramTypes = new TypeRef[nestedList.size()-1];
-                for (int i=0; i < paramTypes.length; i++) {
-                    paramTypes[i] = nestedList.get(i);
-                }
-                TypeRef returnType = nestedList.get(nestedList.size()-1);
-                return new FunctionType(paramTypes.length, paramTypes, returnType);
-            }
-
-        } catch (Exception exc) {
-            throw new RuntimeException("Error parsing function signature "+signature+": "+exc.getMessage(), exc);
-        }
-    }
-
-    protected static TypeRef parseSymbolName(String symbolName, Map<String,TypeRef> symbolNameMap) {
-        String[] parts = symbolName.split(" ");
-        if (parts[0].equals("cons")) {
-            if (parts.length < 2) {
-                throw new RuntimeException("cons type needs a parameter");
-            }
-            TypeRef containedType = parseSymbolName(parts[1], symbolNameMap);
-            return new TypeRef(new ConsType(containedType));
-        } else if (parts[0].startsWith("'")) {
-            TypeRef parametricType = symbolNameMap.get(parts[0]);
-            if (parametricType == null) {
-                parametricType = new TypeRef();
-                symbolNameMap.put(parts[0], parametricType);
-            }
-            return parametricType;
-        } else if (parts[0].equals("bool")) {
-            return new TypeRef(BooleanType.TYPE);
-        } else if (parts[0].equals("char")) {
-            return new TypeRef(CharType.TYPE);
-        } else if (parts[0].equals("double")) {
-            return new TypeRef(DoubleType.TYPE);
-        } else if (parts[0].equals("int")) {
-            return new TypeRef(IntType.TYPE);
-        } else if (parts[0].equals("string")) {
-            return new TypeRef(StringType.TYPE);
-        } else if (parts[0].equals("void")) {
-            return new TypeRef(VoidType.TYPE);
-        }
-        throw new RuntimeException("Unknown type in type signature: "+parts[0]);
     }
 }

@@ -4,9 +4,15 @@ import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.ListExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.SymbolExpr;
+import edu.vanderbilt.cs.wutkam.scheme.expr.TypeConstructorExpr;
+import edu.vanderbilt.cs.wutkam.scheme.expr.VoidExpr;
+import edu.vanderbilt.cs.wutkam.scheme.type.AbstractType;
+import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TypeForm implements Form {
     @Override
@@ -17,29 +23,63 @@ public class TypeForm implements Form {
 
         List<String> parametricTypes = new ArrayList<>();
         String typeName;
-        List<Expression> typeConstructors;
+        List<Expression> typeConstructors = new ArrayList<>();
 
-        Expression typeNameExpr = aList.elements.get(1);
+        int nextPos = 1;
+
+        Expression typeNameExpr = aList.elements.get(nextPos++);
         if (typeNameExpr instanceof SymbolExpr) {
             typeName = ((SymbolExpr)typeNameExpr).value;
         } else {
             throw new LispException("Type name must be a symbol");
         }
 
-        boolean finishedParametric = false;
+        AbstractType abstractType;
 
-        for (Expression expr: aList.elements.subList(2, aList.elements.size())) {
-            if (expr instanceof SymbolExpr) {
-                SymbolExpr sym = (SymbolExpr) expr;
-                if (sym.value.startsWith("'")) {
-                    if (finishedParametric) {
-                        throw new LispException("All parametric types must immediately follow the type name");
+
+        Expression nextExpr = aList.elements.get(nextPos);
+        if (nextExpr instanceof ListExpr) {
+            boolean isParametric = false;
+            for (Expression expr: ((ListExpr)nextExpr).elements) {
+                if (expr instanceof SymbolExpr) {
+                    SymbolExpr sym = (SymbolExpr) expr;
+                    if (sym.value.startsWith("'")) {
+                        isParametric = true;
+                        parametricTypes.add(sym.value);
+                        // Only increment nextPos if this is a list of parametric values
+                        nextPos++;
+                    } else {
+                        if (isParametric) {
+                            throw new LispException("List of parametric types must all start with '");
+                        }
+                        break;
                     }
-                    parametricTypes.add(sym.value);
                 } else {
-
+                    if (isParametric) {
+                        throw new LispException("List of parametric types must be symbols that all start with '");
+                    }
+                    break;
                 }
             }
         }
+
+        Map<String, TypeRef> parametricMap = new HashMap<>();
+        for (String parametric: parametricTypes) {
+            parametricMap.put(parametric, new TypeRef());
+        }
+
+        abstractType = new AbstractType(typeName, parametricMap);
+
+        for (Expression expr: aList.elements.subList(nextPos, aList.elements.size())) {
+            if (expr instanceof SymbolExpr) {
+                SymbolExpr sym = (SymbolExpr) expr;
+                typeConstructors.add(new TypeConstructorExpr(abstractType, sym.value, new ArrayList<>()));
+            } else if (expr instanceof ListExpr) {
+                
+            }
+        }
+
+        // There's nothing for this form to return
+        return new VoidExpr();
     }
 }

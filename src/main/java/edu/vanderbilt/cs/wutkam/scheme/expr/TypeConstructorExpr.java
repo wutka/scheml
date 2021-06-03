@@ -10,11 +10,17 @@ import java.util.List;
 public class TypeConstructorExpr extends FunctionExpr {
     public AbstractType abstractType;
     public String name;
+    public List<TypeRef> parameters;
 
     public TypeConstructorExpr(AbstractType abstractType, String name, List<TypeRef> parameters) {
         super(parameters, new TypeRef(abstractType));
         this.name = name;
         this.abstractType = abstractType;
+    }
+
+    @Override
+    public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
+        
     }
 
     @Override

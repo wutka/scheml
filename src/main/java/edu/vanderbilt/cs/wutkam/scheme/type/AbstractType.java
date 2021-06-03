@@ -3,13 +3,13 @@ package edu.vanderbilt.cs.wutkam.scheme.type;
 import edu.vanderbilt.cs.wutkam.scheme.expr.TypeConstructorExpr;
 
 import java.util.List;
+import java.util.Map;
 
 public class AbstractType extends Type {
     public String typeName;
-    public List<TypeRef> parametricTypes;
-    public List<TypeConstructorExpr> typeConstructors;
+    public Map<String,TypeRef> parametricTypes;
 
-    public AbstractType(String typeName, List<TypeRef> parametricTypes) {
+    public AbstractType(String typeName, Map<String,TypeRef> parametricTypes) {
         this.typeName = typeName;
         this.parametricTypes = parametricTypes;
     }
@@ -18,7 +18,7 @@ public class AbstractType extends Type {
     public String toSignatureString(TypeSymbolGenerator gen) {
         StringBuilder builder = new StringBuilder();
         builder.append(typeName);
-        for (TypeRef typeRef: parametricTypes) {
+        for (TypeRef typeRef: parametricTypes.values()) {
             builder.append(" ");
             Type type = typeRef.getType();
             boolean parenthesize = (type instanceof FunctionType) || (type instanceof ConsType) ||

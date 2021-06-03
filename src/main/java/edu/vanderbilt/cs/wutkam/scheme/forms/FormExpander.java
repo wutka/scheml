@@ -26,6 +26,7 @@ public class FormExpander {
         specialForms.put("list", new ListForm());
         specialForms.put("let", new LetForm());
         specialForms.put("let*", new LetForm());
+        specialForms.put("letrec", new LetForm());
         specialForms.put("progn", new PrognForm());
         specialForms.put("type", new TypeForm());
     }

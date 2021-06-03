@@ -42,7 +42,7 @@ public class TypeRef {
         } else if (type instanceof FunctionType) {
             FunctionType thisType = (FunctionType) type;
             TypeRef[] paramTypes = new TypeRef[thisType.arity];
-            for (int i=0; i < paramTypes.length; i++) {
+            for (int i = 0; i < paramTypes.length; i++) {
                 paramTypes[i] = thisType.paramTypes[i].copy(linkageMap);
             }
             TypeRef returnType = thisType.returnType.copy(linkageMap);
