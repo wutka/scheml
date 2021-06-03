@@ -27,6 +27,7 @@ public class FormExpander {
         specialForms.put("let", new LetForm());
         specialForms.put("let*", new LetForm());
         specialForms.put("progn", new PrognForm());
+        specialForms.put("type", new TypeForm());
     }
 
     public static Expression expand(ListExpr aList, boolean isTopLevel) throws LispException

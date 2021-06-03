@@ -26,7 +26,7 @@ public class Parser {
         return parser.items;
     }
 
-    protected final String symbolChars = "*/+-!@#$%&_=:.<>?";
+    protected final String symbolChars = "'*/+-!@#$%&_=:.<>?";
 
     protected boolean isSymbolChar(int ch) {
         return Character.isAlphabetic(ch) || symbolChars.indexOf(ch) >= 0;
