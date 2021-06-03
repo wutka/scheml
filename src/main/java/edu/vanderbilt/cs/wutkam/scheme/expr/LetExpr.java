@@ -14,23 +14,32 @@ import java.util.List;
  * Time: 3:33 PM
  */
 public class LetExpr implements Expression {
+
+    public static final int LET_FORM = 0;
+    public static final int LET_STAR_FORM = 1;
+    public static final int LET_REC_FORM = 2;
+
     List<Declaration> declarations;
-    boolean isLetStar;
+    int letType;
     List<Expression> body;
 
-    public LetExpr(List<Declaration> declarations, boolean isLetStar, List<Expression> body) {
+    public LetExpr(List<Declaration> declarations, int letType, List<Expression> body) {
         this.declarations = declarations;
-        this.isLetStar = isLetStar;
+        this.letType = letType;
         this.body = body;
     }
     @Override
     public Expression evaluate(Environment<Expression> env, boolean inTailPosition) throws LispException {
         Environment<Expression> letEnv = new Environment<>(env);
         for (Declaration dec: declarations) {
-            if (isLetStar) {
-                // Put the expression value into the environment before evaluating so that
-                // a let can contain a recursive function
-                letEnv.define(dec.name, dec.value);
+            if ((letType == LET_STAR_FORM) || (letType == LET_REC_FORM)) {
+                if (letType == LET_REC_FORM) {
+                    // Put the expression value into the environment before evaluating so that
+                    // a let can contain a recursive function
+                    letEnv.define(dec.name, dec.value);
+                }
+                // Both let* and letrec put the value into the environment so it is immediately visible to
+                // other let definitions
                 letEnv.define(dec.name, dec.value.evaluate(letEnv, false));
             } else {
                 letEnv.define(dec.name, dec.value.evaluate(env, false));
@@ -39,7 +48,16 @@ public class LetExpr implements Expression {
         Expression last = null;
         for (int i=0; i < body.size(); i++) {
             Expression expr = body.get(i);
-            last = expr.evaluate(letEnv, inTailPosition && (i == body.size() - 1));
+            if (inTailPosition && (i == body.size() - 1)) {
+                // When creating a tail call expression, the last environment
+                // is chopped off, because this is usually the function environment.
+                // Since let also creates a new environment, create a dummy that can
+                // be chopped off.
+                last = expr.evaluate(new Environment<>(letEnv), true);
+
+            } else {
+                last = expr.evaluate(letEnv, inTailPosition && (i == body.size() - 1));
+            }
         }
         return last;
     }
@@ -50,7 +68,7 @@ public class LetExpr implements Expression {
         for (Declaration decl: declarations) {
             TypeRef declTypeRef = new TypeRef();
             try {
-                if (isLetStar) {
+                if ((letType == LET_STAR_FORM) || (letType == LET_REC_FORM)) {
                     // Put a typeref into the environment before unifying with the expression
                     // to allow the expression to refer to decl.name
                     letEnv.define(decl.name, declTypeRef);

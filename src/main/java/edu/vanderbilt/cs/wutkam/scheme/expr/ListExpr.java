@@ -103,7 +103,7 @@ public class ListExpr implements Expression {
         }
 
         if (parameters.size() < targetFunc.arity) {
-            TypeRef[] newParamTypes = new TypeRef[parameters.size()];
+            TypeRef[] newParamTypes = new TypeRef[targetFunc.arity - parameters.size()];
             for (int i=0; i < newParamTypes.length; i++) {
                 newParamTypes[i] = targetFunc.paramTypes[i+parameters.size()];
             }

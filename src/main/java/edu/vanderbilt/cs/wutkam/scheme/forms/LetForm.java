@@ -22,10 +22,14 @@ public class LetForm implements Form {
             throw new LispException("let form requires declarations and a body");
         }
 
-        boolean isLetStar = false;
+        int letType = LetExpr.LET_FORM;
         if (aList.elements.get(0) instanceof SymbolExpr) {
             SymbolExpr sym = (SymbolExpr) aList.elements.get(0);
-            if (sym.value.equals("let*")) isLetStar = true;
+            if (sym.value.equals("let*")) {
+                letType = LetExpr.LET_STAR_FORM;
+            } else if (sym.value.equals("letrec")) {
+                letType = LetExpr.LET_REC_FORM;
+            }
         }
         if (!(aList.elements.get(1) instanceof ListExpr)) {
             throw new LispException("let form requires a list of declarations");
@@ -61,6 +65,6 @@ public class LetForm implements Form {
             body.add(expr);
         }
          
-        return new LetExpr(letDeclarations, isLetStar, body);
+        return new LetExpr(letDeclarations, letType, body);
     }
 }
