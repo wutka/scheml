@@ -7,18 +7,28 @@ import java.util.Map;
 
 public class AbstractType extends Type {
     public String typeName;
-    public Map<String,TypeRef> parametricTypes;
+    public List<TypeRef> typeParameters;
+    public Map<String,FunctionType> typeConstructors;
 
-    public AbstractType(String typeName, Map<String,TypeRef> parametricTypes) {
+    public AbstractType(String typeName, List<TypeRef> typeParameters) {
         this.typeName = typeName;
-        this.parametricTypes = parametricTypes;
+    }
+
+    public AbstractType(String typeName, List<TypeRef> typeParameters,
+                        Map<String,FunctionType> typeConstructors) {
+        this.typeName = typeName;
+        this.typeConstructors = typeConstructors;
+    }
+
+    public void addTypeConstructors(Map<String,FunctionType> typeConstructors) {
+        this.typeConstructors = typeConstructors;
     }
 
     @Override
     public String toSignatureString(TypeSymbolGenerator gen) {
         StringBuilder builder = new StringBuilder();
         builder.append(typeName);
-        for (TypeRef typeRef: parametricTypes.values()) {
+        for (TypeRef typeRef: typeParameters) {
             builder.append(" ");
             Type type = typeRef.getType();
             boolean parenthesize = (type instanceof FunctionType) || (type instanceof ConsType) ||

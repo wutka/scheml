@@ -2,7 +2,10 @@ package edu.vanderbilt.cs.wutkam.scheme.type;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,6 +50,19 @@ public class TypeRef {
             }
             TypeRef returnType = thisType.returnType.copy(linkageMap);
             return new TypeRef(new FunctionType(paramTypes.length, paramTypes, returnType));
+        } else if (type instanceof AbstractType) {
+            AbstractType thisType = (AbstractType) type;
+            List<TypeRef> typeParameters = new ArrayList<>();
+            for (TypeRef typeRef: thisType.typeParameters) {
+                typeParameters.add(typeRef.copy(linkageMap));
+            }
+            Map<String,FunctionType> typeConstructors = new HashMap<>();
+            for (String constructorName: thisType.typeConstructors.keySet()) {
+                FunctionType funcType = thisType.typeConstructors.get(constructorName);
+                TypeRef ref = new TypeRef(funcType);
+                typeConstructors.put(constructorName, (FunctionType) ref.copy(linkageMap).getType());
+            }
+            return new TypeRef(new AbstractType(thisType.typeName, typeParameters, typeConstructors));
         } else {
             return this;
         }
@@ -101,11 +117,11 @@ public class TypeRef {
                                 " with different arity function " + other.getType());
                     }
 
-                    for (int i=0; i < thisFunc.arity; i++) {
+                    for (int i = 0; i < thisFunc.arity; i++) {
                         try {
                             thisFunc.paramTypes[i].unify(otherFunc.paramTypes[i]);
                         } catch (UnifyException exc) {
-                            throw UnifyException.addCause("Can't unify parameter "+i+" of "+getType()+" with "+
+                            throw UnifyException.addCause("Can't unify parameter " + i + " of " + getType() + " with " +
                                     other.getType(), exc);
                         }
                     }
@@ -113,8 +129,50 @@ public class TypeRef {
                     try {
                         thisFunc.returnType.unify(otherFunc.returnType);
                     } catch (UnifyException exc) {
-                        throw UnifyException.addCause("Can't unify return type of "+getType()+
-                                " with "+other.getType(), exc);
+                        throw UnifyException.addCause("Can't unify return type of " + getType() +
+                                " with " + other.getType(), exc);
+                    }
+                } else if (getType() instanceof AbstractType) {
+                    if (!(other.getType() instanceof FunctionType)) {
+                        throw new UnifyException("Unable to unify " + getType() + " with " + other.getType());
+                    }
+                    AbstractType thisType = (AbstractType) getType();
+                    AbstractType otherType = (AbstractType) other.getType();
+                    if (!thisType.typeName.equals(otherType.typeName)) {
+                        throw new UnifyException("Unable to unify " + getType() + " with " + other.getType());
+                    }
+                    if (thisType.typeParameters.size() != otherType.typeParameters.size()) {
+                        throw new UnifyException("Unable to unify " + getType() + " with " + other.getType());
+                    }
+                    if (thisType.typeConstructors.size() != otherType.typeConstructors.size()) {
+                        throw new UnifyException("Unable to unify " + getType() + " with " + other.getType() +
+                                " because type constructors don't match");
+                    }
+                    for (int i=0; i < thisType.typeParameters.size(); i++) {
+                        try {
+                            thisType.typeParameters.get(i).unify(otherType.typeParameters.get(i));
+                        } catch (UnifyException exc) {
+                            throw UnifyException.addCause("Unable to unify " + getType() + " with " +
+                                    other.getType() + " because type parameters don't match", exc);
+                        }
+                    }
+
+                    for (String constructorName: thisType.typeConstructors.keySet()) {
+                        FunctionType thisConstructor = thisType.typeConstructors.get(constructorName);
+                        FunctionType otherConstructor = otherType.typeConstructors.get(constructorName);
+                        if (otherConstructor == null) {
+                            throw new UnifyException("Unable to unify " + getType() + " with " + other.getType() +
+                                    " because type " + other.getType() + " is missing type constructor "+
+                                    constructorName);
+                        }
+                        try {
+                            (new TypeRef(thisConstructor)).unify(new TypeRef(otherConstructor));
+                        } catch (UnifyException exc) {
+                            throw UnifyException.addCause("Unable to unify type constructor "+
+                                    constructorName+" of "+thisType+" with type constructor in "+
+                                    otherType, exc);
+
+                        }
                     }
                 } else if (!getType().equals(other.getType())) {
                     throw new UnifyException("Can't unify "+getType()+" with "+other.getType());

@@ -9,8 +9,8 @@ public class ListForm implements Form {
     @Override
     public Expression expandForm(ListExpr aList, boolean isTopLevel) throws LispException {
         ConsExpr curr = new ConsExpr();
-        for (int i=aList.elements.size()-1; i >= 1; i--) {
-            curr = new ConsExpr(aList.elements.get(i), curr);
+        for (int i=aList.size()-1; i >= 1; i--) {
+            curr = new ConsExpr(aList.getElement(i), curr);
         }
         return curr;
     }

@@ -18,23 +18,23 @@ import java.util.List;
 public class LetForm implements Form {
     @Override
     public Expression expandForm(ListExpr aList, boolean isTopLevel) throws LispException {
-        if (aList.elements.size() != 3) {
+        if (aList.size() != 3) {
             throw new LispException("let form requires declarations and a body");
         }
 
         int letType = LetExpr.LET_FORM;
-        if (aList.elements.get(0) instanceof SymbolExpr) {
-            SymbolExpr sym = (SymbolExpr) aList.elements.get(0);
+        if (aList.getElement(0) instanceof SymbolExpr) {
+            SymbolExpr sym = (SymbolExpr) aList.getElement(0);
             if (sym.value.equals("let*")) {
                 letType = LetExpr.LET_STAR_FORM;
             } else if (sym.value.equals("letrec")) {
                 letType = LetExpr.LET_REC_FORM;
             }
         }
-        if (!(aList.elements.get(1) instanceof ListExpr)) {
+        if (!(aList.getElement(1) instanceof ListExpr)) {
             throw new LispException("let form requires a list of declarations");
         }
-        ListExpr decls = (ListExpr) aList.elements.get(1);
+        ListExpr decls = (ListExpr) aList.getElement(1);
         List<LetExpr.Declaration> letDeclarations = new ArrayList<>();
 
         for (Expression declExpr: decls.elements) {
@@ -42,7 +42,7 @@ public class LetForm implements Form {
                 throw new LispException("declaration "+declExpr+" in let should be a list with a name and expression");
             }
             ListExpr decl = (ListExpr) declExpr;
-            if (decl.elements.size() != 2) {
+            if (decl.size() != 2) {
                 throw new LispException("declaration "+declExpr+" in let should be a list with a name and expression");
             }
 
@@ -58,7 +58,7 @@ public class LetForm implements Form {
         }
 
         List<Expression> body = new ArrayList<>();
-        for (Expression expr: aList.elements.subList(2, aList.elements.size())) {
+        for (Expression expr: aList.elementsFrom(2)) {
             if (expr instanceof ListExpr) {
                 expr = FormExpander.expand((ListExpr) expr, false);
             }

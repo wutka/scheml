@@ -22,6 +22,18 @@ public class ListExpr implements Expression {
         this.elements = elements;
     }
 
+    public int size() {
+        return this.elements.size();
+    }
+
+    public Expression getElement(int n) {
+        return this.elements.get(n);
+    }
+
+    public List<Expression> elementsFrom(int n) {
+        return this.elements.subList(n, this.elements.size());
+    }
+
     public Expression evaluate(Environment<Expression> env, boolean inTailPosition) throws LispException {
         if (elements.size() == 0) {
             throw new LispException("Cannot evaluate an empty list");

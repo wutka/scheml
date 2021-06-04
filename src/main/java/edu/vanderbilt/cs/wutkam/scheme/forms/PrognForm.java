@@ -17,11 +17,11 @@ import java.util.List;
 public class PrognForm implements Form {
     @Override
     public Expression expandForm(ListExpr aList, boolean isTopLevel) throws LispException {
-        if (aList.elements.size() < 2) {
+        if (aList.size() < 2) {
             throw new LispException("Progn needs at least one statement");
         }
         List<Expression> body = new ArrayList<>();
-        for (Expression expr: aList.elements.subList(1, aList.elements.size())) {
+        for (Expression expr: aList.elementsFrom(1)) {
             if (expr instanceof ListExpr) {
                 expr = FormExpander.expand((ListExpr) expr, false);
             }

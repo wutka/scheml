@@ -27,26 +27,27 @@ public class FormExpander {
         specialForms.put("let", new LetForm());
         specialForms.put("let*", new LetForm());
         specialForms.put("letrec", new LetForm());
+        specialForms.put("match", new MatchForm());
         specialForms.put("progn", new PrognForm());
         specialForms.put("type", new TypeForm());
     }
 
     public static Expression expand(ListExpr aList, boolean isTopLevel) throws LispException
     {
-        if (aList.elements.size() < 1) {
+        if (aList.size() < 1) {
             return aList;
         }
 
         /*
-        for (int i=0; i < aList.elements.size(); i++) {
-            Expression elem = aList.elements.get(i);
+        for (int i=0; i < aList.size(); i++) {
+            Expression elem = aList.getElement(i);
             if (elem instanceof ListExpr) {
                 aList.elements.set(i, expand((ListExpr) elem, false));
             }
         }
          */
 
-        Expression firstElem = aList.elements.get(0);
+        Expression firstElem = aList.getElement(0);
         if (firstElem instanceof SymbolExpr) {
             SymbolExpr sym = (SymbolExpr) firstElem;
             Form expander = specialForms.get(sym.value);

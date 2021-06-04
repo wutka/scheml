@@ -18,14 +18,14 @@ import java.util.List;
 public class LambdaForm implements Form {
     @Override
     public Expression expandForm(ListExpr aList, boolean isTopLevel) throws LispException {
-        if (aList.elements.size() < 3) {
+        if (aList.size() < 3) {
             throw new LispException("lambda should contain a parameter list and a body in "+aList);
         }
-        Expression paramsExpr = aList.elements.get(1);
+        Expression paramsExpr = aList.getElement(1);
         if (!(paramsExpr instanceof ListExpr)) {
             throw new LispException("Lambda parameters must be a list in "+paramsExpr);
         }
-        return createFunctionDefinition((ListExpr)paramsExpr, aList.elements.subList(2, aList.elements.size()));
+        return createFunctionDefinition((ListExpr)paramsExpr, aList.elementsFrom(2));
     }
 
     protected static FunctionExpr createFunctionDefinition(ListExpr paramList, List<Expression> functionBody)
