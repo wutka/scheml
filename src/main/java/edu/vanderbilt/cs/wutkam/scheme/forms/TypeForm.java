@@ -17,7 +17,7 @@ import java.util.Map;
 public class TypeForm implements Form {
     @Override
     public Expression expandForm(ListExpr aList, boolean isTopLevel) throws LispException {
-        if (aList.elements.size() < 3) {
+        if (aList.size() < 3) {
             throw new LispException("Type declaration must at least have a type name and a constructor name");
         }
 
@@ -27,7 +27,7 @@ public class TypeForm implements Form {
 
         int nextPos = 1;
 
-        Expression typeNameExpr = aList.elements.get(nextPos++);
+        Expression typeNameExpr = aList.getElement(nextPos++);
         if (typeNameExpr instanceof SymbolExpr) {
             typeName = ((SymbolExpr)typeNameExpr).value;
         } else {
@@ -37,10 +37,10 @@ public class TypeForm implements Form {
         AbstractType abstractType;
 
 
-        Expression nextExpr = aList.elements.get(nextPos);
+        Expression nextExpr = aList.getElement(nextPos);
         if (nextExpr instanceof ListExpr) {
             boolean isParametric = false;
-            for (Expression expr: ((ListExpr)nextExpr).elements) {
+            for (Expression expr: ((ListExpr)nextExpr).elementsFrom(0)) {
                 if (expr instanceof SymbolExpr) {
                     SymbolExpr sym = (SymbolExpr) expr;
                     if (sym.value.startsWith("'")) {
@@ -64,17 +64,25 @@ public class TypeForm implements Form {
         }
 
         Map<String, TypeRef> parametricMap = new HashMap<>();
+        List<TypeRef> parametricList = new ArrayList<>();
         for (String parametric: parametricTypes) {
-            parametricMap.put(parametric, new TypeRef());
+            TypeRef typeRef = new TypeRef();
+            parametricMap.put(parametric, typeRef);
+            parametricList.add(typeRef);
+
         }
 
-        abstractType = new AbstractType(typeName, parametricMap);
+        abstractType = new AbstractType(typeName, parametricList);
 
-        for (Expression expr: aList.elements.subList(nextPos, aList.elements.size())) {
+        for (Expression expr: aList.elementsFrom(nextPos)) {
             if (expr instanceof SymbolExpr) {
                 SymbolExpr sym = (SymbolExpr) expr;
+                if (!Character.isUpperCase(sym.value.charAt(0))) {
+                    throw new LispException("Type constructors should start with an upper-case letter");
+                }
                 typeConstructors.add(new TypeConstructorExpr(abstractType, sym.value, new ArrayList<>()));
             } else if (expr instanceof ListExpr) {
+                
                 
             }
         }
