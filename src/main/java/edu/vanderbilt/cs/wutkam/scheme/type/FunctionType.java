@@ -1,5 +1,7 @@
 package edu.vanderbilt.cs.wutkam.scheme.type;
 
+import edu.vanderbilt.cs.wutkam.scheme.expr.FunctionExpr;
+
 import java.util.Map;
 
 public class FunctionType extends Type {
@@ -18,6 +20,12 @@ public class FunctionType extends Type {
         this.arity = arity;
         this.paramTypes = paramTypes;
         this.returnType = returnType;
+    }
+
+    public FunctionType(FunctionExpr functionExpr) {
+        this.arity = functionExpr.arity;
+        this.paramTypes = functionExpr.paramTypes;
+        this.returnType = functionExpr.returnType;
     }
 
     @Override

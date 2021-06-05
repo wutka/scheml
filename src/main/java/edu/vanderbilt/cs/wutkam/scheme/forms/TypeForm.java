@@ -93,13 +93,21 @@ public class TypeForm implements Form {
                     typeParams.add(fromExpression(paramExpr, parametricMap));
                 }
 
-                typeConstructors.add(new TypeConstructorExpr(abstractType, sym.value, typeParams));
+                TypeConstructorExpr constructor = new TypeConstructorExpr(abstractType, sym.value, typeParams);
+                typeConstructors.add(constructor);
+                SchemeRuntime.getTopLevel().define(sym.value, constructor);
+                SchemeRuntime.getUnifyTopLevel().define(sym.value,
+                        new TypeRef(new FunctionType(constructor)));
             } else {
                 throw new LispException("Type constructor parameters must either be either symbols or lists");
             }
         }
 
-        Map<String,TypeConstructorExpr>
+        Map<String,TypeConstructorExpr> typeConstructorMap = new HashMap<>();
+        for (TypeConstructorExpr typeConstructor: typeConstructors) {
+            typeConstructorMap.put(typeConstructor.name, typeConstructor);
+        }
+        abstractType.addTypeConstructors(typeConstructorMap);
 
         // There's nothing for this form to return
         return new VoidExpr();
@@ -137,12 +145,58 @@ public class TypeForm implements Form {
         }
         ListExpr typeList = (ListExpr) expr;
 
-        List<TypeRef> constructorParams = new ArrayList<>();
-        for (Expression typeExpr: typeList.elementsFrom(0)) {
-            if (typeExpr instanceof SymbolExpr) {
-                SymbolExpr sym = (SymbolExpr) typeExpr;
-                if (sym == )
+        int nextPos = 0;
+
+        Expression typeNameExpr = typeList.getElement(nextPos++);
+        if (typeNameExpr instanceof SymbolExpr) {
+            SymbolExpr nameSym = (SymbolExpr) typeNameExpr;
+            if (nameSym.equals("cons")) {
+                if (typeList.size() != 2) {
+                    throw new LispException("cons type should take one parameter");
+                }
+                TypeRef consType = fromExpression(typeList.getElement(nextPos), parameterizedTypes);
+                return new TypeRef(new ConsType(consType));
+            } else {
+                AbstractType abstractType = SchemeRuntime.getTypeRegistry().lookup(nameSym.value);
+                if (abstractType != null) {
+                    if (abstractType.typeParameters.size() != typeList.size() - nextPos) {
+                        throw new LispException("Constructor for type " + nameSym.value + " must have " +
+                                abstractType.typeParameters.size() + " parameters");
+                    }
+                    for (int i = 0; i < abstractType.typeParameters.size(); i++) {
+                        TypeRef absTypeSpecifier = fromExpression(typeList.getElement(nextPos++), parameterizedTypes);
+                        abstractType.typeParameters.get(i).unify(absTypeSpecifier);
+                    }
+                    return new TypeRef(abstractType);
+                }
             }
         }
+
+        nextPos = 0;
+
+        List<TypeRef> functionParamTypes = new ArrayList<>();
+
+        // Assume this is a function
+        while (nextPos < typeList.size()) {
+            TypeRef paramType = fromExpression(typeList.getElement(nextPos++), parameterizedTypes);
+            if (nextPos >= typeList.size()) break;
+            Expression shouldBeArrow = typeList.getElement(nextPos++);
+            if (!(shouldBeArrow instanceof SymbolExpr)) {
+                throw new LispException("Function params should be separated by ->");
+            }
+            if (!((SymbolExpr) shouldBeArrow).value.equals("->")) {
+                throw new LispException("Function params should be separated by ->");
+            }
+        }
+
+        if (functionParamTypes.size() < 2) {
+            throw new LispException("Function should have at least an argument and a return type");
+        }
+
+        TypeRef[] paramTypes = new TypeRef[functionParamTypes.size() - 1];
+        for (int i = 0; i < paramTypes.length; i++) paramTypes[i] = functionParamTypes.get(i);
+
+        return new TypeRef(new FunctionType(paramTypes.length, paramTypes,
+                functionParamTypes.get(functionParamTypes.size() - 1)));
     }
 }
