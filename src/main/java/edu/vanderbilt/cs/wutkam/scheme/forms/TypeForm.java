@@ -6,13 +6,10 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.ListExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.SymbolExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.TypeConstructorExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.VoidExpr;
-import edu.vanderbilt.cs.wutkam.scheme.type.AbstractType;
-import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
+import edu.vanderbilt.cs.wutkam.scheme.type.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TypeForm implements Form {
     @Override
@@ -23,7 +20,7 @@ public class TypeForm implements Form {
 
         List<String> parametricTypes = new ArrayList<>();
         String typeName;
-        List<Expression> typeConstructors = new ArrayList<>();
+        List<TypeConstructorExpr> typeConstructors = new ArrayList<>();
 
         int nextPos = 1;
 
@@ -35,7 +32,6 @@ public class TypeForm implements Form {
         }
 
         AbstractType abstractType;
-
 
         Expression nextExpr = aList.getElement(nextPos);
         if (nextExpr instanceof ListExpr) {
@@ -69,10 +65,10 @@ public class TypeForm implements Form {
             TypeRef typeRef = new TypeRef();
             parametricMap.put(parametric, typeRef);
             parametricList.add(typeRef);
-
         }
 
         abstractType = new AbstractType(typeName, parametricList);
+        SchemeRuntime.getTypeRegistry().define(abstractType);
 
         for (Expression expr: aList.elementsFrom(nextPos)) {
             if (expr instanceof SymbolExpr) {
@@ -82,12 +78,71 @@ public class TypeForm implements Form {
                 }
                 typeConstructors.add(new TypeConstructorExpr(abstractType, sym.value, new ArrayList<>()));
             } else if (expr instanceof ListExpr) {
-                
-                
+                ListExpr constructorExpr = (ListExpr) expr;
+                Expression nameExpr = constructorExpr.getElement(0);
+                if (!(nameExpr instanceof SymbolExpr)) {
+                    throw new LispException("Type constructor name should be a symbol");
+                }
+                SymbolExpr sym = (SymbolExpr) nameExpr;
+                if (!Character.isUpperCase(sym.value.charAt(0))) {
+                    throw new LispException("Type constructors should start with an upper-case letter");
+                }
+
+                List<TypeRef> typeParams = new ArrayList<>();
+                for (Expression paramExpr: constructorExpr.elementsFrom(1)) {
+                    typeParams.add(fromExpression(paramExpr, parametricMap));
+                }
+
+                typeConstructors.add(new TypeConstructorExpr(abstractType, sym.value, typeParams));
+            } else {
+                throw new LispException("Type constructor parameters must either be either symbols or lists");
             }
         }
 
+        Map<String,TypeConstructorExpr>
+
         // There's nothing for this form to return
         return new VoidExpr();
+    }
+
+    public static TypeRef fromSymbol(SymbolExpr sym, Map<String,TypeRef> parameterizedTypes) throws LispException {
+        String name = sym.value;
+        if (name.equals("bool")) {
+            return new TypeRef(BooleanType.TYPE);
+        } else if (name.equals("char")) {
+            return new TypeRef(CharType.TYPE);
+        } else if (name.equals("double")) {
+            return new TypeRef(DoubleType.TYPE);
+        } else if (name.equals("int")) {
+            return new TypeRef(IntType.TYPE);
+        } else if (name.equals("string")) {
+            return new TypeRef(StringType.TYPE);
+        } else if (name.equals("void")) {
+            return new TypeRef(VoidType.TYPE);
+        } else if (name.startsWith("'")) {
+            TypeRef parameterized = parameterizedTypes.get(name);
+            if (parameterized == null) {
+                throw new LispException("Parameterized type "+name+" must be declared in list after type name");
+            }
+            return parameterized;
+        }
+        throw new LispException("Unknown type "+name);
+    }
+
+    public static TypeRef fromExpression(Expression expr, Map<String,TypeRef> parameterizedTypes) throws LispException {
+        if (expr instanceof SymbolExpr) {
+            return fromSymbol((SymbolExpr) expr, parameterizedTypes);
+        } else if (!(expr instanceof ListExpr)) {
+            throw new LispException("Type expression must be a symbol or a list");
+        }
+        ListExpr typeList = (ListExpr) expr;
+
+        List<TypeRef> constructorParams = new ArrayList<>();
+        for (Expression typeExpr: typeList.elementsFrom(0)) {
+            if (typeExpr instanceof SymbolExpr) {
+                SymbolExpr sym = (SymbolExpr) typeExpr;
+                if (sym == )
+            }
+        }
     }
 }

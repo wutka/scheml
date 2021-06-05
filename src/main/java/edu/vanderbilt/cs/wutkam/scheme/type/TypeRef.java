@@ -1,6 +1,7 @@
 package edu.vanderbilt.cs.wutkam.scheme.type;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
+import edu.vanderbilt.cs.wutkam.scheme.expr.TypeConstructorExpr;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,9 +57,9 @@ public class TypeRef {
             for (TypeRef typeRef: thisType.typeParameters) {
                 typeParameters.add(typeRef.copy(linkageMap));
             }
-            Map<String,FunctionType> typeConstructors = new HashMap<>();
+            Map<String,TypeConstructorExpr> typeConstructors = new HashMap<>();
             for (String constructorName: thisType.typeConstructors.keySet()) {
-                FunctionType funcType = thisType.typeConstructors.get(constructorName);
+                TypeConstructorExpr funcType = thisType.typeConstructors.get(constructorName);
                 TypeRef ref = new TypeRef(funcType);
                 typeConstructors.put(constructorName, (FunctionType) ref.copy(linkageMap).getType());
             }
@@ -158,8 +159,8 @@ public class TypeRef {
                     }
 
                     for (String constructorName: thisType.typeConstructors.keySet()) {
-                        FunctionType thisConstructor = thisType.typeConstructors.get(constructorName);
-                        FunctionType otherConstructor = otherType.typeConstructors.get(constructorName);
+                        TypeConstructorExpr thisConstructor = thisType.typeConstructors.get(constructorName);
+                        TypeConstructorExpr otherConstructor = otherType.typeConstructors.get(constructorName);
                         if (otherConstructor == null) {
                             throw new UnifyException("Unable to unify " + getType() + " with " + other.getType() +
                                     " because type " + other.getType() + " is missing type constructor "+

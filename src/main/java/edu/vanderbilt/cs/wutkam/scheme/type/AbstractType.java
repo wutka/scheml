@@ -8,19 +8,19 @@ import java.util.Map;
 public class AbstractType extends Type {
     public String typeName;
     public List<TypeRef> typeParameters;
-    public Map<String,FunctionType> typeConstructors;
+    public Map<String,TypeConstructorExpr> typeConstructors;
 
     public AbstractType(String typeName, List<TypeRef> typeParameters) {
         this.typeName = typeName;
     }
 
     public AbstractType(String typeName, List<TypeRef> typeParameters,
-                        Map<String,FunctionType> typeConstructors) {
+                        Map<String,TypeConstructorExpr> typeConstructors) {
         this.typeName = typeName;
         this.typeConstructors = typeConstructors;
     }
 
-    public void addTypeConstructors(Map<String,FunctionType> typeConstructors) {
+    public void addTypeConstructors(Map<String,TypeConstructorExpr> typeConstructors) {
         this.typeConstructors = typeConstructors;
     }
 

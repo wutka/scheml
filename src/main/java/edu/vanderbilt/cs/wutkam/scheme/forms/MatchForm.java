@@ -1,11 +1,7 @@
 package edu.vanderbilt.cs.wutkam.scheme.forms;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
-import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
-import edu.vanderbilt.cs.wutkam.scheme.expr.FunctionExpr;
-import edu.vanderbilt.cs.wutkam.scheme.expr.ListExpr;
-import edu.vanderbilt.cs.wutkam.scheme.expr.MatchExpr;
-import edu.vanderbilt.cs.wutkam.scheme.expr.SymbolExpr;
+import edu.vanderbilt.cs.wutkam.scheme.expr.*;
 import edu.vanderbilt.cs.wutkam.scheme.expr.match.MatchTypeConstructor;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.AbstractType;
@@ -63,7 +59,7 @@ public class MatchForm implements Form {
                     }
                     existingType = type;
                 }
-                FunctionType constructorFunc = existingType.typeConstructors.get(matchName);
+                TypeConstructorExpr constructorFunc = existingType.typeConstructors.get(matchName);
                 if (constructorFunc.paramTypes.length > 0) {
                     throw new LispException("Match pattern contains only a symbol, but the corresponding type "+
                             "constructor takes "+constructorFunc.paramTypes.length+" parameters");
@@ -93,9 +89,14 @@ public class MatchForm implements Form {
                 AbstractType type = SchemeRuntime.getTypeRegistry().findByConstructor(matchName);
                 if (type == null) {
                     throw new LispException("type constructor name "+matchName+" doesn't belong to any existing type");
-                } else { if ((existingType != null) && (!existingType.typeName.equals(type.typeName))) { throw new UnifyException("Previous match patterns match type " + existingType.typeName + " but " + matchName + " belongs to type " + type.typeName); } existingType = type;
+                } else {
+                    if ((existingType != null) && (!existingType.typeName.equals(type.typeName))) {
+                        throw new UnifyException("Previous match patterns match type " + existingType.typeName +
+                                " but " + matchName + " belongs to type " + type.typeName);
+                    }
+                    existingType = type;
                 }
-                FunctionType constructorFunc = existingType.typeConstructors.get(matchName);
+                TypeConstructorExpr constructorFunc = existingType.typeConstructors.get(matchName);
                 if (constructorFunc.paramTypes.length != matchList.size()-1) {
                     throw new LispException("match pattern with constructor "+matchName+" contains "+
                             (matchList.size()-1)+" parameters, but constructor for type requires exactly "+

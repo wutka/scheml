@@ -4,6 +4,7 @@ import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.expr.AbstractTypeExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.ConsExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
+import edu.vanderbilt.cs.wutkam.scheme.expr.TypeConstructorExpr;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheme.type.AbstractType;
 import edu.vanderbilt.cs.wutkam.scheme.type.FunctionType;
@@ -43,7 +44,7 @@ public class MatchTypeConstructor {
 
     public void unify(TypeRef matchTargetType, Environment<TypeRef> env) throws LispException {
         AbstractType abstractType = (AbstractType) matchTargetType.getType();
-        FunctionType constructorFunc = abstractType.typeConstructors.get(constructorName);
+        TypeConstructorExpr constructorFunc = abstractType.typeConstructors.get(constructorName);
         if (constructorFunc == null) {
             throw new UnifyException("No constructor named "+constructorName+" in "+abstractType);
         }

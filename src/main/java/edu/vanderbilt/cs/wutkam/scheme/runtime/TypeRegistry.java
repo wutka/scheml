@@ -1,6 +1,7 @@
 package edu.vanderbilt.cs.wutkam.scheme.runtime;
 
 import edu.vanderbilt.cs.wutkam.scheme.type.AbstractType;
+import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +20,7 @@ public class TypeRegistry {
     }
 
     public AbstractType lookup(String name) {
-        return typeMap.get(name);
+        return (AbstractType) (new TypeRef(typeMap.get(name))).copy(new HashMap<>()).getType();
     }
 
     public void define(AbstractType type) {

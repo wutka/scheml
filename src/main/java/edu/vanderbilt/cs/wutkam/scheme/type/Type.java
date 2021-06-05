@@ -1,6 +1,10 @@
 package edu.vanderbilt.cs.wutkam.scheme.type;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
+import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
+import edu.vanderbilt.cs.wutkam.scheme.expr.ListExpr;
+import edu.vanderbilt.cs.wutkam.scheme.expr.SymbolExpr;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
 
 import java.io.PushbackReader;
 import java.io.StringReader;
@@ -81,13 +85,14 @@ public abstract class Type {
             }
 
         } catch (Exception exc) {
-            throw new LispException("Error parsing function signature "+signature+": "+exc.getMessage(), exc);
+            throw new LispException("Error type signature "+signature+": "+exc.getMessage(), exc);
         }
     }
 
     protected static TypeRef parseSymbolName(String symbolName, Map<String,TypeRef> symbolNameMap)
         throws LispException {
         String[] parts = symbolName.split(" ");
+
         if (parts[0].equals("cons")) {
             if (parts.length < 2) {
                 throw new LispException("cons type needs a parameter in signature");
@@ -113,6 +118,20 @@ public abstract class Type {
             return new TypeRef(StringType.TYPE);
         } else if (parts[0].equals("void")) {
             return new TypeRef(VoidType.TYPE);
+        }
+
+        AbstractType abstractType = SchemeRuntime.getTypeRegistry().lookup(parts[0]);
+
+        if (abstractType != null) {
+            if (parts.length != abstractType.typeParameters.size()) {
+                throw new LispException("Type constructor for type "+parts[0]+" must have "+
+                        abstractType.typeParameters.size()+" type parameters");
+            }
+            for (int i = 1; i < parts.length; i++) {
+                TypeRef part = parseSymbolName(parts[i], symbolNameMap);
+                part.unify(abstractType.typeParameters.get(i-1));
+            }
+            return new TypeRef(abstractType);
         }
         throw new LispException("Unknown type in type signature: "+parts[0]);
     }
