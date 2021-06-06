@@ -28,4 +28,30 @@ public class AbstractTypeExpr implements Expression {
         }
         typeRef.unify(typeConstructor.returnType);
     }
+
+    @Override
+    public boolean equals(Object otherObj) {
+        if (!(otherObj instanceof AbstractTypeExpr)) return false;
+        AbstractTypeExpr other = (AbstractTypeExpr) otherObj;
+        if (!typeName.equals(other.typeName)) return false;
+        if (!(constructorName.equals(other.constructorName))) return false;
+        if (values.size() != other.values.size()) return false;
+        for (int i=0; i < values.size(); i++) {
+            if (!values.get(i).equals(other.values.get(i))) return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append('(');
+        builder.append(constructorName);
+        for (Expression value: values) {
+            builder.append(" ");
+            builder.append(value.toString());
+        }
+        builder.append(")");
+        return builder.toString();
+    }
 }

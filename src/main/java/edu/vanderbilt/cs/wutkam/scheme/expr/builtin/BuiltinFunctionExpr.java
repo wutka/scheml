@@ -18,17 +18,14 @@ import java.util.List;
  * Time: 11:21 AM
  */
 public class BuiltinFunctionExpr extends FunctionExpr {
-    public String name;
     public BuiltinFunction builtinFunc;
 
     protected BuiltinFunctionExpr(String name, String signature) {
-        super(signature);
-        this.name = name;
+        super(name, signature);
     }
 
     public BuiltinFunctionExpr(String name, String signature, BuiltinFunction builtinFunc) {
-        super(signature);
-        this.name = name;
+        super(name, signature);
         this.builtinFunc = builtinFunc;
     }
 

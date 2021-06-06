@@ -57,6 +57,26 @@ public class ConsExpr implements Expression {
     }
 
     @Override
+    public boolean equals(Object otherObj) {
+        if (!(otherObj instanceof ConsExpr)) {
+            return false;
+        }
+        ConsExpr other = (ConsExpr) otherObj;
+        if (head == null) {
+            if (other.head != null) return false;
+        } else {
+            if (other.head == null) return false;
+            if (!head.equals(other.head)) return false;
+        }
+        if (tail == null) {
+            if (other.tail != null) return false;
+        } else {
+            if (other.tail == null) return false;
+            if (!tail.equals(other.tail)) return false;
+        }
+        return true;
+    }
+    @Override
     public String toString() {
         if (head == null) return "nil";
         StringBuilder builder = new StringBuilder();

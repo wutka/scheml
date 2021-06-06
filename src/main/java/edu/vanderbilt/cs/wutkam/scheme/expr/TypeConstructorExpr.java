@@ -9,13 +9,11 @@ import java.util.List;
 
 public class TypeConstructorExpr extends FunctionExpr {
     public String typeName;
-    public String name;
     public List<TypeRef> parametricTypes;
 
     public TypeConstructorExpr(String typeName, String name, List<TypeRef> parametricTypes, List<TypeRef> parameters) {
-        super(parameters, new TypeRef(new AbstractType(typeName, parametricTypes)));
+        super(name, parameters, new TypeRef(new AbstractType(typeName, parametricTypes)));
         this.typeName = typeName;
-        this.name = name;
         this.parametricTypes = parametricTypes;
     }
 

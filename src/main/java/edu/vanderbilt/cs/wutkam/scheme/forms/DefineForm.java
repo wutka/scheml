@@ -60,17 +60,18 @@ public class DefineForm implements Form {
             throw new LispException("Empty function header in "+functionHeader);
         }
 
-        Expression functionName = functionHeader.elements.get(0);
-        if (!(functionName instanceof SymbolExpr)) {
+        Expression functionNameExpr = functionHeader.elements.get(0);
+        if (!(functionNameExpr instanceof SymbolExpr)) {
             throw new LispException("Function name must be a symbol in "+functionHeader);
         }
 
         List<Expression> functionBody = aList.elementsFrom(2);
+        String functionName = ((SymbolExpr) functionNameExpr).value;
 
-        FunctionExpr functionExpr = LambdaForm.createFunctionDefinition(
+        FunctionExpr functionExpr = LambdaForm.createFunctionDefinitionWithName(functionName,
                 new ListExpr(functionHeader.elementsFrom(1)),
                 functionBody);
-        SchemeRuntime.getTopLevel().define(((SymbolExpr)functionName).value, functionExpr);
+        SchemeRuntime.getTopLevel().define(functionName, functionExpr);
 
         Environment<TypeRef> unifyTopLevel = SchemeRuntime.getUnifyTopLevel();
 
@@ -78,12 +79,12 @@ public class DefineForm implements Form {
         for (int i=0; i < paramTypes.length; i++) paramTypes[i] = new TypeRef();
 
         FunctionType origFuncType = new FunctionType(functionExpr.arity, paramTypes, new TypeRef());
-        unifyTopLevel.define(((SymbolExpr)functionName).value, new TypeRef(origFuncType));
+        unifyTopLevel.define(functionName, new TypeRef(origFuncType));
 
         TypeRef functionType = new TypeRef(origFuncType);
         functionExpr.unify(functionType, SchemeRuntime.getUnifyTopLevel());
 
-        unifyTopLevel.define(((SymbolExpr)functionName).value, functionType.copy(new HashMap<>()));
+        unifyTopLevel.define(functionName, functionType.copy(new HashMap<>()));
 
         return functionExpr;
     }

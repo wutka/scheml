@@ -4,8 +4,6 @@ import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheme.type.*;
 
-import java.io.PushbackReader;
-import java.io.StringReader;
 import java.util.*;
 
 /**
@@ -15,6 +13,7 @@ import java.util.*;
  * Time: 2:07 PM
  */
 public class FunctionExpr implements Expression, Applicable {
+    public final String name;
     public final int arity;
     public final List<Expression> targetExpressions;
     public final List<SymbolExpr> parameterList;
@@ -22,13 +21,15 @@ public class FunctionExpr implements Expression, Applicable {
     public TypeRef[] paramTypes;
     public TypeRef returnType;
 
-    public FunctionExpr(int arity, List<SymbolExpr> parameterList, List<Expression> targetExpressions) {
+    public FunctionExpr(String name, int arity, List<SymbolExpr> parameterList, List<Expression> targetExpressions) {
+        this.name = name;
         this.arity = arity;
         this.parameterList = parameterList;
         this.targetExpressions = targetExpressions;
     }
 
-    public FunctionExpr(String signature) {
+    public FunctionExpr(String name, String signature) {
+        this.name = name;
         Type type = null;
         try {
             type = Type.parseTypeSignature(signature);
@@ -46,7 +47,8 @@ public class FunctionExpr implements Expression, Applicable {
         this.returnType = functionType.returnType;
     }
 
-    public FunctionExpr(List<TypeRef> paramTypesList, TypeRef returnType) {
+    public FunctionExpr(String name, List<TypeRef> paramTypesList, TypeRef returnType) {
+        this.name = name;
         this.arity = paramTypesList.size();
         this.parameterList = null;
         this.targetExpressions = null;
@@ -56,7 +58,11 @@ public class FunctionExpr implements Expression, Applicable {
 
     @Override
     public String toString() {
-        return "(function)";
+        if (name == null) {
+            return "(function)";
+        } else {
+            return "(function "+name+")";
+        }
     }
 
     public Expression apply(List<Expression> arguments, Environment<Expression> env)
@@ -94,6 +100,9 @@ public class FunctionExpr implements Expression, Applicable {
                 paramTypeRefs[i].unify(paramTypes[i]);
             }
         }
+        TypeRef returnType = this.returnType;
+        if (returnType == null) returnType = new TypeRef();
+
         Environment<TypeRef> funcEnv = new Environment<>(env);
         if (parameterList != null) {
             for (int i = 0; i < arity; i++) {

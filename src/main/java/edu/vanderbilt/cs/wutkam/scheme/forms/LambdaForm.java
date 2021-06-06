@@ -30,7 +30,11 @@ public class LambdaForm implements Form {
 
     protected static FunctionExpr createFunctionDefinition(ListExpr paramList, List<Expression> functionBody)
         throws LispException {
+        return createFunctionDefinitionWithName(null, paramList, functionBody);
+    }
 
+    protected static FunctionExpr createFunctionDefinitionWithName(String name, ListExpr paramList,
+                List<Expression> functionBody) throws LispException {
         List<SymbolExpr> headerSyms = new ArrayList<>();
         for (Expression expr: paramList.elements) {
             if (!(expr instanceof SymbolExpr)) {
@@ -49,6 +53,6 @@ public class LambdaForm implements Form {
             }
             body.add(expr);
         }
-        return new FunctionExpr(headerSyms.size(), headerSyms, body);
+        return new FunctionExpr(name, headerSyms.size(), headerSyms, body);
     }
 }
