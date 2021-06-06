@@ -156,7 +156,7 @@ public class TypeForm implements Form {
         Expression typeNameExpr = typeList.getElement(nextPos++);
         if (typeNameExpr instanceof SymbolExpr) {
             SymbolExpr nameSym = (SymbolExpr) typeNameExpr;
-            if (nameSym.equals("cons")) {
+            if (nameSym.value.equals("cons")) {
                 if (typeList.size() != 2) {
                     throw new LispException("cons type should take one parameter");
                 }

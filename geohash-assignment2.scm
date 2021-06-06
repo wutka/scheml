@@ -162,7 +162,7 @@
 
 (define (tree-insert-op coord node)
   (match node
-     (EmptyNode (TreeNode (list coord) (EmptyNode) (EmptyNode)))
+     (EmptyNode (TreeNode (cons coord nil) (EmptyNode) (EmptyNode)))
      ((TreeNode coords left right) (TreeNode (add-if-not-member coord coords) left right))))
 
 (define (tree-delete-op coord node)
@@ -175,14 +175,16 @@
      (EmptyNode node)
      ((TreeNode _ _ _) (EmptyNode))))
 
-(type geohash-db (GeohashDB (tree-node (cons coord)) bits-of-precision))
+(type geohash-db (GeohashDB (tree-node (cons (coord))) int))
 
-(define (geohashdb-op root coord op)
-  (match root
-         ((GeohashDB root bits-of-precision)
-          (match coord
-                 ((Coord lat lon)
-                  (let ((hash (geohash lat lon bits-of-precision)))
+(define (make-geohashdb bits-of-precision)
+  (GeohashDB (TreeNode nil (EmptyNode) (EmptyNode)) bits-of-precision))
 
+(define (geohashdb-op db coord op)
+  (let* (((GeohashDB root bits-of-precision) db)
+         ((Coord lat lon) coord)
+         (hash (geohash lat lon bits-of-precision)))
+    (tree-operation op hash root)))
 
-(define (geohashdb-delete root coord hash
+(define (geohashdb-insert db lat lon)
+  (geohashdb-op db (Coord lat lon) (tree-insert-op (Coord lat lon))))
