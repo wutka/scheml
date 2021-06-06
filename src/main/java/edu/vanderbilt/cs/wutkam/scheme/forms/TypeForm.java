@@ -31,7 +31,7 @@ public class TypeForm implements Form {
             throw new LispException("Type name must be a symbol");
         }
 
-        AbstractType abstractType;
+        AbstractTypeDecl abstractTypeDecl;
 
         Expression nextExpr = aList.getElement(nextPos);
         if (nextExpr instanceof ListExpr) {
@@ -67,8 +67,8 @@ public class TypeForm implements Form {
             parametricList.add(typeRef);
         }
 
-        abstractType = new AbstractType(typeName, parametricList);
-        SchemeRuntime.getTypeRegistry().define(abstractType);
+        abstractTypeDecl = new AbstractTypeDecl(typeName, parametricList);
+        SchemeRuntime.getTypeRegistry().define(abstractTypeDecl);
 
         for (Expression expr: aList.elementsFrom(nextPos)) {
             if (expr instanceof SymbolExpr) {
@@ -76,7 +76,12 @@ public class TypeForm implements Form {
                 if (!Character.isUpperCase(sym.value.charAt(0))) {
                     throw new LispException("Type constructors should start with an upper-case letter");
                 }
-                typeConstructors.add(new TypeConstructorExpr(abstractType, sym.value, new ArrayList<>()));
+                TypeConstructorExpr typeConstructor = new TypeConstructorExpr(abstractTypeDecl.typeName, sym.value,
+                        abstractTypeDecl.parametricTypes, new ArrayList<>());
+                typeConstructors.add(typeConstructor);
+                SchemeRuntime.getTopLevel().define(sym.value, typeConstructor);
+                SchemeRuntime.getUnifyTopLevel().define(sym.value,
+                        new TypeRef(new FunctionType(typeConstructor)));
             } else if (expr instanceof ListExpr) {
                 ListExpr constructorExpr = (ListExpr) expr;
                 Expression nameExpr = constructorExpr.getElement(0);
@@ -93,7 +98,8 @@ public class TypeForm implements Form {
                     typeParams.add(fromExpression(paramExpr, parametricMap));
                 }
 
-                TypeConstructorExpr constructor = new TypeConstructorExpr(abstractType, sym.value, typeParams);
+                TypeConstructorExpr constructor = new TypeConstructorExpr(abstractTypeDecl.typeName, sym.value,
+                        abstractTypeDecl.parametricTypes, typeParams);
                 typeConstructors.add(constructor);
                 SchemeRuntime.getTopLevel().define(sym.value, constructor);
                 SchemeRuntime.getUnifyTopLevel().define(sym.value,
@@ -107,7 +113,7 @@ public class TypeForm implements Form {
         for (TypeConstructorExpr typeConstructor: typeConstructors) {
             typeConstructorMap.put(typeConstructor.name, typeConstructor);
         }
-        abstractType.addTypeConstructors(typeConstructorMap);
+        abstractTypeDecl.addTypeConstructors(typeConstructorMap);
 
         // There's nothing for this form to return
         return new VoidExpr();
@@ -157,17 +163,17 @@ public class TypeForm implements Form {
                 TypeRef consType = fromExpression(typeList.getElement(nextPos), parameterizedTypes);
                 return new TypeRef(new ConsType(consType));
             } else {
-                AbstractType abstractType = SchemeRuntime.getTypeRegistry().lookup(nameSym.value);
-                if (abstractType != null) {
-                    if (abstractType.typeParameters.size() != typeList.size() - nextPos) {
+                AbstractTypeDecl abstractTypeDecl = SchemeRuntime.getTypeRegistry().lookup(nameSym.value);
+                if (abstractTypeDecl != null) {
+                    if (abstractTypeDecl.parametricTypes.size() != typeList.size() - nextPos) {
                         throw new LispException("Constructor for type " + nameSym.value + " must have " +
-                                abstractType.typeParameters.size() + " parameters");
+                                abstractTypeDecl.parametricTypes.size() + " parameters");
                     }
-                    for (int i = 0; i < abstractType.typeParameters.size(); i++) {
+                    for (int i = 0; i < abstractTypeDecl.parametricTypes.size(); i++) {
                         TypeRef absTypeSpecifier = fromExpression(typeList.getElement(nextPos++), parameterizedTypes);
-                        abstractType.typeParameters.get(i).unify(absTypeSpecifier);
+                        abstractTypeDecl.parametricTypes.get(i).unify(absTypeSpecifier);
                     }
-                    return new TypeRef(abstractType);
+                    return new TypeRef(new AbstractType(abstractTypeDecl));
                 }
             }
         }
@@ -179,6 +185,7 @@ public class TypeForm implements Form {
         // Assume this is a function
         while (nextPos < typeList.size()) {
             TypeRef paramType = fromExpression(typeList.getElement(nextPos++), parameterizedTypes);
+            functionParamTypes.add(paramType);
             if (nextPos >= typeList.size()) break;
             Expression shouldBeArrow = typeList.getElement(nextPos++);
             if (!(shouldBeArrow instanceof SymbolExpr)) {

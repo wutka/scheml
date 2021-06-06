@@ -5,6 +5,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.*;
 import edu.vanderbilt.cs.wutkam.scheme.expr.match.MatchTypeConstructor;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.AbstractType;
+import edu.vanderbilt.cs.wutkam.scheme.type.AbstractTypeDecl;
 import edu.vanderbilt.cs.wutkam.scheme.type.FunctionType;
 import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
@@ -30,7 +31,7 @@ public class MatchForm implements Form {
             targetExpr = FormExpander.expand((ListExpr) targetExpr, false);
         }
 
-        AbstractType existingType = null;
+        AbstractTypeDecl existingType = null;
 
         List<MatchTypeConstructor> typeConstructors = new ArrayList<>();
         Set<String> definedPatterns = new HashSet<>();
@@ -49,7 +50,7 @@ public class MatchForm implements Form {
                 if (definedPatterns.contains(matchName)) {
                     throw new LispException("pattern list already contains "+matchName);
                 }
-                AbstractType type = SchemeRuntime.getTypeRegistry().findByConstructor(matchName);
+                AbstractTypeDecl type = SchemeRuntime.getTypeRegistry().findByConstructor(matchName);
                 if (type == null) {
                     throw new LispException("type constructor name "+matchName+" doesn't belong to any existing type");
                 } else {
@@ -86,7 +87,7 @@ public class MatchForm implements Form {
                 if (definedPatterns.contains(matchName)) {
                     throw new LispException("pattern list already contains "+matchName);
                 }
-                AbstractType type = SchemeRuntime.getTypeRegistry().findByConstructor(matchName);
+                AbstractTypeDecl type = SchemeRuntime.getTypeRegistry().findByConstructor(matchName);
                 if (type == null) {
                     throw new LispException("type constructor name "+matchName+" doesn't belong to any existing type");
                 } else {

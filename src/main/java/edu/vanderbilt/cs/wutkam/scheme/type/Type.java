@@ -120,18 +120,18 @@ public abstract class Type {
             return new TypeRef(VoidType.TYPE);
         }
 
-        AbstractType abstractType = SchemeRuntime.getTypeRegistry().lookup(parts[0]);
+        AbstractTypeDecl abstractTypeDecl = SchemeRuntime.getTypeRegistry().lookup(parts[0]);
 
-        if (abstractType != null) {
-            if (parts.length != abstractType.typeParameters.size()) {
+        if (abstractTypeDecl != null) {
+            if (parts.length != abstractTypeDecl.parametricTypes.size()) {
                 throw new LispException("Type constructor for type "+parts[0]+" must have "+
-                        abstractType.typeParameters.size()+" type parameters");
+                        abstractTypeDecl.parametricTypes.size()+" type parameters");
             }
             for (int i = 1; i < parts.length; i++) {
                 TypeRef part = parseSymbolName(parts[i], symbolNameMap);
-                part.unify(abstractType.typeParameters.get(i-1));
+                part.unify(abstractTypeDecl.parametricTypes.get(i-1));
             }
-            return new TypeRef(abstractType);
+            return new TypeRef(new AbstractType(abstractTypeDecl));
         }
         throw new LispException("Unknown type in type signature: "+parts[0]);
     }

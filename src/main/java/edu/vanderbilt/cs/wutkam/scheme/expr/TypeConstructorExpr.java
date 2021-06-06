@@ -8,23 +8,19 @@ import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 import java.util.List;
 
 public class TypeConstructorExpr extends FunctionExpr {
-    public AbstractType abstractType;
+    public String typeName;
     public String name;
-    public List<TypeRef> parameters;
+    public List<TypeRef> parametricTypes;
 
-    public TypeConstructorExpr(AbstractType abstractType, String name, List<TypeRef> parameters) {
-        super(parameters, new TypeRef(abstractType));
+    public TypeConstructorExpr(String typeName, String name, List<TypeRef> parametricTypes, List<TypeRef> parameters) {
+        super(parameters, new TypeRef(new AbstractType(typeName, parametricTypes)));
+        this.typeName = typeName;
         this.name = name;
-        this.abstractType = abstractType;
-    }
-
-    @Override
-    public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
-        
+        this.parametricTypes = parametricTypes;
     }
 
     @Override
     public Expression apply(List<Expression> arguments, Environment<Expression> env) throws LispException {
-        return new AbstractTypeExpr(abstractType.typeName, this.name, arguments);
+        return new AbstractTypeExpr(typeName, this.name, arguments);
     }
 }

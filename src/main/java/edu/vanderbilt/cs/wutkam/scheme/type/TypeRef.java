@@ -57,13 +57,7 @@ public class TypeRef {
             for (TypeRef typeRef: thisType.typeParameters) {
                 typeParameters.add(typeRef.copy(linkageMap));
             }
-            Map<String,TypeConstructorExpr> typeConstructors = new HashMap<>();
-            for (String constructorName: thisType.typeConstructors.keySet()) {
-                TypeConstructorExpr funcType = thisType.typeConstructors.get(constructorName);
-                TypeRef ref = new TypeRef(funcType);
-                typeConstructors.put(constructorName, (FunctionType) ref.copy(linkageMap).getType());
-            }
-            return new TypeRef(new AbstractType(thisType.typeName, typeParameters, typeConstructors));
+            return new TypeRef(new AbstractType(thisType.typeName, typeParameters));
         } else {
             return this;
         }
@@ -134,7 +128,7 @@ public class TypeRef {
                                 " with " + other.getType(), exc);
                     }
                 } else if (getType() instanceof AbstractType) {
-                    if (!(other.getType() instanceof FunctionType)) {
+                    if (!(other.getType() instanceof AbstractType)) {
                         throw new UnifyException("Unable to unify " + getType() + " with " + other.getType());
                     }
                     AbstractType thisType = (AbstractType) getType();
@@ -145,34 +139,12 @@ public class TypeRef {
                     if (thisType.typeParameters.size() != otherType.typeParameters.size()) {
                         throw new UnifyException("Unable to unify " + getType() + " with " + other.getType());
                     }
-                    if (thisType.typeConstructors.size() != otherType.typeConstructors.size()) {
-                        throw new UnifyException("Unable to unify " + getType() + " with " + other.getType() +
-                                " because type constructors don't match");
-                    }
                     for (int i=0; i < thisType.typeParameters.size(); i++) {
                         try {
                             thisType.typeParameters.get(i).unify(otherType.typeParameters.get(i));
                         } catch (UnifyException exc) {
                             throw UnifyException.addCause("Unable to unify " + getType() + " with " +
                                     other.getType() + " because type parameters don't match", exc);
-                        }
-                    }
-
-                    for (String constructorName: thisType.typeConstructors.keySet()) {
-                        TypeConstructorExpr thisConstructor = thisType.typeConstructors.get(constructorName);
-                        TypeConstructorExpr otherConstructor = otherType.typeConstructors.get(constructorName);
-                        if (otherConstructor == null) {
-                            throw new UnifyException("Unable to unify " + getType() + " with " + other.getType() +
-                                    " because type " + other.getType() + " is missing type constructor "+
-                                    constructorName);
-                        }
-                        try {
-                            (new TypeRef(thisConstructor)).unify(new TypeRef(otherConstructor));
-                        } catch (UnifyException exc) {
-                            throw UnifyException.addCause("Unable to unify type constructor "+
-                                    constructorName+" of "+thisType+" with type constructor in "+
-                                    otherType, exc);
-
                         }
                     }
                 } else if (!getType().equals(other.getType())) {

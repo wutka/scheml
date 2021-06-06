@@ -89,26 +89,34 @@ public class FunctionExpr implements Expression, Applicable {
         TypeRef[] paramTypeRefs = new TypeRef[arity];
         for (int i = 0; i < paramTypeRefs.length; i++) paramTypeRefs[i] = new TypeRef();
 
-        Environment<TypeRef> funcEnv = new Environment<>(env);
-        for (int i = 0; i < arity; i++) {
-            String paramName = parameterList.get(i).value;
-            funcEnv.define(paramName, paramTypeRefs[i]);
-        }
-
-        TypeRef returnType = new TypeRef();
-        TypeRef lastExpr = new TypeRef();
-        for (Expression expr: targetExpressions) {
-            lastExpr = new TypeRef();
-            try {
-                expr.unify(lastExpr, funcEnv);
-            } catch (UnifyException exc) {
-                throw UnifyException.addCause("Can't unify function body", exc);
+        if (paramTypes != null) {
+            for (int i=0; i < paramTypeRefs.length; i++) {
+                paramTypeRefs[i].unify(paramTypes[i]);
             }
         }
-        try {
-            returnType.unify(lastExpr);
-        } catch (UnifyException exc) {
-            throw UnifyException.addCause("Can't unify function return type", exc);
+        Environment<TypeRef> funcEnv = new Environment<>(env);
+        if (parameterList != null) {
+            for (int i = 0; i < arity; i++) {
+                String paramName = parameterList.get(i).value;
+                funcEnv.define(paramName, paramTypeRefs[i]);
+            }
+        }
+
+        if (targetExpressions != null) {
+            TypeRef lastExpr = new TypeRef();
+            for (Expression expr : targetExpressions) {
+                lastExpr = new TypeRef();
+                try {
+                    expr.unify(lastExpr, funcEnv);
+                } catch (UnifyException exc) {
+                    throw UnifyException.addCause("Can't unify function body", exc);
+                }
+            }
+            try {
+                returnType.unify(lastExpr);
+            } catch (UnifyException exc) {
+                throw UnifyException.addCause("Can't unify function return type", exc);
+            }
         }
 
         FunctionType thisType = new FunctionType(paramTypeRefs.length, paramTypeRefs, returnType);

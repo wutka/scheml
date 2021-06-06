@@ -4,6 +4,7 @@ import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.expr.match.MatchTypeConstructor;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheme.type.AbstractType;
+import edu.vanderbilt.cs.wutkam.scheme.type.AbstractTypeDecl;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
@@ -17,12 +18,12 @@ import java.util.List;
  * Time: 11:22 AM
  */
 public class MatchExpr implements Expression {
-    AbstractType abstractType;
+    AbstractTypeDecl abstractTypeDecl;
     Expression targetExpression;
     List<MatchTypeConstructor> matchPatterns;
 
-    public MatchExpr(AbstractType targetType, Expression targetExpression, List<MatchTypeConstructor> matchPatterns) {
-        this.abstractType = targetType;
+    public MatchExpr(AbstractTypeDecl targetType, Expression targetExpression, List<MatchTypeConstructor> matchPatterns) {
+        this.abstractTypeDecl = targetType;
         this.targetExpression = targetExpression;
         this.matchPatterns = matchPatterns;
     }
@@ -42,7 +43,7 @@ public class MatchExpr implements Expression {
 
     @Override
     public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
-        TypeRef targetType = (new TypeRef(abstractType)).copy(new HashMap<>());
+        TypeRef targetType = (new TypeRef(new AbstractType(abstractTypeDecl))).copy(new HashMap<>());
         try {
             targetExpression.unify(targetType, env);
         } catch (UnifyException exc) {

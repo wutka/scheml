@@ -6,12 +6,12 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.ConsExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.TypeConstructorExpr;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
-import edu.vanderbilt.cs.wutkam.scheme.type.AbstractType;
-import edu.vanderbilt.cs.wutkam.scheme.type.FunctionType;
-import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
-import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
+import edu.vanderbilt.cs.wutkam.scheme.type.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -43,16 +43,27 @@ public class MatchTypeConstructor {
     }
 
     public void unify(TypeRef matchTargetType, Environment<TypeRef> env) throws LispException {
-        AbstractType abstractType = (AbstractType) matchTargetType.getType();
-        TypeConstructorExpr constructorFunc = abstractType.typeConstructors.get(constructorName);
+        AbstractType matchType = (AbstractType) matchTargetType.getType();
+        AbstractTypeDecl abstractTypeDecl = SchemeRuntime.getTypeRegistry().lookup(matchType.typeName);
+        TypeConstructorExpr constructorFunc = abstractTypeDecl.typeConstructors.get(constructorName);
         if (constructorFunc == null) {
-            throw new UnifyException("No constructor named "+constructorName+" in "+abstractType);
+            throw new UnifyException("No constructor named "+constructorName+" in "+abstractTypeDecl);
+        }
+
+        Map<String,TypeRef> linkageMap = new HashMap<>();
+        TypeRef[] parametricTypes = new TypeRef[constructorFunc.parametricTypes.size()];
+        for (int i=0; i < parametricTypes.length; i++) {
+            parametricTypes[i] = constructorFunc.parametricTypes.get(i).copy(linkageMap);
+        }
+        TypeRef[] paramTypes = new TypeRef[constructorFunc.paramTypes.length];
+        for (int i=0; i < paramTypes.length; i++) {
+            paramTypes[i] = constructorFunc.paramTypes[i].copy(linkageMap);
         }
 
         for (int i=0; i < targetPatterns.size(); i++) {
             String itemName = targetPatterns.get(i);
             if (itemName == "_") continue;
-            TypeRef typeRef = constructorFunc.paramTypes[i];
+            TypeRef typeRef = paramTypes[i];
             env.define(itemName, typeRef);
         }
     }
