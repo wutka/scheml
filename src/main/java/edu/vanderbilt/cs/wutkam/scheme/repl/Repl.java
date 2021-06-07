@@ -33,7 +33,7 @@ public class Repl {
                     exprs = Parser.parse(line.substring(3));
                     displayType = true;
                 } else {
-                    exprs = Parser.parse(line);
+                    exprs = Parser.parseWithPrompt(line, dataIn);
                 }
                 for (Expression expr : exprs) {
                     if (expr instanceof ListExpr) {

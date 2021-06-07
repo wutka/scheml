@@ -4,10 +4,7 @@ import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.expr.*;
 import edu.vanderbilt.cs.wutkam.scheme.forms.FormExpander;
 
-import java.io.IOException;
-import java.io.PushbackReader;
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -20,9 +17,14 @@ public class Parser {
         return parse(new StringReader(str));
     }
 
+    public static List<Expression> parseWithPrompt(String str, DataInputStream dataIn) throws LispException {
+        Parser parser = new Parser();
+        parser.parseImpl(new StringReader(str), true, dataIn);
+        return parser.items;
+    }
     public static List<Expression> parse(Reader rdr) throws LispException {
         Parser parser = new Parser();
-        parser.parseImpl(rdr);
+        parser.parseImpl(rdr, false, null);
         return parser.items;
     }
 
@@ -40,13 +42,25 @@ public class Parser {
         }
     }
 
-    protected void parseImpl(Reader rdr) throws LispException {
+    protected void parseImpl(Reader rdr, boolean promptForMore, DataInputStream dataIn) throws LispException {
         PushbackReader pushback = new PushbackReader(rdr);
 
         char ch;
 
         try {
-            while ((ch = (char) pushback.read()) != (char) -1) {
+            for (;;) {
+                if ((ch = (char) pushback.read()) == (char) -1) {
+                    if (expressionStack.isEmpty()) {
+                        break;
+                    }
+                    if (promptForMore) {
+                        System.out.print(">>>"); System.out.flush();
+                        String line = dataIn.readLine();
+                        pushback = new PushbackReader(new StringReader(line));
+                        continue;
+                    }
+                    break;
+                }
                 if (ch == '(') {
                     expressionStack.push(new ArrayList<>());
                 } else if (ch == ')') {
@@ -90,6 +104,12 @@ public class Parser {
 
                     }
                     if (ch == (char) -1) {
+                        if (promptForMore) {
+                            System.out.print(">>>"); System.out.flush();
+                            String line = dataIn.readLine();
+                            pushback = new PushbackReader(new StringReader(line));
+                            continue;
+                        }
                         throw new LispException("Unexpected end of stream, possible missing end-\"");
                     }
                     addExpression(new StringExpr(builder.toString()));
