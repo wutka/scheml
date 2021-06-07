@@ -29,6 +29,11 @@
          (range 0 15))))
 
 (define (test-zero-bits)
+  ;;; Use geodb-chain to queue up several inserts.
+  ;;; The geodb-insert function takes the database as the
+  ;;; last parameter, so each of these calls to geodb-insert
+  ;;; are partial functions, and the geodb-chain function will
+  ;;; invoke them with the updated version of the GeoDB
   (let ((db (geodb-chain (make-geodb 16)
                 (list (geodb-insert 0.0 0.0)
                       (geodb-insert 90.0 180.0)
@@ -62,6 +67,8 @@
     (assert-true (geodb-contains 90.5 -180.5 16 db))
     (assert-true (not (geodb-contains 1.0 -1.0 16 db)))
     (assert-true (not (geodb-contains 45.0 -45.0 16 db)))
+    ;;; Begin a slightly-ugle chain of lets to do some updates and
+    ;;; assertions
     (let (((Pair _ db-deleted1) (geodb-delete 90.0 -180.0 db)))
       (assert-true (not (geodb-contains 90.0 -180.0 16 db-deleted1)))
       (let (((Pair _ db-deleted-all) (geodb-delete-all 1.0 1.0 1 db-deleted1)))
@@ -70,6 +77,7 @@
         (let (((Pair _ db-inserted) (geodb-insert 90.0 180.0 db-deleted-all)))
           (assert-true (geodb-contains 90.0 180.0 16 db-inserted)))))))
 
+;;; Run all the tests
 (define (test-suite)
   (test-simple-insert)
   (test-simple-delete)
