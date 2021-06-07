@@ -41,6 +41,12 @@
       (if (<= n 0) nil
           (cons (head l) (take (- n 1) (tail l))))))
 
+(define (length-1 l n)
+  (if (null? l) n
+      (length-1 (tail l) (+ n 1))))
+
+(define (length l) (length-1 l 0))
+
 ;;; Compute a 1-dimensional geohash recursively
 ;;; The list of bits is of type "cons char", which makes it
 ;;; easy to convert into a string.
@@ -126,26 +132,26 @@
 (define (add-if-not-member a l)
   (if (member? a l) l (cons a l)))
 
-(define (tree-operation f hash node)
+(define (tree-update-at f hash node)
   (if (null? hash)
       (f node)
       (if (head hash)
           (match node
              (EmptyNode (TreeNode nil (EmptyNode) 
-                                  (tree-operation f (tail hash) (EmptyNode))))
+                                  (tree-update-at f (tail hash) (EmptyNode))))
              ((TreeNode coords left right) (TreeNode coords left
-                                                     (tree-operation f (tail hash) right))))
+                                                     (tree-update-at f (tail hash) right))))
           (match node
-             (EmptyNode (TreeNode nil (tree-operation f (tail hash) (EmptyNode))
+             (EmptyNode (TreeNode nil (tree-update-at f (tail hash) (EmptyNode))
                                   (EmptyNode)))
-             ((TreeNode coords left right) (TreeNode coords (tree-operation f (tail hash) left)
+             ((TreeNode coords left right) (TreeNode coords (tree-update-at f (tail hash) left)
                                                      right))))))
 
-(define (tree-navigate-to hash node)
-  (if (null? hash) node
+(define (tree-navigate-to f hash node)
+  (if (null? hash) (f node)
       (match node
-             (EmptyNode node)
-             ((TreeNode coords left right) (tree-navigate-to (tail hash) (if (head hash) right left))))))
+             (EmptyNode (f node))
+             ((TreeNode coords left right) (tree-navigate-to f (tail hash) (if (head hash) right left))))))
         
 (define (tree-contents node)
   (match node
@@ -153,6 +159,12 @@
          ((TreeNode coords left right) (append coords 
                                                (append (tree-contents left)
                                                        (tree-contents right))))))
+
+(define (tree-contains coord node)
+  (match node
+         (EmptyNode #f)
+         ((TreeNode coords _ _) (member? coord coords))))
+
 (define (tree-at-least-one node)
   (match node
          (EmptyNode #f)
@@ -170,21 +182,65 @@
      (EmptyNode (TreeNode (nil) (EmptyNode) (EmptyNode)))
      ((TreeNode coords left right) (TreeNode (remove coord coords) left right))))
 
-(define (tree-delete-all-op coord node)
+(define (tree-delete-all-op node)
   (match node
      (EmptyNode node)
      ((TreeNode _ _ _) (EmptyNode))))
 
-(type geohash-db (GeohashDB (tree-node (cons (coord))) int))
+(type geodb (GeoDB (tree-node (cons (coord))) int))
 
-(define (make-geohashdb bits-of-precision)
-  (GeohashDB (TreeNode nil (EmptyNode) (EmptyNode)) bits-of-precision))
+(type pair ('a 'b) (Pair 'a 'b))
 
-(define (geohashdb-op db coord op)
-  (let* (((GeohashDB root bits-of-precision) db)
+(define (make-geodb bits-of-precision)
+  (GeoDB (TreeNode nil (EmptyNode) (EmptyNode)) bits-of-precision))
+
+(define (geodb-op db coord op)
+  (let* (((GeoDB root bits-of-precision) db)
          ((Coord lat lon) coord)
          (hash (geohash lat lon bits-of-precision)))
-    (tree-operation op hash root)))
+    (GeoDB (tree-update-at op hash root) bits-of-precision)))
 
-(define (geohashdb-insert db lat lon)
-  (geohashdb-op db (Coord lat lon) (tree-insert-op (Coord lat lon))))
+(define (geodb-at db coord op)
+  (let* (((GeoDB root bits-of-precision) db)
+         ((Coord lat lon) coord)
+         (hash (geohash lat lon bits-of-precision)))
+    (tree-navigate-to op hash root)))
+
+(define (geodb-op-bits db coord op bits-of-precision)
+  (let* (((GeoDB root orig-bop) db)
+         ((Coord lat lon) coord)
+         (hash (geohash lat lon bits-of-precision)))
+    (GeoDB (tree-update-at op hash root) orig-bop)))
+
+(define (geodb-at-bits db coord op bits-of-precision)
+  (let* (((GeoDB root _) db)
+         ((Coord lat lon) coord)
+         (hash (geohash lat lon bits-of-precision)))
+    (tree-navigate-to op hash root)))
+
+(define (geodb-insert lat lon db)
+  (let ((coord (Coord lat lon)))
+    (Pair #f (geodb-op db coord (tree-insert-op coord)))))
+
+(define (geodb-delete lat lon db)
+  (let* ((coord (Coord lat lon))
+         (retval (geodb-at db coord (tree-contains coord))))
+    (Pair retval (geodb-op db coord (tree-delete-op coord)))))
+    
+ (define (geodb-delete-all lat lon bits-of-precision db)
+   (let* ((coord (Coord lat lon))
+          (retval (geodb-at-bits db coord tree-contents bits-of-precision)))
+     (Pair retval (geodb-op-bits db coord tree-delete-all-op bits-of-precision))))
+
+ (define (geodb-contains lat lon bits-of-precision db)
+   (let* ((coord (Coord lat lon)))
+     (geodb-at-bits db coord tree-at-least-one bits-of-precision)))
+
+ (define (geodb-nearby lat lon bits-of-precision db)
+   (let* ((coord (Coord lat lon)))
+     (geodb-at-bits db coord tree-contents bits-of-precision)))
+          
+(define (geodb-chain db ops)
+  (if (null? ops) db
+      (let (((Pair _ db-next) ((head ops) db)))
+        (geodb-chain db-next (tail ops)))))

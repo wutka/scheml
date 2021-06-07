@@ -42,7 +42,7 @@ public class MatchTypeConstructor {
         return targetExpression.evaluate(matchEnv, inTailPosition);
     }
 
-    public void unify(TypeRef matchTargetType, Environment<TypeRef> env) throws LispException {
+    public void unify(TypeRef matchTargetType, TypeRef resultType, Environment<TypeRef> env) throws LispException {
         AbstractType matchType = (AbstractType) matchTargetType.getType();
         AbstractTypeDecl abstractTypeDecl = SchemeRuntime.getTypeRegistry().lookup(matchType.typeName);
         TypeConstructorExpr constructorFunc = abstractTypeDecl.typeConstructors.get(constructorName);
@@ -60,11 +60,14 @@ public class MatchTypeConstructor {
             paramTypes[i] = constructorFunc.paramTypes[i].copy(linkageMap);
         }
 
+        Environment<TypeRef> matchEnv = new Environment<>(env);
         for (int i=0; i < targetPatterns.size(); i++) {
             String itemName = targetPatterns.get(i);
             if (itemName == "_") continue;
             TypeRef typeRef = paramTypes[i];
-            env.define(itemName, typeRef);
+            matchEnv.define(itemName, typeRef);
         }
+
+        targetExpression.unify(resultType, matchEnv);
     }
 }

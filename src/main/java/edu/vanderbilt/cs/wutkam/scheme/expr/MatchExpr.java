@@ -50,10 +50,8 @@ public class MatchExpr implements Expression {
             throw UnifyException.addCause("Unable to unify match expression", exc);
         }
 
-        Environment<TypeRef> matchEnv = new Environment<>(env);
         for (MatchTypeConstructor pattern: matchPatterns) {
-            pattern.unify(targetType, matchEnv);
+            pattern.unify(targetType, typeRef, env);
         }
-        targetExpression.unify(typeRef, matchEnv);
     }
 }

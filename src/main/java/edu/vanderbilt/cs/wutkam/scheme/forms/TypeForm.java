@@ -42,8 +42,6 @@ public class TypeForm implements Form {
                     if (sym.value.startsWith("'")) {
                         isParametric = true;
                         parametricTypes.add(sym.value);
-                        // Only increment nextPos if this is a list of parametric values
-                        nextPos++;
                     } else {
                         if (isParametric) {
                             throw new LispException("List of parametric types must all start with '");
@@ -57,6 +55,8 @@ public class TypeForm implements Form {
                     break;
                 }
             }
+            // Only increment nextPos if this is a list of parametric values
+            if (isParametric) nextPos++;
         }
 
         Map<String, TypeRef> parametricMap = new HashMap<>();

@@ -17,7 +17,7 @@ import java.util.List;
 public class LetForm implements Form {
     @Override
     public Expression expandForm(ListExpr aList, boolean isTopLevel) throws LispException {
-        if (aList.size() != 3) {
+        if (aList.size() < 3) {
             throw new LispException("let form requires declarations and a body");
         }
 

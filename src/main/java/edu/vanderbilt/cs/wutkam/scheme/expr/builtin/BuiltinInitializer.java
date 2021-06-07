@@ -57,10 +57,15 @@ public class BuiltinInitializer {
         new BuiltinBinaryFunctionExpr<>("or", "bool -> bool -> bool", (Boolean a, Boolean b) -> a || b),
         new BuiltinBinaryFunctionExpr<>("xor", "bool -> bool -> bool", (Boolean a, Boolean b) -> a ^ b),
 
+        new BuiltinUnaryFunctionExpr<>("not", "bool -> bool", (Boolean a) -> !a),
+
+        new BuiltinUnaryFunctionExpr<>("->string", "'a -> string", (Object a) -> a.toString()),
+
         new ListToString("list->string"),
         new StringToList("string->list"),
         new Equals("equals?"),
         new Cons("cons"),
+        new Range("range"),
         new Head("head"),
         new Tail("tail"),
         new Null("null?"),
