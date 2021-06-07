@@ -13,11 +13,12 @@ import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mark
- * Date: 5/26/21
- * Time: 10:26 AM
+/** Defines a variable or a function with the form:
+ *
+ * (define var-name var-expression)  for a variable
+ * or
+ * (define (func-name arg1 arg2 ... argN) func-expression) for a function
+ *
  */
 public class DefineForm implements Form {
 
@@ -30,6 +31,7 @@ public class DefineForm implements Form {
         if (aList.size() < 3) {
             throw new LispException("define must have two parameters");
         }
+
         if (aList.getElement(1) instanceof ListExpr) {
             return defineFunction(aList);
         } else if (aList.getElement(1) instanceof SymbolExpr) {
@@ -42,11 +44,15 @@ public class DefineForm implements Form {
     protected Expression defineVariable(ListExpr aList) throws LispException {
         SymbolExpr sym = (SymbolExpr) aList.getElement(1);
         Expression expr = aList.getElement(2);
+
+        // If the variable value is an expression, make sure it gets expanded
         if (expr instanceof ListExpr) {
             expr = FormExpander.expand((ListExpr) expr, false);
         }
+        // Define the variable at the top level
         SchemeRuntime.getTopLevel().define(sym.value, expr);
 
+        // Store the variable's computed type in the unify top level
         TypeRef typeRef = new TypeRef();
         expr.unify(typeRef, SchemeRuntime.getUnifyTopLevel());
         SchemeRuntime.getUnifyTopLevel().define(sym.value, typeRef);
@@ -60,7 +66,7 @@ public class DefineForm implements Form {
             throw new LispException("Empty function header in "+functionHeader);
         }
 
-        Expression functionNameExpr = functionHeader.elements.get(0);
+        Expression functionNameExpr = functionHeader.getElement(0);
         if (!(functionNameExpr instanceof SymbolExpr)) {
             throw new LispException("Function name must be a symbol in "+functionHeader);
         }
@@ -68,11 +74,17 @@ public class DefineForm implements Form {
         List<Expression> functionBody = aList.elementsFrom(2);
         String functionName = ((SymbolExpr) functionNameExpr).value;
 
+        // Since (define (func-name a b c) expr) is equivalent to
+        // (define func-name (lambda (a b c) expr))
+        // we just re-use the lambda form code to create the function definition
         FunctionExpr functionExpr = LambdaForm.createFunctionDefinitionWithName(functionName,
                 new ListExpr(functionHeader.elementsFrom(1)),
                 functionBody);
+
+        // Store the function in the top level
         SchemeRuntime.getTopLevel().define(functionName, functionExpr);
 
+        // Compute the function type and store that in the top level
         Environment<TypeRef> unifyTopLevel = SchemeRuntime.getUnifyTopLevel();
 
         TypeRef[] paramTypes = new TypeRef[functionExpr.arity];

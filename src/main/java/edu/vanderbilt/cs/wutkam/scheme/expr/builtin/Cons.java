@@ -6,11 +6,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.ConsExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.StringExpr;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mark
- * Date: 5/26/21
- * Time: 1:50 PM
+/** A function to create an instance of ConsExpr
  */
 public class Cons extends BuiltinFunctionExpr {
     public Cons(String name) {
@@ -19,9 +15,8 @@ public class Cons extends BuiltinFunctionExpr {
 
     @Override
     public Expression executeBuiltin(Expression[] args) throws LispException {
-        if (!(args[1] instanceof ConsExpr)) {
-            throw new LispException("Second argument to "+name+" must be a list");
-        }
+        // We don't don't check the types here, the type unification will take
+        // care of that because of the function signature
         return new ConsExpr(args[0], (ConsExpr) args[1]);
     }
 }

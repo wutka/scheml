@@ -5,11 +5,7 @@ import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheme.type.FunctionType;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mark
- * Date: 5/26/21
- * Time: 1:19 PM
+/** An initializer for all the built-in functions.
  */
 public class BuiltinInitializer {
     static BuiltinFunctionExpr[] builtins = new BuiltinFunctionExpr[] {
@@ -23,6 +19,8 @@ public class BuiltinInitializer {
         new BuiltinBinaryFunctionExpr<Integer,Integer,Integer>("min", "int -> int -> int", Math::min),
         new BuiltinBinaryFunctionExpr<Integer,Integer,Integer>("max", "int -> int -> int", Math::max),
 
+        // Similar to Ocaml, floating point operations are separate from integer and have . after the
+        // equivalent integer version
         new BuiltinBinaryFunctionExpr<>("+.", "double -> double -> double", (Double a, Double b) -> a+b),
         new BuiltinBinaryFunctionExpr<>("-.", "double -> double -> double", (Double a, Double b) -> a-b),
         new BuiltinBinaryFunctionExpr<>("*.", "double -> double -> double", (Double a, Double b) -> a*b),
@@ -33,6 +31,7 @@ public class BuiltinInitializer {
         new BuiltinBinaryFunctionExpr<Double,Double,Double>("min.", "double -> double -> double", Math::min),
         new BuiltinBinaryFunctionExpr<Double,Double,Double>("max.", "double -> double -> double", Math::max),
 
+        // Only numeric comparisons are supported right now
         new BuiltinBinaryFunctionExpr<>("=", "int -> int -> bool", (Integer a, Integer b) -> a.equals(b)),
         new BuiltinBinaryFunctionExpr<>("!=", "int -> int -> bool", (Integer a, Integer b) -> !a.equals(b)),
         new BuiltinBinaryFunctionExpr<>("<", "int -> int -> bool", (Integer a, Integer b) -> a < b),
@@ -40,6 +39,7 @@ public class BuiltinInitializer {
         new BuiltinBinaryFunctionExpr<>(">", "int -> int -> bool", (Integer a, Integer b) -> a > b),
         new BuiltinBinaryFunctionExpr<>(">=", "int -> int -> bool", (Integer a, Integer b) -> a >= b),
 
+        // As with the other numerical operations, there are separate comparison operators for doubles
         new BuiltinBinaryFunctionExpr<>("=.", "double -> double -> bool", (Double a, Double b) -> a.equals(b)),
         new BuiltinBinaryFunctionExpr<>("!=.", "double -> double -> bool", (Double a, Double b) -> !a.equals(b)),
         new BuiltinBinaryFunctionExpr<>("<.", "double -> double -> bool", (Double a, Double b) -> a < b),
@@ -60,6 +60,8 @@ public class BuiltinInitializer {
         new BuiltinUnaryFunctionExpr<>("not", "bool -> bool", (Boolean a) -> !a),
 
         new BuiltinUnaryFunctionExpr<>("->string", "'a -> string", (Object a) -> a.toString()),
+        new BuiltinUnaryFunctionExpr<>("id", "'a -> 'a", (Object a) -> a),
+
 
         new ListToString("list->string"),
         new StringToList("string->list"),

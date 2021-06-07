@@ -9,11 +9,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.SymbolExpr;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mark
- * Date: 5/26/21
- * Time: 10:58 AM
+/** Expands the form (lambda (arg-list) body) into a FunctionExpr expression
  */
 public class LambdaForm implements Form {
     @Override
@@ -25,18 +21,16 @@ public class LambdaForm implements Form {
         if (!(paramsExpr instanceof ListExpr)) {
             throw new LispException("Lambda parameters must be a list in "+paramsExpr);
         }
-        return createFunctionDefinition((ListExpr)paramsExpr, aList.elementsFrom(2));
-    }
-
-    protected static FunctionExpr createFunctionDefinition(ListExpr paramList, List<Expression> functionBody)
-        throws LispException {
-        return createFunctionDefinitionWithName(null, paramList, functionBody);
+        return createFunctionDefinitionWithName(null, (ListExpr)paramsExpr, aList.elementsFrom(2));
     }
 
     protected static FunctionExpr createFunctionDefinitionWithName(String name, ListExpr paramList,
                 List<Expression> functionBody) throws LispException {
+
         List<SymbolExpr> headerSyms = new ArrayList<>();
-        for (Expression expr: paramList.elements) {
+
+        // Check the parameter list and make sure that each parameter is a symbol and there are no duplicates
+        for (Expression expr: paramList.elementsFrom(0)) {
             if (!(expr instanceof SymbolExpr)) {
                 throw new LispException("Function argument "+expr+" must be a symbol in "+paramList);
             }
@@ -46,6 +40,8 @@ public class LambdaForm implements Form {
             }
             headerSyms.add(sym);
         }
+
+        // Expand the function body if necessary
         List<Expression> body = new ArrayList<>();
         for (Expression expr: functionBody) {
             if (expr instanceof ListExpr) {
@@ -53,6 +49,8 @@ public class LambdaForm implements Form {
             }
             body.add(expr);
         }
+
+        // Create the FunctionExpr
         return new FunctionExpr(name, headerSyms.size(), headerSyms, body);
     }
 }

@@ -4,11 +4,7 @@ import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.expr.ConsExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mark
- * Date: 5/26/21
- * Time: 1:50 PM
+/** Returns the tail of a list
  */
 public class Tail extends BuiltinFunctionExpr {
     public Tail(String name) {
@@ -17,9 +13,7 @@ public class Tail extends BuiltinFunctionExpr {
 
     @Override
     public Expression executeBuiltin(Expression[] args) throws LispException {
-        if (!(args[0] instanceof ConsExpr)) {
-            throw new LispException("First argument to "+name+" must be a list");
-        }
+        // Type unification ensures this is a cons
         ConsExpr cons = (ConsExpr) args[0];
         if (cons.head == null) {
             return cons;

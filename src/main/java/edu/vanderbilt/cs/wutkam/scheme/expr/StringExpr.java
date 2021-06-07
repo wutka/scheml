@@ -7,6 +7,7 @@ import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
 import java.util.Objects;
 
+/** Represents a simple string */
 public class StringExpr implements Expression {
     public String value;
 
@@ -29,6 +30,8 @@ public class StringExpr implements Expression {
         builder.append('"');
         for (int i=0; i < value.length(); i++) {
             char ch = value.charAt(i);
+            // Convert certain characters into escaped version, so that a newline is shown as \n instead
+            // of an actual newline
             if (ch == '"') {
                 builder.append("\\\"");
             } else if (ch == '\n') {

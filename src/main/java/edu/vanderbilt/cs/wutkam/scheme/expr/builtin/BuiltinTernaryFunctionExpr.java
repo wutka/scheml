@@ -3,6 +3,9 @@ package edu.vanderbilt.cs.wutkam.scheme.expr.builtin;
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 
+/** Represents a builtin function that takes 3 arguments of types A, B, and C
+ * and returns a result of type D
+ */
 public class BuiltinTernaryFunctionExpr<A,B,C, D> extends BuiltinFunctionExpr {
     protected TernaryFunction<A,B,C,D> implFunc;
 

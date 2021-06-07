@@ -7,11 +7,7 @@ import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
 import java.util.List;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mark
- * Date: 5/26/21
- * Time: 6:31 PM
+/** Represents a block of statements
  */
 public class PrognExpr implements Expression {
     List<Expression> body;
@@ -25,23 +21,27 @@ public class PrognExpr implements Expression {
         Expression last = null;
         for (int i=0; i < body.size(); i++) {
             Expression expr = body.get(i);
+            // Only the last element is in tail position, and only if the progn itself is in tail position
             last = expr.evaluate(env, inTailPosition && (i == body.size() - 1));
         }
+        // The return value is just the value of the last expression
         return last;
     }
 
     @Override
     public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
-        TypeRef last = null;
+        TypeRef returnType = null;
         for (Expression expr: body) {
-            TypeRef exprType = new TypeRef();
+            // Each statement's type is different, reset returnType each time to an empty type
+            // so that after unifying each expression it will contain the value of the last expression
+            returnType = new TypeRef();
             try {
-                expr.unify(exprType, env);
+                expr.unify(returnType, env);
             } catch (UnifyException exc)  {
                 throw UnifyException.addCause("Error unifying expression in PROGN", exc);
             }
-            last = exprType;
         }
-        typeRef.unify(last);
+        // Unify the return type with the requested type
+        typeRef.unify(returnType);
     }
 }

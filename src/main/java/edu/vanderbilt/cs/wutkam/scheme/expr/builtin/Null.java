@@ -5,11 +5,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.BoolExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.ConsExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mark
- * Date: 5/26/21
- * Time: 1:50 PM
+/** Checks to see if a list is null
  */
 public class Null extends BuiltinFunctionExpr {
     public Null(String name) {
@@ -18,9 +14,7 @@ public class Null extends BuiltinFunctionExpr {
 
     @Override
     public Expression executeBuiltin(Expression[] args) throws LispException {
-        if (!(args[0] instanceof ConsExpr)) {
-            throw new LispException("First argument to "+name+" must be a list");
-        }
+        // Type unification will ensure that this is a ConsExpr
         ConsExpr cons = (ConsExpr) args[0];
         return new BoolExpr(cons.head == null);
     }

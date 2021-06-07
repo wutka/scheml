@@ -6,11 +6,7 @@ import edu.vanderbilt.cs.wutkam.scheme.type.BooleanType;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheme.type.VoidType;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mark
- * Date: 5/26/21
- * Time: 4:50 PM
+/** Represents a void type
  */
 public class VoidExpr implements Expression {
     @Override

@@ -1,7 +1,8 @@
 package edu.vanderbilt.cs.wutkam.scheme.type;
 
-import java.util.HashMap;
-
+/** Represents a node in a linked list. Each element in the list must be the same type
+ * and this object keeps a type reference to its element type
+ */
 public class ConsType extends Type {
     public TypeRef elementType;
 

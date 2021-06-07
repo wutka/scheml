@@ -6,11 +6,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.ConsExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.StringExpr;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mark
- * Date: 5/26/21
- * Time: 1:50 PM
+/** Converts a string to a list of chars
  */
 public class StringToList extends BuiltinFunctionExpr {
     public StringToList(String name) {
@@ -19,11 +15,12 @@ public class StringToList extends BuiltinFunctionExpr {
 
     @Override
     public Expression executeBuiltin(Expression[] args) throws LispException {
-        if (!(args[0] instanceof StringExpr)) {
-            throw new LispException("First argument to "+name+" must be a string");
-        }
         ConsExpr curr = null;
+        // Type unification ensures this will be a string
         String str = ((StringExpr)args[0]).value;
+
+        // Build the list backwards starting with null and prepending the string
+        // characters starting from the end
         for (int i=str.length()-1; i >= 0; i--) {
             curr = new ConsExpr(new CharExpr(str.charAt(i)), curr);
         }

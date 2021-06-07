@@ -5,11 +5,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.IfExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.ListExpr;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mark
- * Date: 5/24/21
- * Time: 4:34 PM
+/** Expands the form (if test true-option false-option) into an IfExpr expression
  */
 public class IfForm implements Form {
     @Override

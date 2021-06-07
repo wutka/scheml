@@ -7,11 +7,7 @@ import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
 import java.util.Objects;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mark
- * Date: 5/24/21
- * Time: 3:18 PM
+/** Represents a simple boolean type whose values can be #t or #f
  */
 public class BoolExpr implements Expression {
     public final boolean value;
@@ -38,7 +34,9 @@ public class BoolExpr implements Expression {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
+
         if (o == null || getClass() != o.getClass()) return false;
+
         BoolExpr boolExpr = (BoolExpr) o;
         return value == boolExpr.value;
     }

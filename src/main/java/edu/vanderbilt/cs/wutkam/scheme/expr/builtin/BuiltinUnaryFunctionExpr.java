@@ -3,6 +3,8 @@ package edu.vanderbilt.cs.wutkam.scheme.expr.builtin;
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 
+/** Represents a builtin unary function that takes an argument of type A and returns and argument of type B
+ */
 public class BuiltinUnaryFunctionExpr<A,B>
         extends BuiltinFunctionExpr {
     protected UnaryFunction<A,B> implFunc;

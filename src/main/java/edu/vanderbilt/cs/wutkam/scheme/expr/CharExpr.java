@@ -7,6 +7,9 @@ import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
 import java.util.Objects;
 
+/** Represents a character value whose values are represented as #\ch where ch is the character
+ * (e.g. #\a  #\b  #\c)
+ */
 public class CharExpr implements Expression {
     public final char value;
 
@@ -25,7 +28,7 @@ public class CharExpr implements Expression {
 
     @Override
     public String toString() {
-        return "#\\"+Character.toString(value);
+        return "#\\"+value;
     }
 
     @Override

@@ -9,11 +9,7 @@ import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mark
- * Date: 6/2/21
- * Time: 11:19 AM
+/** Represents the partial application of a function
  */
 public class PartialApplicationExpr implements Expression, Applicable {
     FunctionExpr targetFunc;
@@ -24,26 +20,27 @@ public class PartialApplicationExpr implements Expression, Applicable {
         this.partialArgs = args;
     }
 
+    // Since this class implements applicable, it will receive its parameters already evaluated, and
+    // its partial argument had also already been evaluated, so there is no need to override the
+    // default evaluate method here
+
+
     @Override
     public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
-        TypeRef[] paramTypeRefs = new TypeRef[targetFunc.arity];
-        for (int i = 0; i < paramTypeRefs.length; i++) paramTypeRefs[i] = new TypeRef();
 
+        // If the target function's param types have already been determined, create a FunctionType representing
+        // the remaining args, and unify against the requested type
         if (targetFunc.paramTypes != null) {
-            for (int i=0; i < partialArgs.size(); i++) {
-                try {
-                    partialArgs.get(i).unify(targetFunc.paramTypes[i], env);
-                } catch (UnifyException exc) {
-                    throw UnifyException.addCause("Can't unify partial function argument with function arg",
-                            exc);
-                }
-            }
+            // Get the param types for the remaining args
             TypeRef[] remainingArgs = new TypeRef[targetFunc.arity - partialArgs.size()];
             for (int i=0; i < remainingArgs.length; i++) {
                 remainingArgs[i] = targetFunc.paramTypes[i+partialArgs.size()];
             }
+
+            // The type of this function consists of the remaining args and the return type of the function
             FunctionType newFuncType = new FunctionType(remainingArgs.length, remainingArgs, targetFunc.returnType);
             try {
+                // Unify this function type with the requested type
                 typeRef.unify(new TypeRef(newFuncType));
             } catch (UnifyException exc) {
                 throw UnifyException.addCause("Can't unify partial function with " + typeRef.getType(), exc);
@@ -51,29 +48,33 @@ public class PartialApplicationExpr implements Expression, Applicable {
             return;
         }
 
+        // If the function's param types haven't already been determined, create a new set of empty type refs
+        TypeRef[] paramTypeRefs = new TypeRef[targetFunc.arity];
+        for (int i = 0; i < paramTypeRefs.length; i++) paramTypeRefs[i] = new TypeRef();
+
+        // Unify the partial args with the param type refs
         Environment<TypeRef> funcEnv = new Environment<>(env);
         for (int i = 0; i < paramTypeRefs.length; i++) {
             if (i < partialArgs.size()) {
                 partialArgs.get(i).unify(paramTypeRefs[i], env);
             }
+            // Store the param types in the function unification environment
             String paramName = targetFunc.parameterList.get(i).value;
             funcEnv.define(paramName, paramTypeRefs[i]);
         }
 
         TypeRef returnType = new TypeRef();
-        TypeRef lastExpr = new TypeRef();
+
+        // Unify the function expressions against the unification environment
         for (Expression expr: targetFunc.targetExpressions) {
-            lastExpr = new TypeRef();
+            // Since the return type is that of the last expression, keep re-initializing it
+            // so that at the end of the loop, it will have the type of the last expression
+            returnType = new TypeRef();
             try {
-                expr.unify(lastExpr, funcEnv);
+                expr.unify(returnType, funcEnv);
             } catch (UnifyException exc) {
                 throw UnifyException.addCause("Can't unify function body", exc);
             }
-        }
-        try {
-            returnType.unify(lastExpr);
-        } catch (UnifyException exc) {
-            throw UnifyException.addCause("Can't unify function return type", exc);
         }
 
         TypeRef[] partialTypeRefs = new TypeRef[targetFunc.arity - partialArgs.size()];
@@ -95,9 +96,11 @@ public class PartialApplicationExpr implements Expression, Applicable {
         List<Expression> newArgs = new ArrayList<>();
         newArgs.addAll(partialArgs);
         newArgs.addAll(arguments);
+        // If there are still not enough arguments, return another partial function
         if (arguments.size() + partialArgs.size() < targetFunc.arity) {
             return new PartialApplicationExpr(targetFunc, newArgs);
         } else {
+            // Otherwise, go ahead and apply the target function with the args
             return targetFunc.apply(newArgs, env);
         }
     }

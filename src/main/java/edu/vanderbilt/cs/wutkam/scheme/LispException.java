@@ -1,10 +1,6 @@
 package edu.vanderbilt.cs.wutkam.scheme;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mark
- * Date: 5/24/21
- * Time: 8:31 AM
+/** An exception specific to the interpreter
  */
 public class LispException extends Exception {
     public LispException() {

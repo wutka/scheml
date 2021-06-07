@@ -6,11 +6,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.ConsExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.StringExpr;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mark
- * Date: 5/26/21
- * Time: 1:50 PM
+/** Converts a list of chars to a string
  */
 public class ListToString extends BuiltinFunctionExpr {
     public ListToString(String name) {
@@ -19,16 +15,16 @@ public class ListToString extends BuiltinFunctionExpr {
 
     @Override
     public Expression executeBuiltin(Expression[] args) throws LispException {
-        if (!(args[0] instanceof ConsExpr)) {
-            throw new LispException("First argument to "+name+" must be a list");
-        }
         StringBuilder builder = new StringBuilder();
+        // Type unification ensures this will be a cons
         ConsExpr curr = (ConsExpr) args[0];
+
+        // Loop through the list appending each char to the builder
         while ((curr != null) && (curr.head != null)) {
-            if (!(curr.head instanceof CharExpr)) {
-                throw new LispException("List in "+name+" must be all characters");
-            }
+            // Don't need to check to see that curr.head is a CharExpr,
+            // the type unification will ensure that it always is
             builder.append(((CharExpr)curr.head).value);
+
             curr = curr.tail;
         }
         return new StringExpr(builder.toString());

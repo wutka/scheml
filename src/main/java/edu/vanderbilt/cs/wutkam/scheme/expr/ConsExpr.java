@@ -7,11 +7,7 @@ import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
 import java.util.List;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mark
- * Date: 5/25/21
- * Time: 9:03 AM
+/** Represents a node is a list with a head and a tail. If head is null, this is the nil node
  */
 public class ConsExpr implements Expression {
     public final Expression head;
@@ -27,26 +23,14 @@ public class ConsExpr implements Expression {
         this.tail = tail;
     }
 
-    public ConsExpr(List<Expression> list) {
-        ConsExpr curr = null;
-        for (int i=list.size()-1; i >= 1; i--) {
-            curr = new ConsExpr(list.get(i), curr);
-        }
-        if (list.size() > 0) {
-            head = list.get(0);
-            tail = curr;
-        } else {
-            head = null;
-            tail = null;
-        }
-    }
-
     @Override
     public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
         TypeRef thisHeadType = new TypeRef();
         if (head != null) {
             head.unify(thisHeadType, env);
         }
+
+        // Make sure the type of the tail matches the type of the head
         TypeRef thisTailType = new TypeRef(new ConsType(thisHeadType));
         if (tail != null) {
             tail.unify(thisTailType, env);
@@ -76,16 +60,20 @@ public class ConsExpr implements Expression {
         }
         return true;
     }
+
     @Override
     public String toString() {
         if (head == null) return "nil";
+
         StringBuilder builder = new StringBuilder();
         builder.append('(');
+
         ConsExpr curr = this;
         boolean first = true;
+
         while ((curr != null) && (curr.head != null)) {
             if (!first) builder.append(' ');
-            builder.append(curr.head.toString());
+            builder.append(curr.head);
             first = false;
             curr = curr.tail;
         }

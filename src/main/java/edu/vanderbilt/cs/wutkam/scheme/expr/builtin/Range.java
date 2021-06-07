@@ -5,11 +5,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.ConsExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.IntExpr;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mark
- * Date: 5/26/21
- * Time: 1:50 PM
+/** Returns a list from a to be inclusive (range 1 5) = (1 2 3 4 5)
  */
 public class Range extends BuiltinFunctionExpr {
     public Range(String name) {
@@ -19,6 +15,7 @@ public class Range extends BuiltinFunctionExpr {
     @Override
     public Expression executeBuiltin(Expression[] args) throws LispException {
         ConsExpr curr = new ConsExpr();
+        // Build the cons list backwards starting from the nil and prepending each new value
         for (int i=((IntExpr)args[1]).value; i >= ((IntExpr)args[0]).value; i--) {
             curr = new ConsExpr(new IntExpr(i), curr);
         }

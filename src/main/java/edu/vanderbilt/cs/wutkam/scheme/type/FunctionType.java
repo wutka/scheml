@@ -2,8 +2,7 @@ package edu.vanderbilt.cs.wutkam.scheme.type;
 
 import edu.vanderbilt.cs.wutkam.scheme.expr.FunctionExpr;
 
-import java.util.Map;
-
+/** Hold the type of a function, which consists of an arity, the types of each parameter and a return type */
 public class FunctionType extends Type {
     public int arity;
     public TypeRef returnType;

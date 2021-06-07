@@ -7,6 +7,7 @@ import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
 import java.util.Objects;
 
+/** Represents a simple integer object */
 public class IntExpr implements Expression {
     public final int value;
 

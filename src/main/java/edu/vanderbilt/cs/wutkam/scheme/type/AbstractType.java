@@ -1,12 +1,13 @@
 package edu.vanderbilt.cs.wutkam.scheme.type;
 
-import edu.vanderbilt.cs.wutkam.scheme.expr.TypeConstructorExpr;
-
 import java.util.List;
-import java.util.Map;
 
+/** Represents the type of an abstract type */
 public class AbstractType extends Type {
+    /** The name of the type */
     public String typeName;
+
+    /** The type parameters for the type */
     public List<TypeRef> typeParameters;
 
     public AbstractType(String typeName, List<TypeRef> typeParameters) {

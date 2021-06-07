@@ -1,11 +1,15 @@
 package edu.vanderbilt.cs.wutkam.scheme.type;
 
+/** An empty type is one whose type is unknown, but which has a unique identifier so that two
+ * instances of EmptyType with the same unique identifier should ultimately have the same type
+ * whenever it is discovered what that type should be
+ */
 public class EmptyType extends Type {
     protected static long nextId = 0;
     protected String id;
 
     public synchronized static String generateId() {
-        return "id"+Long.toString(nextId++);
+        return "id"+(nextId++);
     }
 
     public EmptyType() {

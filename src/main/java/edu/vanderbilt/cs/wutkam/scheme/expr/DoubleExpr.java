@@ -7,6 +7,7 @@ import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
 import java.util.Objects;
 
+/** Represents a double value */
 public class DoubleExpr implements Expression {
    public final double value;
 

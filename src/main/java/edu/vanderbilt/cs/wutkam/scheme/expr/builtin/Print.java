@@ -6,11 +6,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.StringExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.VoidExpr;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mark
- * Date: 5/26/21
- * Time: 1:50 PM
+/** Prints a string to stdout
  */
 public class Print extends BuiltinFunctionExpr {
     public Print(String name) {
@@ -20,11 +16,8 @@ public class Print extends BuiltinFunctionExpr {
     @Override
     public Expression executeBuiltin(Expression[] args) throws LispException {
         Expression expr = args[0];
-        if (expr instanceof StringExpr) {
-            System.out.print(((StringExpr)expr).value);
-        } else {
-            System.out.print(expr.toString());
-        }
+        // Type unification will ensure the expr is a string
+        System.out.print(((StringExpr)expr).value);
         System.out.flush();
         return new VoidExpr();
     }

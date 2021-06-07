@@ -1,7 +1,6 @@
 package edu.vanderbilt.cs.wutkam.scheme.type;
 
-import java.util.Map;
-
+/** A simple boolean type */
 public class BooleanType extends Type {
     public static Type TYPE = new BooleanType();
 

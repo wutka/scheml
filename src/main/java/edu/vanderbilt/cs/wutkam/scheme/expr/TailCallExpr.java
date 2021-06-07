@@ -6,11 +6,8 @@ import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
 import java.util.List;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mark
- * Date: 6/2/21
- * Time: 4:36 PM
+/** Encapsulates a function call so that tail calls can bubble up the stack to the last non-tail function
+ * call and then be evaluated. This keeps the stack from growing when making a tail call.
  */
 public class TailCallExpr implements Expression {
     public Applicable func;

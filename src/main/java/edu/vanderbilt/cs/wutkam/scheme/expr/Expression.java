@@ -4,13 +4,9 @@ import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mark
- * Date: 5/24/21
- * Time: 12:58 PM
+/** Represents any expression, which must support being evaluated and unified with a type reference,
+ * and also conversion to a Java value for basic types.
  */
-
 public interface Expression {
     default Expression evaluate(Environment<Expression> env, boolean inTailPosition) throws LispException {
         return this;
