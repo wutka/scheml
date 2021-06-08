@@ -1,17 +1,11 @@
 (define (assert-equals a b)
   (if (equals? a b) (print "PASSED\n")
-      (progn
-        (print "Test failed: ")
-        (print (->string a))
-        (print " does not equal ")
-        (print (->string b))
-        (print "\n"))))
+      (printf "Test failed: %s does not equal %s\n" a b)))
 
 (define (assert-true a)
   (if a (print "PASSED\n")
       (progn
-        (print "Test failed")
-        (print "\n"))))
+        (print "Test failed\n"))))
 
 (define (test-simple-insert)
   (let* ((db (make-geodb 16))

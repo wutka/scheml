@@ -1,11 +1,6 @@
 (define (assert-equals a b)
   (if (equals? a b) (print "PASSED\n")
-      (progn
-        (print "Test failed: ")
-        (print a)
-        (print " does not equal ")
-        (print b)
-        (print "\n"))))
+      (printf "Test failed: %s does not equal %s\n" a b)))
 
 ; These are the 1-D tests from assignment 1
 (assert-equals "00000" (list->string (geohash-1d LONGITUDE-MIN LONGITUDE-MIN LONGITUDE-MAX 5)))
