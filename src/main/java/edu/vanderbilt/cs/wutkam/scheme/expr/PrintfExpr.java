@@ -7,19 +7,20 @@ import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 import edu.vanderbilt.cs.wutkam.scheme.type.VoidType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /** Provides a wrapper for Java System.out.printf/String.format allowing for multiple, varied arguments
  * The format strings are those specified by java.util.Formatter.
  */
 public class PrintfExpr implements Expression {
-    Expression formatExpr;
+    String formatString;
     boolean returnString;
     List<Expression> parameters;
 
-    public PrintfExpr(boolean returnString, Expression formatExpr, List<Expression> parameters) {
+    public PrintfExpr(boolean returnString, String formatString, List<Expression> parameters) {
         this.returnString = returnString;
-        this.formatExpr = formatExpr;
+        this.formatString = formatString;
         this.parameters = parameters;
 
     }
@@ -30,10 +31,6 @@ public class PrintfExpr implements Expression {
         for (int i=0; i < args.length; i++) {
             args[i] = parameters.get(i).evaluate(env, false).toJavaValue();
         }
-
-        // Evaluate the format string (it might be a constant, or it might be computed)
-        // We can be sure it evaluates to a string because it would have failed unification if not
-        String formatString = ((StringExpr) formatExpr.evaluate(env, false)).value;
 
         if (returnString) {
             // If this is an sprintf, we return a string
@@ -48,13 +45,6 @@ public class PrintfExpr implements Expression {
 
     @Override
     public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
-        // Make sure that the format string is really a string
-        TypeRef formatStringType = new TypeRef(StringType.TYPE);
-        try {
-            formatExpr.unify(formatStringType, env);
-        } catch (UnifyException exc) {
-            throw UnifyException.addCause("printf format string should be a string expression", exc);
-        }
 
         // We don't unify on the parameters. Theoretically we could, by examining the format string, but that
         // is left as a future exercise.
@@ -64,6 +54,53 @@ public class PrintfExpr implements Expression {
             typeRef.unify(new TypeRef(StringType.TYPE));
         } else {
             typeRef.unify(new TypeRef(VoidType.TYPE));
+        }
+    }
+
+    static List<StringFormatTypeRef> parseFormatString(String formatString) {
+        List<StringFormatTypeRef> formatTypeRefs = new ArrayList<>();
+
+        int pos = 0;
+        int length = formatString.length();
+        while (pos < length) {
+            char ch = formatString.charAt(pos++);
+            if (ch != '%') continue;
+
+            if (pos >= length) return formatTypeRefs;
+
+            ch = formatString.charAt(pos++);
+            int argPosition = -1;
+            int width = -1;
+            int precision = -1;
+            if (Character.isDigit(ch)) {
+                int num = ch - '0';
+                while ((pos < length) && Character.isDigit(formatString.charAt(pos))) {
+                    ch = formatString.charAt(pos++);
+                    num = 10 * num + ch - '0';
+                }
+                if (pos >= length) return formatTypeRefs;
+                if (formatString.charAt(pos) == '$') {
+                    argPosition = num;
+                } else if (formatString.charAt(pos) == '.') {
+                    width = num;
+                    pos++;
+                    if (pos >= length) return formatTypeRefs;
+                    num = 0
+                    while ((pos < length) && Character.isDigit(formatString.charAt(pos))) {
+                        ch = formatString.charAt(pos++);
+                        num = num * 10 + ch - '0';
+                    }
+                }
+            }
+        }
+    }
+    static class StringFormatTypeRef {
+        public TypeRef typeRef;
+        public int argNumber;
+
+        public StringFormatTypeRef(TypeRef typeRef, int argNumber) {
+            this.typeRef = typeRef;
+            this.argNumber = argNumber;
         }
     }
 }

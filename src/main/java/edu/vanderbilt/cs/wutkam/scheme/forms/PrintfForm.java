@@ -4,6 +4,7 @@ import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.ListExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.PrintfExpr;
+import edu.vanderbilt.cs.wutkam.scheme.expr.StringExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.SymbolExpr;
 
 import java.util.ArrayList;
@@ -23,9 +24,10 @@ public class PrintfForm implements Form {
 
         // Expand the format expression if necessary
         Expression formatExpr = aList.getElement(1);
-        if (formatExpr instanceof ListExpr) {
-            formatExpr = FormExpander.expand((ListExpr) formatExpr, false);
+        if (!(formatExpr instanceof StringExpr)) {
+            throw new LispException("Format string for " + formName + " must be a string constant, not an expression");
         }
+        String formatString = ((StringExpr) formatExpr).value;
 
         // Expand each param
         List<Expression> params = new ArrayList<>();
@@ -36,6 +38,6 @@ public class PrintfForm implements Form {
                 params.add(expr);
             }
         }
-        return new PrintfExpr(returnString, formatExpr, params);
+        return new PrintfExpr(returnString, formatString, params);
     }
 }
