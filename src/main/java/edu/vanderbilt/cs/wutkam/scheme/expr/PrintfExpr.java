@@ -7,6 +7,7 @@ import edu.vanderbilt.cs.wutkam.scheme.type.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,6 +49,13 @@ public class PrintfExpr implements Expression {
         }
     }
 
+    protected static String escapeString(String str) {
+        return "\""+str.replace("\\","\\\\").
+                replace("\n", "\\n").
+                replace("\r","\\r").
+                replace("\t","\\t")+"\"";
+    }
+
     @Override
     public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
         // initialize the flags to make sure each arg is accounted for in the format string
@@ -69,7 +77,7 @@ public class PrintfExpr implements Expression {
                 unifiedArg[formatTypeRef.argNumber] = true;
             } catch (UnifyException exc) {
                 throw UnifyException.addCause("Error unifying arg "+(formatTypeRef.argNumber+1)+
-                        " with type "+argType.getType()+" in format string "+formatString, exc);
+                        " with type "+argType.getType()+" in format string "+escapeString(formatString), exc);
             }
         }
 
@@ -77,7 +85,7 @@ public class PrintfExpr implements Expression {
         for (int i=0; i < unifiedArg.length; i++) {
             if (!unifiedArg[i]) {
                 throw new UnifyException("Format string arg "+(i+1)+" is not referenced in format string "+
-                        formatString);
+                        escapeString(formatString));
             }
         }
 
@@ -119,7 +127,8 @@ public class PrintfExpr implements Expression {
                     // Subtract 1 since the format position numbers start from 1
                     argNumber = Integer.parseInt(argPos) - 1;
                 } catch (NumberFormatException exc) {
-                    throw new LispException("Unable to parse arg number " + argPos + " in format string " + formatString);
+                    throw new LispException("Unable to parse arg number " + argPos + " in format string " +
+                            escapeString(formatString));
                 }
                 // Note the last arg number used
                 lastArgNumber = argNumber;

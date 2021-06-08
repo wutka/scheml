@@ -17,7 +17,7 @@ import java.util.List;
 
 public class Repl {
     public static void main(String[] args) {
-        System.out.println("\nSchemey Repl");
+        System.out.println("\nScheml Repl");
 
         BufferedReader dataIn = new BufferedReader(new InputStreamReader(System.in));
         for (;;) {
