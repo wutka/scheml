@@ -2,8 +2,8 @@ package edu.vanderbilt.cs.wutkam.scheme.expr;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
-import edu.vanderbilt.cs.wutkam.scheme.type.ConsType;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
+import edu.vanderbilt.cs.wutkam.scheme.type.builtin.ConsTypeDecl;
 
 import java.util.List;
 
@@ -20,10 +20,10 @@ public class GeneratedConsExpr implements Expression {
 
     @Override
     public Expression evaluate(Environment<Expression> env, boolean inTailPosition) throws LispException {
-        ConsExpr curr = new ConsExpr();
+        AbstractTypeExpr curr = ConsTypeDecl.newNil();
         // Build the cons list in reverse starting and null and prepending each expression value
         for (int i=expressions.size()-1; i >= 0; i--) {
-            curr = new ConsExpr(expressions.get(i).evaluate(env, false), curr);
+            curr = ConsTypeDecl.newCons(expressions.get(i).evaluate(env, false), curr);
         }
         return curr;
     }
@@ -37,6 +37,6 @@ public class GeneratedConsExpr implements Expression {
         }
 
         // Unify with the requested type ref
-        typeRef.unify(new TypeRef(new ConsType(elementType)));
+        typeRef.unify(new TypeRef(ConsTypeDecl.newConsType(elementType)));
     }
 }

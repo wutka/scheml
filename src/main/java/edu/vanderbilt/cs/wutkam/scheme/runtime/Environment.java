@@ -32,29 +32,24 @@ public class Environment<T> {
         return null;
     }
 
-    /** Returns the previous environment, which just pops the first environment off the chain. This is
-     * just used for backtracking when doing tail call optimization.
-     */
-    public Environment<T> previous() {
-        return next;
-    }
-
-    /** Returns true if this symbol is defined at the top level, which means extra care needs to be taken
-     * to not mess with its type definitions.
-     */
-    public boolean isTopLevel(String symbol) {
-        T result = symbols.get(symbol);
-        if (result != null) {
-            return next == null;
-        }
-        return next.isTopLevel(symbol);
-    }
-
     /** Defines a symbol at this place in the environment. If that symbol exists further down the chain,
      * it is hidden from any function using this environment (other functions may have a reference to a
      * place further down the chain where that hidden symbol is still visible.
      */
     public void define(String name, T expr) {
         symbols.put(name, expr);
+    }
+
+    /** Compresses an environment chain into a single environment */
+    public void copyCompressed(Environment<T> env) {
+        Environment<T> currEnv = env;
+        while (currEnv != null) {
+            for (String key : currEnv.symbols.keySet()) {
+                if (!symbols.containsKey(key)) {
+                    symbols.put(key, currEnv.symbols.get(key));
+                }
+            }
+            currEnv = currEnv.next;
+        }
     }
 }

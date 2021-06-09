@@ -1,7 +1,7 @@
 package edu.vanderbilt.cs.wutkam.scheme.expr.builtin;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
-import edu.vanderbilt.cs.wutkam.scheme.expr.ConsExpr;
+import edu.vanderbilt.cs.wutkam.scheme.expr.AbstractTypeExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 
 /** Returns the tail of a list
@@ -14,13 +14,11 @@ public class Tail extends BuiltinFunctionExpr {
     @Override
     public Expression executeBuiltin(Expression[] args) throws LispException {
         // Type unification ensures this is a cons
-        ConsExpr cons = (ConsExpr) args[0];
-        if (cons.head == null) {
+        AbstractTypeExpr cons = (AbstractTypeExpr) args[0];
+        if (cons.constructorName.equals("Nil")) {
             return cons;
-        } if (cons.tail == null) {
-            return new ConsExpr();
         } else {
-            return cons.tail;
+            return cons.values.get(1);
         }
     }
 }

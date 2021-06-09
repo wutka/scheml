@@ -5,6 +5,8 @@ import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.AbstractTypeDecl;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
+import edu.vanderbilt.cs.wutkam.scheme.type.builtin.ConsTypeDecl;
+import edu.vanderbilt.cs.wutkam.scheme.type.builtin.CustomToString;
 
 import java.util.List;
 
@@ -60,6 +62,10 @@ public class AbstractTypeExpr implements Expression {
 
     @Override
     public String toString() {
+        AbstractTypeDecl decl = SchemeRuntime.getTypeRegistry().lookup(this.typeName);
+        if (decl instanceof CustomToString) {
+            return ((CustomToString)decl).customToString(this);
+        }
         StringBuilder builder = new StringBuilder();
         builder.append('(');
         builder.append(constructorName);

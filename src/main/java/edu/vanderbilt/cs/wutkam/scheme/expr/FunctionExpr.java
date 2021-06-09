@@ -22,6 +22,11 @@ public class FunctionExpr implements Expression, Applicable {
     /** The names of each function parameter */
     public final List<SymbolExpr> parameterList;
 
+    /** Indicates whether or not this is a closure (for saving the local environment) */
+    public final boolean isClosure;
+
+    protected Environment<Expression> closureEnv;
+
     // For some functions, the parameter types and return type are already known
     public TypeRef[] paramTypes;
     public TypeRef returnType;
@@ -31,6 +36,16 @@ public class FunctionExpr implements Expression, Applicable {
         this.arity = arity;
         this.parameterList = parameterList;
         this.targetExpressions = targetExpressions;
+        this.isClosure = false;
+    }
+
+    public FunctionExpr(String name, int arity, List<SymbolExpr> parameterList, List<Expression> targetExpressions,
+                        boolean isClosure) {
+        this.name = name;
+        this.arity = arity;
+        this.parameterList = parameterList;
+        this.targetExpressions = targetExpressions;
+        this.isClosure = isClosure;
     }
 
     public FunctionExpr(String name, String signature) {
@@ -50,6 +65,7 @@ public class FunctionExpr implements Expression, Applicable {
         this.targetExpressions = null;
         this.paramTypes = functionType.paramTypes;
         this.returnType = functionType.returnType;
+        this.isClosure = false;
     }
 
     public FunctionExpr(String name, List<TypeRef> paramTypesList, TypeRef returnType) {
@@ -59,6 +75,17 @@ public class FunctionExpr implements Expression, Applicable {
         this.targetExpressions = null;
         this.paramTypes = paramTypesList.toArray(new TypeRef[paramTypesList.size()]);
         this.returnType = returnType;
+        this.isClosure = false;
+    }
+
+    @Override
+    public Expression evaluate(Environment<Expression> env, boolean inTailPosition) throws LispException {
+        // Make sure the closure only captures the environment in which it is first evaluated
+        if (isClosure && (this.closureEnv == null)) {
+            this.closureEnv = new Environment<>();
+            this.closureEnv.copyCompressed(env);
+        }
+        return Expression.super.evaluate(env, inTailPosition);
     }
 
     @Override
@@ -93,7 +120,7 @@ public class FunctionExpr implements Expression, Applicable {
         // "height" values. When the width symbol in the target expression is evaluated, it looks it
         // up "width" in the environment, and the same with the height symbol, and then both those
         // values are passed to the * function to compute the result.
-        Environment<Expression> funcEnv = new Environment<>(env);
+        Environment<Expression> funcEnv = new Environment<>(closureEnv);
         if (parameterList != null) {
             for (int i=0; i < arity; i++) {
                 funcEnv.define(parameterList.get(i).value, arguments.get(i));

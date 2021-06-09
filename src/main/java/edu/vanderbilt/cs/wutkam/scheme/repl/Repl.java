@@ -5,6 +5,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.ListExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.VoidExpr;
 import edu.vanderbilt.cs.wutkam.scheme.forms.FormExpander;
 import edu.vanderbilt.cs.wutkam.scheme.parser.Parser;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
@@ -59,16 +60,16 @@ public class Repl {
                     // Do a type check - this is necessary since the interpreter assumes that types have
                     // been checked and it makes a lot of assumptions when doing type casts
                     TypeRef exprType = new TypeRef();
-                    expr.unify(exprType, SchemeRuntime.getUnifyTopLevel());
+                    expr.unify(exprType, new Environment<>());
 
                     // Evaluate the expression
-                    expr = expr.evaluate(SchemeRuntime.getTopLevel(), false);
+                    expr = expr.evaluate(new Environment<>(), false);
 
                     if (displayType) {
                         TypeRef resultType = new TypeRef();
                         // If we also are displaying the type of the result, get the type and print it
                         try {
-                            expr.unify(resultType, SchemeRuntime.getUnifyTopLevel());
+                            expr.unify(resultType, new Environment<>());
                             System.out.print(expr);
                             System.out.print(" : ");
                             System.out.println(resultType.getType());

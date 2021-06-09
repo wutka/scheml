@@ -50,12 +50,6 @@ public class TypeRef {
                 linkageMap.put(thisType.id, newCopy);
             }
             return newCopy;
-        }
-        else if (type instanceof ConsType) {
-            // Fetch the contained type and create a reference to a new ConsType instance with a
-            // copy of the reference to its element type
-            ConsType thisType = (ConsType) type;
-            return new TypeRef(new ConsType(thisType.elementType.copy(linkageMap)));
         } else if (type instanceof FunctionType) {
             // Copy all the param types and return types of this function
             FunctionType thisType = (FunctionType) type;
@@ -114,20 +108,7 @@ public class TypeRef {
             if (other.isFull()) {
                 // If both types are full, they might still be complex types whose underlying components
                 // are empty
-                if (getType() instanceof ConsType) {
-                    // Make sure they are both cons types
-                    if (!(other.getType() instanceof ConsType)) {
-                        throw new UnifyException("Unable to unify " + getType() + " with " + other.getType());
-                    }
-                    ConsType thisCons = (ConsType) getType();
-                    ConsType otherCons = (ConsType) other.getType();
-                    // Unify the element types
-                    try {
-                        thisCons.elementType.unify(otherCons.elementType);
-                    } catch (UnifyException exc) {
-                        throw UnifyException.addCause("Unable to unify cons element types", exc);
-                    }
-                } else if (getType() instanceof FunctionType) {
+                if (getType() instanceof FunctionType) {
                     // Make sure they are both functions
                     if (!(other.getType() instanceof FunctionType)) {
                         throw new UnifyException("Unable to unify " + getType() + " with " + other.getType());

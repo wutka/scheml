@@ -54,7 +54,7 @@ public class DefineForm implements Form {
 
         // Store the variable's computed type in the unify top level
         TypeRef typeRef = new TypeRef();
-        expr.unify(typeRef, SchemeRuntime.getUnifyTopLevel());
+        expr.unify(typeRef, new Environment<>());
         SchemeRuntime.getUnifyTopLevel().define(sym.value, typeRef);
 
         return expr;
@@ -94,7 +94,7 @@ public class DefineForm implements Form {
         unifyTopLevel.define(functionName, new TypeRef(origFuncType));
 
         TypeRef functionType = new TypeRef(origFuncType);
-        functionExpr.unify(functionType, SchemeRuntime.getUnifyTopLevel());
+        functionExpr.unify(functionType, new Environment<>());
 
         unifyTopLevel.define(functionName, functionType.copy(new HashMap<>()));
 

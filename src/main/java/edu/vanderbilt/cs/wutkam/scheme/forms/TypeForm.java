@@ -209,29 +209,20 @@ public class TypeForm implements Form {
         if (typeNameExpr instanceof SymbolExpr) {
 
             SymbolExpr nameSym = (SymbolExpr) typeNameExpr;
-            if (nameSym.value.equals("cons")) {
-                if (typeList.size() != 2) {
-                    throw new LispException("cons type should take one parameter");
+            AbstractTypeDecl abstractTypeDecl = SchemeRuntime.getTypeRegistry().lookup(nameSym.value);
+            if (abstractTypeDecl != null) {
+                if (abstractTypeDecl.parametricTypes.size() != typeList.size() - nextPos) {
+                    throw new LispException("Parametric type list for type " + nameSym.value + " must have " +
+                            abstractTypeDecl.parametricTypes.size() + " types");
                 }
 
-                TypeRef consType = fromExpression(typeList.getElement(nextPos), parameterizedTypes);
-                return new TypeRef(new ConsType(consType));
-            } else {
-                AbstractTypeDecl abstractTypeDecl = SchemeRuntime.getTypeRegistry().lookup(nameSym.value);
-                if (abstractTypeDecl != null) {
-                    if (abstractTypeDecl.parametricTypes.size() != typeList.size() - nextPos) {
-                        throw new LispException("Parametric type list for type " + nameSym.value + " must have " +
-                                abstractTypeDecl.parametricTypes.size() + " types");
-                    }
-
-                    // Since the list of parametric types here may contain concrete types, unify the
-                    // concrete type with the parametric type being referenced.
-                    for (int i = 0; i < abstractTypeDecl.parametricTypes.size(); i++) {
-                        TypeRef absTypeSpecifier = fromExpression(typeList.getElement(nextPos++), parameterizedTypes);
-                        abstractTypeDecl.parametricTypes.get(i).unify(absTypeSpecifier);
-                    }
-                    return new TypeRef(new AbstractType(abstractTypeDecl));
+                // Since the list of parametric types here may contain concrete types, unify the
+                // concrete type with the parametric type being referenced.
+                for (int i = 0; i < abstractTypeDecl.parametricTypes.size(); i++) {
+                    TypeRef absTypeSpecifier = fromExpression(typeList.getElement(nextPos++), parameterizedTypes);
+                    abstractTypeDecl.parametricTypes.get(i).unify(absTypeSpecifier);
                 }
+                return new TypeRef(new AbstractType(abstractTypeDecl));
             }
         }
 

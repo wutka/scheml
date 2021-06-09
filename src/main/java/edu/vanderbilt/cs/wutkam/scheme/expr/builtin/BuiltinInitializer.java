@@ -62,7 +62,6 @@ public class BuiltinInitializer {
         new BuiltinUnaryFunctionExpr<>("->string", "'a -> string", (Object a) -> a.toString()),
         new BuiltinUnaryFunctionExpr<>("id", "'a -> 'a", (Object a) -> a),
 
-
         new ListToString("list->string"),
         new StringToList("string->list"),
         new Equals("equals?"),

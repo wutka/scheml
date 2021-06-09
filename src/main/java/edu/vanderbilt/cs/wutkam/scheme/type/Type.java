@@ -110,15 +110,7 @@ public abstract class Type {
         throws LispException {
         String[] parts = symbolName.split(" ");
 
-        if (parts[0].equals("cons")) {
-            // If the symbol starts with "cons ", make sure there is only one other part
-            if (parts.length < 2) {
-                throw new LispException("cons type needs a parameter in signature");
-            }
-            // Parse the cons type from the second half of the symbol
-            TypeRef containedType = parseSymbolName(parts[1], symbolNameMap);
-            return new TypeRef(new ConsType(containedType));
-        } else if (parts[0].startsWith("'")) {
+        if (parts[0].startsWith("'")) {
             // If the symbol is a parametric type, see if it is in the map already, and if not, add it
             TypeRef parametricType = symbolNameMap.get(parts[0]);
             if (parametricType == null) {
@@ -145,7 +137,7 @@ public abstract class Type {
 
         if (abstractTypeDecl != null) {
             // Make sure the number of parametric types is correct
-            if (parts.length != abstractTypeDecl.parametricTypes.size()) {
+            if (parts.length-1 != abstractTypeDecl.parametricTypes.size()) {
                 throw new LispException("Type constructor for type "+parts[0]+" must have "+
                         abstractTypeDecl.parametricTypes.size()+" type parameters");
             }

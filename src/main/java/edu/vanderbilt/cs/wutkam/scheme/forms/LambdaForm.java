@@ -51,6 +51,6 @@ public class LambdaForm implements Form {
         }
 
         // Create the FunctionExpr
-        return new FunctionExpr(name, headerSyms.size(), headerSyms, body);
+        return new FunctionExpr(name, headerSyms.size(), headerSyms, body, name == null);
     }
 }

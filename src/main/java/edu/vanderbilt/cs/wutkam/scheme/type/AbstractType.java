@@ -38,8 +38,7 @@ public class AbstractType extends Type {
         for (TypeRef typeRef: typeParameters) {
             builder.append(" ");
             Type type = typeRef.getType();
-            boolean parenthesize = (type instanceof FunctionType) || (type instanceof ConsType) ||
-                    (type instanceof AbstractType);
+            boolean parenthesize = (type instanceof FunctionType) || (type instanceof AbstractType);
             if (parenthesize) builder.append("(");
             builder.append(typeRef.getType().toSignatureString(gen));
             if (parenthesize) builder.append(")");

@@ -1,7 +1,7 @@
 package edu.vanderbilt.cs.wutkam.scheme.runtime;
 
 import edu.vanderbilt.cs.wutkam.scheme.type.AbstractTypeDecl;
-import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
+import edu.vanderbilt.cs.wutkam.scheme.type.builtin.ConsTypeDecl;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,8 +13,12 @@ public class TypeRegistry {
 
     public TypeRegistry() {
         typeMap = new HashMap<>();
+        initializeBuiltinTypes(typeMap);
     }
 
+    protected void initializeBuiltinTypes(Map<String, AbstractTypeDecl> typeMap) {
+        typeMap.put("cons", new ConsTypeDecl());
+    }
     /** Locates an abstract type and returns null if it doesn't exist. If it does exist, a copy of it is
      * returned so that any changes to its type refs will not affect the copy in the global environment
      */

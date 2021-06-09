@@ -57,11 +57,7 @@ public class LetExpr implements Expression {
         for (int i=0; i < body.size(); i++) {
             Expression expr = body.get(i);
             if (inTailPosition && (i == body.size() - 1)) {
-                // When creating a tail call expression, the last environment
-                // is chopped off, because this is usually the function environment.
-                // Since let also creates a new environment, create a dummy that can
-                // be chopped off.
-                last = expr.evaluate(new Environment<>(letEnv), true);
+                last = expr.evaluate(letEnv, true);
 
             } else {
                 last = expr.evaluate(letEnv, inTailPosition && (i == body.size() - 1));

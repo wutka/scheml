@@ -2,6 +2,7 @@ package edu.vanderbilt.cs.wutkam.scheme.expr;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
@@ -20,7 +21,10 @@ public class SymbolExpr implements Expression {
         // Look the symbol up
         Expression expr = env.lookup(value);
         if (expr == null) {
-            throw new LispException("Unknown symbol "+value);
+            expr = SchemeRuntime.getTopLevel().lookup(value);
+            if (expr == null) {
+                throw new LispException("Unknown symbol " + value);
+            }
         }
         // Evaluate the symbol's expression
         return expr.evaluate(env, false);
@@ -29,10 +33,15 @@ public class SymbolExpr implements Expression {
     @Override
     public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
         TypeRef myType = env.lookup(value);
+        boolean isTopLevel = false;
         if (myType == null) {
-            throw new UnifyException("Unknown symbol - " + value);
+            myType = SchemeRuntime.getUnifyTopLevel().lookup(value);
+            if (myType == null) {
+                throw new UnifyException("Unknown symbol - " + value);
+            }
+            isTopLevel = true;
         }
-        if (env.isTopLevel(value)) {
+        if (isTopLevel) {
             // If the type expression comes from the top level, make a copy of it so we don't alter
             // what is in the top level. For example, the identify function id has type 'a -> 'a, but
             // if we unify it in a context of (id 5) we don't want original definition to acquire that

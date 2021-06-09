@@ -2,6 +2,7 @@ package edu.vanderbilt.cs.wutkam.scheme.expr;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.FunctionType;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
@@ -66,10 +67,10 @@ public class ListExpr implements Expression {
         // is the return value of its parent expression, don't evaluate yet, but return a TailCallExpr
         // that will bubble back up the stack 
         if (inTailPosition) {
-            return new TailCallExpr(targetFunction, parameterList, env.previous());
+            return new TailCallExpr(targetFunction, parameterList, new Environment<>());
         } else {
             // Apply the function
-            Expression result = targetFunction.apply(parameterList, env);
+            Expression result = targetFunction.apply(parameterList, new Environment<>());
 
             // Since this call is not in the tail position, if we get a TailCallExpr, evaluate it, and keep
             // evaluating it while it returns a TailCallExpr
@@ -124,12 +125,10 @@ public class ListExpr implements Expression {
         if (targetExpression instanceof SymbolExpr) {
             SymbolExpr sym = (SymbolExpr) targetExpression;
             TypeRef envRef = env.lookup(sym.value);
-            if (envRef != null) {
-                if (env.isTopLevel(sym.value)) {
-                    envRef = envRef.copy(new HashMap<>());
-                }
-                envRef.unify(new TypeRef(targetFunc));
+            if (envRef == null) {
+                envRef = SchemeRuntime.getUnifyTopLevel().lookup(sym.value).copy(new HashMap<>());
             }
+            envRef.unify(new TypeRef(targetFunc));
         }
 
         // If there aren't enough parameters, unify this as a partial function application where the partial

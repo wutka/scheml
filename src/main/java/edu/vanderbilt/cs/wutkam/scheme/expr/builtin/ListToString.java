@@ -1,8 +1,8 @@
 package edu.vanderbilt.cs.wutkam.scheme.expr.builtin;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
+import edu.vanderbilt.cs.wutkam.scheme.expr.AbstractTypeExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.CharExpr;
-import edu.vanderbilt.cs.wutkam.scheme.expr.ConsExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.StringExpr;
 
@@ -17,15 +17,15 @@ public class ListToString extends BuiltinFunctionExpr {
     public Expression executeBuiltin(Expression[] args) throws LispException {
         StringBuilder builder = new StringBuilder();
         // Type unification ensures this will be a cons
-        ConsExpr curr = (ConsExpr) args[0];
+        AbstractTypeExpr curr = (AbstractTypeExpr) args[0];
 
         // Loop through the list appending each char to the builder
-        while ((curr != null) && (curr.head != null)) {
+        while (curr.constructorName.equals("Cons")) {
             // Don't need to check to see that curr.head is a CharExpr,
             // the type unification will ensure that it always is
-            builder.append(((CharExpr)curr.head).value);
+            builder.append(((CharExpr)curr.values.get(0)).value);
 
-            curr = curr.tail;
+            curr = (AbstractTypeExpr) curr.values.get(1);
         }
         return new StringExpr(builder.toString());
     }
