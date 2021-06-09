@@ -18,14 +18,10 @@ import java.util.Map;
 public class ConsTypeDecl extends AbstractTypeDecl implements CustomToString {
     public static String consTypeName = "cons";
     static TypeRef parametricType = new TypeRef();
-    static TypeConstructorExpr nilConstructor = new TypeConstructorExpr("cons", "Nil",
-        Arrays.asList(parametricType), new ArrayList<>());
-    static TypeConstructorExpr consConstructor = new TypeConstructorExpr("cons", "Cons",
-            Arrays.asList(parametricType), Arrays.asList(parametricType, parametricType));
 
     public ConsTypeDecl() {
         super(consTypeName, Arrays.asList(new TypeRef()));
-        this.addTypeConstructors(createConstructorMap());
+        this.addTypeConstructors(createConstructorMap(this));
     }
 
     protected ConsTypeDecl(String typeName, List<TypeRef> parametricTypes) {
@@ -100,7 +96,13 @@ public class ConsTypeDecl extends AbstractTypeDecl implements CustomToString {
         return builder.toString();
     }
 
-    protected static Map<String, TypeConstructorExpr> createConstructorMap() {
+    protected static Map<String, TypeConstructorExpr> createConstructorMap(ConsTypeDecl decl) {
+        TypeConstructorExpr nilConstructor = new TypeConstructorExpr("cons", "Nil",
+                Arrays.asList(parametricType), new ArrayList<>());
+        TypeConstructorExpr consConstructor = new TypeConstructorExpr("cons", "Cons",
+                Arrays.asList(parametricType), Arrays.asList(parametricType,
+                new TypeRef(new AbstractType(decl))));
+
         Map<String,TypeConstructorExpr> consMap = new HashMap<>();
         consMap.put("Nil", nilConstructor);
         consMap.put("Cons", consConstructor);

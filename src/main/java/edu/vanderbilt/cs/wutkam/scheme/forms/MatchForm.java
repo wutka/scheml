@@ -2,11 +2,21 @@ package edu.vanderbilt.cs.wutkam.scheme.forms;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.expr.*;
+import edu.vanderbilt.cs.wutkam.scheme.expr.match.Match;
+import edu.vanderbilt.cs.wutkam.scheme.expr.match.MatchBool;
+import edu.vanderbilt.cs.wutkam.scheme.expr.match.MatchChar;
+import edu.vanderbilt.cs.wutkam.scheme.expr.match.MatchDouble;
+import edu.vanderbilt.cs.wutkam.scheme.expr.match.MatchInt;
+import edu.vanderbilt.cs.wutkam.scheme.expr.match.MatchString;
+import edu.vanderbilt.cs.wutkam.scheme.expr.match.MatchTypeConstructor;
+import edu.vanderbilt.cs.wutkam.scheme.expr.match.MatchVariable;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
+import edu.vanderbilt.cs.wutkam.scheme.type.AbstractType;
 import edu.vanderbilt.cs.wutkam.scheme.type.AbstractTypeDecl;
 import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,11 +39,7 @@ public class MatchForm implements Form {
             targetExpr = FormExpander.expand((ListExpr) targetExpr, false);
         }
 
-        AbstractTypeDecl existingType = null;
-
-        List<MatchExpr.MatchTypeConstructor> typeConstructors = new ArrayList<>();
-        Set<String> definedPatterns = new HashSet<>();
-
+        List<MatchExpr.MatchPatternAndTarget> patterns = new ArrayList<>();
         for (Expression patternExpr: aList.elementsFrom(2)) {
 
             if (!(patternExpr instanceof ListExpr)) {
@@ -54,94 +60,74 @@ public class MatchForm implements Form {
             //   (Null (printf "it is null\n"))
             //   ((Cons _ _) (printf "it has data\n"))
 
-            String matchName;
-            AbstractTypeDecl type;
-            List<String> targetPatterns = new ArrayList<>();
-
-            // Get the name of the type constructor so we can find out the type being matched
-            if (matchExpr instanceof SymbolExpr) {
-                matchName = ((SymbolExpr) matchExpr).value;
-            } else if (matchExpr instanceof ListExpr) {
-
-                ListExpr matchList = (ListExpr) matchExpr;
-                if (matchList.size() == 0) {
-                    throw new LispException("Match pattern must contain at least one element");
-                }
-
-                if (!(matchList.getElement(0) instanceof SymbolExpr)) {
-                    throw new LispException("constructor name in match pattern must be a symbol");
-                }
-
-                matchName = ((SymbolExpr) matchList.getElement(0)).value;
-            } else {
-                throw new LispException("Match pattern must be a symbol or a list");
+            Match matchPattern = parseMatchPattern(matchExpr);
+            Expression matchTargetExpression = pattern.getElement(1);
+            if (matchTargetExpression instanceof ListExpr) {
+                matchTargetExpression = FormExpander.expand((ListExpr) matchTargetExpression, false);
             }
+            patterns.add(new MatchExpr.MatchPatternAndTarget(matchPattern, matchTargetExpression));
+        }
 
-            if (definedPatterns.contains(matchName)) {
-                throw new LispException("pattern list already contains "+matchName);
-            }
+        return new MatchExpr(targetExpr, patterns);
+    }
 
-            // Find the type that has this constructor
-            type = SchemeRuntime.getTypeRegistry().findByConstructor(matchName);
-            if (type == null) {
-                throw new LispException("type constructor name "+matchName+" doesn't belong to any existing type");
-            } else {
-                // Make sure it is consistent with the other constructors in the match
-                if ((existingType != null) && (!existingType.typeName.equals(type.typeName))) {
-                    throw new UnifyException("Previous match patterns match type " + existingType.typeName + " but " +
-                            matchName + " belongs to type " + type.typeName);
-                }
-                existingType = type;
-            }
+    protected Match parseMatchPattern(Expression expr) throws LispException {
+        if (expr instanceof ListExpr) {   // Type constructor
+            ListExpr listExpr = (ListExpr) expr;
+            if (listExpr.size() >= 1 && (listExpr.getElement(0) instanceof SymbolExpr)) {
+                String constructorName = ((SymbolExpr)listExpr.getElement(0)).value;
+                AbstractTypeDecl abstractTypeDecl = SchemeRuntime.getTypeRegistry().findByConstructor(constructorName);
 
-            if (matchExpr instanceof SymbolExpr) {
-                // For a symbol-only match, the constructor can't take any parameters
-                TypeConstructorExpr constructorFunc = existingType.typeConstructors.get(matchName);
-                if (constructorFunc.paramTypes.length > 0) {
-                    throw new LispException("Match pattern contains only a symbol, but the corresponding type "+
-                            "constructor takes "+constructorFunc.paramTypes.length+" parameters");
-                }
+                if (abstractTypeDecl != null) {
+                    TypeConstructorExpr typeConstructorExpr = abstractTypeDecl.typeConstructors.get(constructorName);
 
-            } else if (matchExpr instanceof ListExpr) {
-                ListExpr matchList = (ListExpr) matchExpr;
-
-                // Make sure the argument counts match
-                TypeConstructorExpr constructorFunc = existingType.typeConstructors.get(matchName);
-                if (constructorFunc.paramTypes.length != matchList.size()-1) {
-                    throw new LispException("match pattern with constructor "+matchName+" contains "+
-                            (matchList.size()-1)+" parameters, but constructor for type requires exactly "+
-                            constructorFunc.paramTypes.length);
-                }
-
-                // Make sure all the elements in the constructor are symbols
-                List<Expression> constructorSyms = matchList.elementsFrom(1);
-
-                for (Expression expr: constructorSyms) {
-                    if (!(expr instanceof SymbolExpr)) {
-                        throw new LispException("all arguments to a pattern match constructor must be symbols");
+                    if (listExpr.size() - 1 != typeConstructorExpr.paramTypes.length) {
+                        throw new LispException("Type constructor " + constructorName + " takes exactly " +
+                                typeConstructorExpr.paramTypes.length + " parameters");
                     }
-                    targetPatterns.add(((SymbolExpr)expr).value);
+
+                    List<Match> patterns = new ArrayList<>();
+                    for (Expression patternExpr : listExpr.elementsFrom(1)) {
+                        patterns.add(parseMatchPattern(patternExpr));
+                    }
+
+                    return new MatchTypeConstructor(constructorName, patterns);
                 }
             }
 
-            // Expand the target expression if necessary
-            Expression patternTargetExpr = pattern.getElement(1);
-            if (patternTargetExpr instanceof ListExpr) {
-                patternTargetExpr = FormExpander.expand((ListExpr) patternTargetExpr, false);
+            // If it isn't a type constructor, treat it as a list and generate the necessary cons matchers
+            Match curr = parseMatchPattern(new SymbolExpr("Nil"));
+            for (int i=listExpr.size()-1; i >= 0; i--) {
+                Match itemMatch = parseMatchPattern(listExpr.getElement(i));
+                curr = new MatchTypeConstructor("Cons", Arrays.asList(itemMatch, curr));
             }
+            return curr;
 
-            typeConstructors.add(new MatchExpr.MatchTypeConstructor(matchName, targetPatterns, patternTargetExpr));
-            definedPatterns.add(matchName);
-        }
-        
-        if (existingType.typeConstructors.size() != definedPatterns.size()) {
-            for (String constructorName: existingType.typeConstructors.keySet()) {
-                if (!definedPatterns.contains(constructorName)) {
-                    throw new LispException("match form is missing constructor "+constructorName);
-                }
+        } else if (expr instanceof BoolExpr) {
+            return new MatchBool(((BoolExpr) expr).value);
+        } else if (expr instanceof CharExpr) {
+            return new MatchChar(((CharExpr) expr).value);
+        } else if (expr instanceof DoubleExpr) {
+            return new MatchDouble(((DoubleExpr) expr).value);
+        } else if (expr instanceof IntExpr) {
+            return new MatchInt(((IntExpr) expr).value);
+        } else if (expr instanceof StringExpr) {
+            return new MatchString(((StringExpr) expr).value);
+        } else if (expr instanceof SymbolExpr) {
+            String name = ((SymbolExpr)expr).value;
+            AbstractTypeDecl abstractTypeDecl = SchemeRuntime.getTypeRegistry().findByConstructor(name);
+
+            if (abstractTypeDecl != null) {
+                TypeConstructorExpr typeConstructorExpr = abstractTypeDecl.typeConstructors.get(name);
+
+                List<Match> patterns = new ArrayList<>();
+
+                return new MatchTypeConstructor(name, patterns);
+            } else {
+                return new MatchVariable(name);
             }
+        } else {
+            throw new LispException("Invalid expression in match pattern: "+expr.toString());
         }
-
-        return new MatchExpr(existingType, targetExpr, typeConstructors);
     }
 }
