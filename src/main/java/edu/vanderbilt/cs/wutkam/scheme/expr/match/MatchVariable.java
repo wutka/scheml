@@ -6,6 +6,8 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.SymbolExpr;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
+import java.util.Objects;
+
 /**
  */
 public class MatchVariable implements Match {
@@ -36,4 +38,17 @@ public class MatchVariable implements Match {
 
     @Override
     public String toString() { return (new SymbolExpr(name)).toString(); }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MatchVariable that = (MatchVariable) o;
+        return name.equals(that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
 }

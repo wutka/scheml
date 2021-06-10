@@ -7,6 +7,8 @@ import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheme.type.BooleanType;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
+import java.util.Objects;
+
 /**
  */
 public class MatchBool implements Match {
@@ -33,4 +35,17 @@ public class MatchBool implements Match {
 
     @Override
     public String toString() { return (new BoolExpr(value)).toString(); }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MatchBool matchBool = (MatchBool) o;
+        return value == matchBool.value;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
+    }
 }

@@ -8,13 +8,13 @@ import edu.vanderbilt.cs.wutkam.scheme.type.IntType;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
  */
 public class MatchInt implements Match {
     public int value;
-    protected Set<Integer> intsSeen;
 
     public MatchInt(int value) {
         this.value = value;
@@ -35,18 +35,19 @@ public class MatchInt implements Match {
         matchTargetType.unify(new TypeRef(IntType.TYPE));
     }
 
-    protected void saw(int i) {
-        if (intsSeen == null) intsSeen = new HashSet<>();
-        intsSeen.add(i);
-    }
+    @Override
+    public String toString() { return (new IntExpr(value)).toString(); }
 
-    protected int getUnseen() {
-        int i=0;
-        if (intsSeen == null) return i;
-        while (intsSeen.contains(i)) i++;
-        return i;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MatchInt matchInt = (MatchInt) o;
+        return value == matchInt.value;
     }
 
     @Override
-    public String toString() { return (new IntExpr(value)).toString(); }
+    public int hashCode() {
+        return Objects.hash(value);
+    }
 }

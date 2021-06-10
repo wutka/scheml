@@ -8,14 +8,13 @@ import edu.vanderbilt.cs.wutkam.scheme.type.DoubleType;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
  */
 public class MatchDouble implements Match {
     public double value;
-
-    protected Set<Double> doublesSeen;
 
     public MatchDouble(double value) {
         this.value = value;
@@ -36,19 +35,19 @@ public class MatchDouble implements Match {
         matchTargetType.unify(new TypeRef(DoubleType.TYPE));
     }
 
-    protected void saw(double d) {
-        if (doublesSeen == null) {
-            doublesSeen = new HashSet<>();
-        }
-        doublesSeen.add(d);
-    }
-
-    protected double getUnseen() {
-        double d = 0.0;
-        if (doublesSeen == null) return d;
-        while (doublesSeen.contains(d)) d += 1.0;
-        return d;
-    }
     @Override
     public String toString() { return (new DoubleExpr(value)).toString(); }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MatchDouble that = (MatchDouble) o;
+        return Double.compare(that.value, value) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
+    }
 }

@@ -2,6 +2,7 @@ package edu.vanderbilt.cs.wutkam.scheme.forms;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.expr.*;
+import edu.vanderbilt.cs.wutkam.scheme.expr.match.ExhaustivenessChecker;
 import edu.vanderbilt.cs.wutkam.scheme.expr.match.Match;
 import edu.vanderbilt.cs.wutkam.scheme.expr.match.MatchBool;
 import edu.vanderbilt.cs.wutkam.scheme.expr.match.MatchChar;
@@ -13,6 +14,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.match.MatchVariable;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.AbstractType;
 import edu.vanderbilt.cs.wutkam.scheme.type.AbstractTypeDecl;
+import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
 import java.util.ArrayList;
@@ -68,7 +70,13 @@ public class MatchForm implements Form {
             patterns.add(new MatchExpr.MatchPatternAndTarget(matchPattern, matchTargetExpression));
         }
 
-        return new MatchExpr(targetExpr, patterns);
+        MatchExpr expr = new MatchExpr(targetExpr, patterns);
+        List<Match> patternList = new ArrayList<>();
+        for (MatchExpr.MatchPatternAndTarget pattern: patterns) {
+            patternList.add(pattern.pattern);
+        }
+        ExhaustivenessChecker.checkExhaustiveness(patternList);
+        return expr;
     }
 
     protected Match parseMatchPattern(Expression expr) throws LispException {

@@ -7,13 +7,13 @@ import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
  */
 public class MatchString implements Match {
     public String value;
-    protected Set<String> stringsSeen;
 
     public MatchString(String value) {
         this.value = value;
@@ -34,24 +34,19 @@ public class MatchString implements Match {
 
     }
 
-    protected void saw(String str) {
-        if (stringsSeen == null) stringsSeen = new HashSet<>();
-        stringsSeen.add(str);
-    }
+    @Override
+    public String toString() { return (new StringExpr(value)).toString(); }
 
-    protected static final String[] tryStrings = new String[] { "foo", "bar", "baz", "quux", "qux", "corge", "grault",
-        "garply", "waldo", "fred", "plugh", "xyxxy", "thud" };
-
-    protected String getUnseen() {
-        if (stringsSeen == null) return tryStrings[0];
-        for (String s: tryStrings) {
-            if (!stringsSeen.contains(s)) return s;
-        }
-        int i=0;
-        while (stringsSeen.contains(tryStrings[i%tryStrings.length]+i)) i++;
-        return tryStrings[i%tryStrings.length]+i;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MatchString that = (MatchString) o;
+        return value.equals(that.value);
     }
 
     @Override
-    public String toString() { return (new StringExpr(value)).toString(); }
+    public int hashCode() {
+        return Objects.hash(value);
+    }
 }

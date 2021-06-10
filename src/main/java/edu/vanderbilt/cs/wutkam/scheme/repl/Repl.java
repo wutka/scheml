@@ -65,6 +65,10 @@ public class Repl {
                     // Evaluate the expression
                     expr = expr.evaluate(new Environment<>(), false);
 
+                    for (String warning: SchemeRuntime.getWarnings()) {
+                        System.out.println(warning);
+                    }
+
                     if (displayType) {
                         TypeRef resultType = new TypeRef();
                         // If we also are displaying the type of the result, get the type and print it
