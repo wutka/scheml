@@ -39,6 +39,13 @@ public class ExhaustivenessChecker {
             }
         }
 
+        patternMatrix = new ArrayList<>();
+        for (Match pattern: patterns) {
+            Stack<Match> pattStack = new Stack<>();
+            pattStack.push(pattern);
+            patternMatrix.add(pattStack);
+        }
+
         Stack<Match> wildcardStack = new Stack<>();
         wildcardStack.push(WILDCARD);
         Stack<Match> exhaustive = checkUsefulness(patternMatrix, wildcardStack);
@@ -113,7 +120,6 @@ public class ExhaustivenessChecker {
                     if (result != null) {
                         return result;
                     }
-                    qStack.pop();
                 }
                 return null;
             } else {
@@ -122,7 +128,7 @@ public class ExhaustivenessChecker {
         } else {
             List<Stack<Match>> subpatterns = new ArrayList<>();
             for (Stack<Match> pattern: patternMatrix) {
-                if (q.equals(pattern.peek())) {
+                if ((pattern.peek() instanceof MatchVariable) || q.equals(pattern.peek())) {
                     pattern.pop();
                     subpatterns.add(pattern);
                 }
