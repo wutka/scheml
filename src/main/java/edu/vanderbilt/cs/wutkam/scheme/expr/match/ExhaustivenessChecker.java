@@ -147,7 +147,9 @@ public class ExhaustivenessChecker {
     protected static List<Match> findPossibleValues(List<Stack<Match>> patternMatrix, Match matchType) {
         Set<Match> values = new HashSet<>();
         for (Stack<Match> pattern: patternMatrix) {
-            values.add(pattern.peek());
+            if (!(pattern.peek() instanceof MatchVariable)) {
+                values.add(pattern.peek());
+            }
         }
         Match missingValue = findMissingValue(values, matchType);
         if (missingValue != null) {
