@@ -116,18 +116,28 @@ public class MatchForm implements Form {
         } else if (expr instanceof StringExpr) {
             return new MatchString(((StringExpr) expr).value);
         } else if (expr instanceof SymbolExpr) {
-            String name = ((SymbolExpr)expr).value;
+            String name = ((SymbolExpr) expr).value;
             AbstractTypeDecl abstractTypeDecl = SchemeRuntime.getTypeRegistry().findByConstructor(name);
 
             if (abstractTypeDecl != null) {
                 TypeConstructorExpr typeConstructorExpr = abstractTypeDecl.typeConstructors.get(name);
 
+                if (typeConstructorExpr.paramTypes.length > 0) {
+                    throw new LispException("Must use a list for type constructor "+name+
+                            " because it requires "+typeConstructorExpr.paramTypes.length+" arguments");
+                }
                 List<Match> patterns = new ArrayList<>();
 
                 return new MatchTypeConstructor(name, patterns);
             } else {
                 return new MatchVariable(name);
             }
+        } else if (expr instanceof AbstractTypeExpr) {
+            AbstractTypeExpr abstractTypeExpr = (AbstractTypeExpr) expr;
+            if (abstractTypeExpr.constructorName.equals("Nil")) {
+                return parseMatchPattern(new SymbolExpr("Nil"));
+            }
+            throw new LispException("Invalid expression in match pattern: "+expr.toString());
         } else {
             throw new LispException("Invalid expression in match pattern: "+expr.toString());
         }
