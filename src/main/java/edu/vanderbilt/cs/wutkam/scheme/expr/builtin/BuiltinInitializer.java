@@ -71,6 +71,8 @@ public class BuiltinInitializer {
         new Tail("tail"),
         new Null("null?"),
         new Print("print"),
+        new Load("load"),
+        new Quit("quit"),
         new Fail("fail"),
     };
 

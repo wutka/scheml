@@ -78,4 +78,3 @@
   (test-zero-bits)
   (test-zero-bits-delete)
   (test-insert-delete-series))
-

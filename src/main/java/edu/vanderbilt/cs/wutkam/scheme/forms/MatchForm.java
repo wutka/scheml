@@ -70,13 +70,7 @@ public class MatchForm implements Form {
             patterns.add(new MatchExpr.MatchPatternAndTarget(matchPattern, matchTargetExpression));
         }
 
-        MatchExpr expr = new MatchExpr(targetExpr, patterns);
-        List<Match> patternList = new ArrayList<>();
-        for (MatchExpr.MatchPatternAndTarget pattern: patterns) {
-            patternList.add(pattern.pattern);
-        }
-        ExhaustivenessChecker.checkExhaustiveness(patternList);
-        return expr;
+        return new MatchExpr(targetExpr, patterns);
     }
 
     protected Match parseMatchPattern(Expression expr) throws LispException {
