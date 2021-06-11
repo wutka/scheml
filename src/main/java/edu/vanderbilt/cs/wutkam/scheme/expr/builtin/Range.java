@@ -17,7 +17,7 @@ public class Range extends BuiltinFunctionExpr {
     public Expression executeBuiltin(Expression[] args) throws LispException {
         AbstractTypeExpr curr = ConsTypeDecl.newNil();
         // Build the cons list backwards starting from the nil and prepending each new value
-        for (int i=((IntExpr)args[1]).value; i >= ((IntExpr)args[0]).value; i--) {
+        for (long i=((IntExpr)args[1]).value; i >= ((IntExpr)args[0]).value; i--) {
             curr = ConsTypeDecl.newCons(new IntExpr(i), curr);
         }
         return curr;

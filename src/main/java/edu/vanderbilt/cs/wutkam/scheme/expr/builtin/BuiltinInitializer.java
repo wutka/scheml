@@ -9,15 +9,15 @@ import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
  */
 public class BuiltinInitializer {
     static BuiltinFunctionExpr[] builtins = new BuiltinFunctionExpr[] {
-        new BuiltinBinaryFunctionExpr<>("+", "int -> int -> int", (Integer a, Integer b) -> a+b),
-        new BuiltinBinaryFunctionExpr<>("-", "int -> int -> int", (Integer a, Integer b) -> a-b),
-        new BuiltinBinaryFunctionExpr<>("*", "int -> int -> int", (Integer a, Integer b) -> a*b),
-        new BuiltinBinaryFunctionExpr<>("/", "int -> int -> int", (Integer a, Integer b) -> a/b),
-        new BuiltinBinaryFunctionExpr<>("%", "int -> int -> int", (Integer a, Integer b) -> a%b),
-        new BuiltinBinaryFunctionExpr<>("div", "int -> int -> int", (Integer a, Integer b) -> a/b),
-        new BuiltinBinaryFunctionExpr<>("mod", "int -> int -> int", (Integer a, Integer b) -> a%b),
-        new BuiltinBinaryFunctionExpr<Integer,Integer,Integer>("min", "int -> int -> int", Math::min),
-        new BuiltinBinaryFunctionExpr<Integer,Integer,Integer>("max", "int -> int -> int", Math::max),
+        new BuiltinBinaryFunctionExpr<>("+", "int -> int -> int", (Long a, Long b) -> a+b),
+        new BuiltinBinaryFunctionExpr<>("-", "int -> int -> int", (Long a, Long b) -> a-b),
+        new BuiltinBinaryFunctionExpr<>("*", "int -> int -> int", (Long a, Long b) -> a*b),
+        new BuiltinBinaryFunctionExpr<>("/", "int -> int -> int", (Long a, Long b) -> a/b),
+        new BuiltinBinaryFunctionExpr<>("%", "int -> int -> int", (Long a, Long b) -> a%b),
+        new BuiltinBinaryFunctionExpr<>("div", "int -> int -> int", (Long a, Long b) -> a/b),
+        new BuiltinBinaryFunctionExpr<>("mod", "int -> int -> int", (Long a, Long b) -> a%b),
+        new BuiltinBinaryFunctionExpr<Long,Long,Long>("min", "int -> int -> int", Math::min),
+        new BuiltinBinaryFunctionExpr<Long,Long,Long>("max", "int -> int -> int", Math::max),
 
         // Similar to Ocaml, floating point operations are separate from integer and have . after the
         // equivalent integer version
@@ -32,12 +32,12 @@ public class BuiltinInitializer {
         new BuiltinBinaryFunctionExpr<Double,Double,Double>("max.", "double -> double -> double", Math::max),
 
         // Only numeric comparisons are supported right now
-        new BuiltinBinaryFunctionExpr<>("=", "int -> int -> bool", (Integer a, Integer b) -> a.equals(b)),
-        new BuiltinBinaryFunctionExpr<>("!=", "int -> int -> bool", (Integer a, Integer b) -> !a.equals(b)),
-        new BuiltinBinaryFunctionExpr<>("<", "int -> int -> bool", (Integer a, Integer b) -> a < b),
-        new BuiltinBinaryFunctionExpr<>("<=", "int -> int -> bool", (Integer a, Integer b) -> a <= b),
-        new BuiltinBinaryFunctionExpr<>(">", "int -> int -> bool", (Integer a, Integer b) -> a > b),
-        new BuiltinBinaryFunctionExpr<>(">=", "int -> int -> bool", (Integer a, Integer b) -> a >= b),
+        new BuiltinBinaryFunctionExpr<>("=", "int -> int -> bool", (Long a, Long b) -> a.equals(b)),
+        new BuiltinBinaryFunctionExpr<>("!=", "int -> int -> bool", (Long a, Long b) -> !a.equals(b)),
+        new BuiltinBinaryFunctionExpr<>("<", "int -> int -> bool", (Long a, Long b) -> a < b),
+        new BuiltinBinaryFunctionExpr<>("<=", "int -> int -> bool", (Long a, Long b) -> a <= b),
+        new BuiltinBinaryFunctionExpr<>(">", "int -> int -> bool", (Long a, Long b) -> a > b),
+        new BuiltinBinaryFunctionExpr<>(">=", "int -> int -> bool", (Long a, Long b) -> a >= b),
 
         // As with the other numerical operations, there are separate comparison operators for doubles
         new BuiltinBinaryFunctionExpr<>("=.", "double -> double -> bool", (Double a, Double b) -> a.equals(b)),
@@ -47,11 +47,11 @@ public class BuiltinInitializer {
         new BuiltinBinaryFunctionExpr<>(">.", "double -> double -> bool", (Double a, Double b) -> a > b),
         new BuiltinBinaryFunctionExpr<>(">=.", "double -> double -> bool", (Double a, Double b) -> a >= b),
 
-        new BuiltinUnaryFunctionExpr<>("neg", "int -> int", (Integer a) -> -a),
+        new BuiltinUnaryFunctionExpr<>("neg", "int -> int", (Long a) -> -a),
         new BuiltinUnaryFunctionExpr<>("neg.", "double -> double", (Double a) -> -a),
 
-        new BuiltinUnaryFunctionExpr<>("int->double", "int->double", (Integer a) -> (double) a),
-        new BuiltinUnaryFunctionExpr<>("double->int", "double->int", (Double a) -> a.intValue()),
+        new BuiltinUnaryFunctionExpr<>("int->double", "int->double", (Long a) -> (double) a),
+        new BuiltinUnaryFunctionExpr<>("double->int", "double->int", (Double a) -> a.longValue()),
 
         new BuiltinBinaryFunctionExpr<>("and", "bool -> bool -> bool", (Boolean a, Boolean b) -> a && b),
         new BuiltinBinaryFunctionExpr<>("or", "bool -> bool -> bool", (Boolean a, Boolean b) -> a || b),

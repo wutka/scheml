@@ -231,15 +231,15 @@ public class ExhaustivenessChecker {
             }
             return new MatchDouble(d1 + 1.0);
         } else if (matchType instanceof MatchInt) {
-            List<Integer> ints = values.stream().filter(m -> m instanceof MatchInt).
+            List<Long> ints = values.stream().filter(m -> m instanceof MatchInt).
                     map(mi -> ((MatchInt) mi).value).collect(Collectors.toList());
 
             Collections.sort(ints);
             if (ints.size() == 0) return new MatchInt(0);
             if (ints.size() == 1) return new MatchInt(ints.get(0) + 1);
-            int i1 = ints.get(0);
+            long i1 = ints.get(0);
             for (int i = 1; i < ints.size(); i++) {
-                int i2 = ints.get(i);
+                long i2 = ints.get(i);
                 if (i2 - i1 > 1.0) {
                     return new MatchInt(i1 + 1);
                 }

@@ -14,9 +14,9 @@ import java.util.Set;
 /**
  */
 public class MatchInt implements Match {
-    public int value;
+    public long value;
 
-    public MatchInt(int value) {
+    public MatchInt(long value) {
         this.value = value;
     }
 

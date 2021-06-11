@@ -62,8 +62,8 @@ public abstract class BuiltinFunctionExpr extends FunctionExpr {
             return new CharExpr((Character) obj);
         } else if (obj instanceof Double) {
             return new DoubleExpr((Double) obj);
-        } else if (obj instanceof Integer) {
-            return new IntExpr((Integer) obj);
+        } else if (obj instanceof Long) {
+            return new IntExpr((Long) obj);
         } else if (obj instanceof String) {
             return new StringExpr((String) obj);
         }

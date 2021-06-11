@@ -9,9 +9,9 @@ import java.util.Objects;
 
 /** Represents a simple integer object */
 public class IntExpr implements Expression {
-    public final int value;
+    public final long value;
 
-    public IntExpr(int value) {
+    public IntExpr(long value) {
         this.value = value;
     }
 
@@ -26,7 +26,7 @@ public class IntExpr implements Expression {
 
     @Override
     public String toString() {
-        return Integer.toString(value);
+        return Long.toString(value);
     }
 
     @Override
