@@ -29,7 +29,7 @@ public class ExhaustivenessChecker {
             for (int i=1; i < patterns.size(); i++) {
                 Stack<Match> qpStack = new Stack<>();
                 qpStack.push(patterns.get(i));
-                Stack<Match> usefulness = checkUsefulness(patternMatrix, qpStack);
+                Stack<Match> usefulness = checkUsefulness(copyPatternMatrix(patternMatrix), qpStack);
                 if (usefulness == null) {
                     SchemeRuntime.warn("Pattern " + patterns.get(i).toString() + " is redundant");
                 }
@@ -97,11 +97,12 @@ public class ExhaustivenessChecker {
                 List<Match> matchers = getAllConstructorMatchers(matchTypeConstructor.constructorName);
                 for (Match match: matchers) {
                     qStack.push(match);
-                    Stack<Match> result = checkUsefulness(patternMatrix, qStack);
+                    List<Stack<Match>> tempMatrix = copyPatternMatrix(patternMatrix);
+                    Stack<Match> result = checkUsefulness(tempMatrix, copyStack(qStack));
+                    qStack.pop();
                     if (result != null) {
                         return result;
                     }
-                    qStack.pop();
                 }
                 return null;
             } else if ((matchType instanceof MatchBool) || (matchType instanceof MatchChar) ||
@@ -111,17 +112,32 @@ public class ExhaustivenessChecker {
                 for (Match match : matchers) {
                     qStack.push(match);
                     List<Stack<Match>> subpatterns = new ArrayList<>();
-                    for (Stack<Match> pattern : patternMatrix) {
-                        if (pattern.peek().equals(match)) {
+                    List<Stack<Match>> tempMatrix = copyPatternMatrix(patternMatrix);
+                    for (Stack<Match> pattern : tempMatrix) {
+                        if ((pattern.peek() instanceof MatchVariable) || pattern.peek().equals(match)) {
                             subpatterns.add(pattern);
                         }
                     }
-                    Stack<Match> result = checkUsefulness(subpatterns, qStack);
+                    Stack<Match> result = checkUsefulness(subpatterns, copyStack(qStack));
+                    qStack.pop();
                     if (result != null) {
                         return result;
                     }
                 }
                 return null;
+            } else if (matchType instanceof MatchVariable) {
+                List<Stack<Match>> subpatterns = new ArrayList<>();
+                for (Stack<Match> pattern : patternMatrix) {
+                    pattern.pop();
+                    subpatterns.add(pattern);
+                }
+                Stack<Match> result = checkUsefulness(subpatterns, qStack);
+                if (result != null) {
+                    result.push(q);
+                    return result;
+                } else {
+                    return null;
+                }
             } else {
                 return null;
             }
@@ -144,6 +160,20 @@ public class ExhaustivenessChecker {
     public static final String[] tryStrings = new String[] { "foo", "bar", "baz", "quux", "qux", "corge", "grault",
             "garply", "waldo", "fred", "plugh", "xyxxy", "thud" };
 
+    protected static Stack<Match> copyStack(Stack<Match> stack) {
+        Stack<Match> newStack = new Stack<>();
+        newStack.addAll(stack);
+        return newStack;
+    }
+
+
+    protected static List<Stack<Match>> copyPatternMatrix(List<Stack<Match>> patternMatrix) {
+        List<Stack<Match>> newMatrix = new ArrayList<>();
+        for (Stack<Match> pattern: patternMatrix) {
+            newMatrix.add(copyStack(pattern));
+        }
+        return newMatrix;
+    }
     protected static List<Match> findPossibleValues(List<Stack<Match>> patternMatrix, Match matchType) {
         Set<Match> values = new HashSet<>();
         for (Stack<Match> pattern: patternMatrix) {
@@ -250,26 +280,6 @@ public class ExhaustivenessChecker {
                     retval.add(pattStack);
                 }
             }
-        }
-        return retval;
-    }
-
-    public static Map<Match,List<Match>> partitionPatterns(List<Match> patterns, Match matchType) {
-        Map<Match,List<Match>> retval = new HashMap<>();
-
-        for (Match pattern: patterns) {
-            Match key;
-            if (pattern instanceof MatchTypeConstructor) {
-                key = new MatchString(((MatchTypeConstructor) pattern).constructorName);
-            } else if (pattern instanceof MatchVariable) {
-                key = WILDCARD;
-            } else {
-                key = pattern;
-            }
-            List<Match> values = retval.get(key);
-            if (values == null) values = new ArrayList<>();
-            values.add(pattern);
-            retval.put(key, values);
         }
         return retval;
     }

@@ -3,6 +3,7 @@ package edu.vanderbilt.cs.wutkam.scheme.repl;
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.ListExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.VoidExpr;
+import edu.vanderbilt.cs.wutkam.scheme.expr.builtin.FailException;
 import edu.vanderbilt.cs.wutkam.scheme.forms.FormExpander;
 import edu.vanderbilt.cs.wutkam.scheme.parser.Parser;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
@@ -89,6 +90,8 @@ public class Repl {
                 }
             } catch (UnifyException exc) {
                 System.out.println("Unification error:\n" + exc.getMessage());
+            } catch (FailException exc) {
+                System.out.println("Fail: "+exc.getMessage());
             } catch (StackOverflowError exc) {
                 System.out.println("Stack overflow");
             } catch (Exception exc) {

@@ -71,6 +71,7 @@ public class BuiltinInitializer {
         new Tail("tail"),
         new Null("null?"),
         new Print("print"),
+        new Fail("fail"),
     };
 
     public static void initializeBuiltins(Environment<Expression> exprEnv, Environment<TypeRef> typeEnv) {
