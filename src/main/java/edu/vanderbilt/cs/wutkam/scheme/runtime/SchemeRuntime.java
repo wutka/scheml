@@ -2,6 +2,7 @@ package edu.vanderbilt.cs.wutkam.scheme.runtime;
 
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.builtin.BuiltinInitializer;
+import edu.vanderbilt.cs.wutkam.scheme.repl.Repl;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
 import java.util.ArrayList;
@@ -38,5 +39,11 @@ public class SchemeRuntime {
         String[] result = warnings.toArray(new String[warnings.size()]);
         warnings.clear();
         return result;
+    }
+
+    public static Repl repl;
+
+    public static Repl getRepl() {
+        return repl;
     }
 }

@@ -11,6 +11,8 @@ import java.util.Objects;
  */
 public class BoolExpr implements Expression {
     public final boolean value;
+    public static final BoolExpr FALSE = new BoolExpr(false);
+    public static final BoolExpr TRUE = new BoolExpr(false);
 
     public BoolExpr(boolean value) {
         this.value = value;

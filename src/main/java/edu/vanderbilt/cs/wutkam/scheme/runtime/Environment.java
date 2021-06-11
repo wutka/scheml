@@ -52,4 +52,9 @@ public class Environment<T> {
             currEnv = currEnv.next;
         }
     }
+
+    public Environment<T> previous() {
+        if (next == null) return new Environment<>();
+        return next;
+    }
 }

@@ -67,7 +67,7 @@ public class ListExpr implements Expression {
         // is the return value of its parent expression, don't evaluate yet, but return a TailCallExpr
         // that will bubble back up the stack 
         if (inTailPosition) {
-            return new TailCallExpr(targetFunction, parameterList, new Environment<>());
+            return new TailCallExpr(targetFunction, parameterList, env.previous());
         } else {
             // Apply the function
             Expression result = targetFunction.apply(parameterList, new Environment<>());

@@ -20,13 +20,24 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 public class Repl {
-    public static void main(String[] args) {
+    protected BufferedReader dataIn;
+
+    public Repl() {
+        dataIn = new BufferedReader(new InputStreamReader(System.in));
+    }
+
+    public static void main(String [] args) {
+        Repl repl = new Repl();
+        SchemeRuntime.repl = repl;
+        repl.run(args);
+    }
+
+    public void run(String[] args) {
         System.out.println("\nScheml Repl");
 
         for (String arg: args) {
             loadFile(arg);
         }
-        BufferedReader dataIn = new BufferedReader(new InputStreamReader(System.in));
         for (;;) {
             try {
                 // Print a prompt
@@ -65,7 +76,15 @@ public class Repl {
         }
     }
 
-    public static void loadFile(String filename) {
+    public String readLine() throws LispException {
+        try {
+            return dataIn.readLine();
+        } catch (IOException exc) {
+            throw new LispException("Error reading input line: "+exc.getMessage());
+        }
+    }
+
+    public void loadFile(String filename) {
         try {
             FileReader in = new FileReader(filename);
             List<Expression> exprs = Parser.parse(in);
@@ -77,7 +96,7 @@ public class Repl {
             exc.printStackTrace(System.out);
         }
     }
-    public static void executeExpressions(List<Expression> exprs, boolean displayType) {
+    public void executeExpressions(List<Expression> exprs, boolean displayType) {
         try {
             for (Expression expr : exprs) {
                 // For each expression parsed, expand if necessary
@@ -121,6 +140,7 @@ public class Repl {
             System.out.println("Fail: "+exc.getMessage());
         } catch (StackOverflowError exc) {
             System.out.println("Stack overflow");
+            exc.printStackTrace();
         } catch (Exception exc) {
             exc.printStackTrace(System.out);
         }
