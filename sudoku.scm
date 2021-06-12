@@ -130,6 +130,9 @@
      (if (= 1 (length available)) (Fixed (head available))
          sq))))
 
+(define (set-cell val pos sud)
+  (replace-nth pos val sud))
+
 (define (reduce-cell sud n-set n)
   (if (fixed? n-set) n-set
     (let* ((row-squares (row (row-num n) sud))
@@ -148,13 +151,15 @@
           box-squares)))))
 
 (define (reduce-cells sud)
-  (letrec ((reduce-cells' 
-             (lambda (n sud-rest acc)
-               (if (< n 0) acc
-                   (reduce-cells' (- n 1) (tail sud-rest)
-                                  (cons (reduce-cell sud (head sud-rest) n) acc))))))
-    (reduce-cells' 80 (reverse sud) nil)))
-                                       
+  (letrec ((reduce-cells'
+             (lambda (n curr-sud)
+               (if (< n 0) curr-sud
+                   (reduce-cells'
+                     (- n 1)
+                     (set-cell (reduce-cell curr-sud (nth n sud) n) n curr-sud))))))
+    (reduce-cells' 80 sud)))
+
+                                
 (define (reduce sud)
   (let ((new-sud (reduce-cells sud)))
     (if (equals? new-sud sud) new-sud
@@ -165,23 +170,6 @@
       (if (set-correct? set) #t
           (fail "set is incorrect"))
       #t))
-
-(define (set-cell val pos sud)
-  (let ((sud-orig sud)
-        (sud-updated (replace-nth pos val sud)))
-    (statements
-      (:= row-squares (row (row-num pos) sud-updated))
-      (check-correct row-squares)
-      (:= col-squares (col (col-num pos) sud-updated))
-      (check-correct col-squares)
-      (:= box-squares (box (box-num pos) sud-updated))
-      (check-correct box-squares)
-      sud-updated)))
-
-;;(define (done sud)
-;;  (if (all (= 1) (map length sud))
-;;       (correct sud)
-;;       #f))
 
 (define (done sud)
   (if (all fixed? sud)
@@ -234,8 +222,8 @@
            tried))))
 
 (define (solve-list try-list sud)
-  (printf "%c[2J" (int->char 27))
-  (print-sudoku sud)
+;;  (printf "%c[2J" (int->char 27))
+;;  (print-sudoku sud)
   (if (null? try-list) nil
       (let* ((n (head try-list))
              (sq (nth n sud)))
