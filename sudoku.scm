@@ -324,8 +324,8 @@
 ;;; Solves a list of unfixed squares trying one at a time
 (define (solve-list try-list sud)
 ;; Uncomment these to see it in action
-;;  (printf "%c[2J" (int->char 27))
-;;  (print-sudoku sud))
+;;  (printf "%c[2J%c[H" (int->char 27) (int->char 27))
+;;  (print-sudoku sud)
   ;; If the list is empty, give up
   (if (null? try-list) nil
       ;; Get the position of the next square to try
