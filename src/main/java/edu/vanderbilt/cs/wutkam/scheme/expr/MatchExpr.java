@@ -4,6 +4,8 @@ import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.expr.match.ExhaustivenessChecker;
 import edu.vanderbilt.cs.wutkam.scheme.expr.match.Match;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
+import edu.vanderbilt.cs.wutkam.scheme.type.AbstractTypeDecl;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
 import java.util.ArrayList;
@@ -47,7 +49,7 @@ public class MatchExpr implements Expression {
 
         for (MatchPatternAndTarget patternAndTarget: matchPatterns) {
             Environment<TypeRef> matchEnv = new Environment<>(env);
-            patternAndTarget.pattern.unify(matchExpressionType.copy(new HashMap<>()), matchEnv);
+            patternAndTarget.pattern.unify(matchExpressionType, matchEnv);
             patternAndTarget.targetExpression.unify(typeRef, matchEnv);
         }
 

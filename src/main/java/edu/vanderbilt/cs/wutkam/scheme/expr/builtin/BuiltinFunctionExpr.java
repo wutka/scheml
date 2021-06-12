@@ -45,7 +45,7 @@ public abstract class BuiltinFunctionExpr extends FunctionExpr {
         // Evaluate all the arguments
         Expression[] args = new Expression[arity];
         for (int i=0; i < arity; i++) {
-            args[i] = arguments.get(i).evaluate(env, false);
+            args[i] = arguments.get(i);
         }
 
         // Invoke the built-in function

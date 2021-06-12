@@ -38,7 +38,7 @@ public class StatementsForm implements Form {
                     }
                 }
             } else {
-                throw new LispException("A statement must be a special form or a function application");
+                statements.add(expr);
             }
         }
         return new StatementsExpr(statements);
