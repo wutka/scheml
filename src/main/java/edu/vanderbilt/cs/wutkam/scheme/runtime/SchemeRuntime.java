@@ -22,6 +22,8 @@ public class SchemeRuntime {
 
     protected static final List<String> warnings = new ArrayList<>();
 
+    protected static final Profiler profiler = new Profiler();
+
     /** Initialize the builtin functions */
     static {
         BuiltinInitializer.initializeBuiltins(topLevelEnvironment, topLevelUnifyEnvironment);
@@ -46,4 +48,6 @@ public class SchemeRuntime {
     public static Repl getRepl() {
         return repl;
     }
+
+    public static Profiler getProfiler() { return profiler; }
 }

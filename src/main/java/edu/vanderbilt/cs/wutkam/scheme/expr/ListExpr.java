@@ -70,12 +70,23 @@ public class ListExpr implements Expression {
             return new TailCallExpr(targetFunction, parameterList, env.previous());
         } else {
             // Apply the function
+            long startTime = System.nanoTime();
             Expression result = targetFunction.apply(parameterList, new Environment<>());
 
             // Since this call is not in the tail position, if we get a TailCallExpr, evaluate it, and keep
             // evaluating it while it returns a TailCallExpr
             while (result instanceof TailCallExpr) {
                 result = result.evaluate(env, false);
+            }
+
+            long endTime = System.nanoTime();
+            if (SchemeRuntime.getProfiler().enabled()) {
+                if (targetFunction instanceof FunctionExpr) {
+                    FunctionExpr funcExpr = (FunctionExpr) targetFunction;
+                    if (funcExpr.name != null) {
+                        SchemeRuntime.getProfiler().record(funcExpr.name, endTime - startTime);
+                    }
+                }
             }
             return result;
         }

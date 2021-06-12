@@ -89,6 +89,7 @@ public class BuiltinInitializer {
         new Fail("fail"),
         new Split("split"),
         new Join("join"),
+        new Profiling("profiling"),
     };
 
     public static void initializeBuiltins(Environment<Expression> exprEnv, Environment<TypeRef> typeEnv) {
