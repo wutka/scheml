@@ -66,6 +66,8 @@ public class Parser {
 
         char ch;
 
+        int lineNum = 1;
+        int colNum = 0;
         try {
             for (;;) {
                 if ((ch = (char) pushback.read()) == (char) -1) {
@@ -86,6 +88,12 @@ public class Parser {
                     break;
                 }
 
+                if (ch == '\n') {
+                    lineNum++;
+                    colNum = 0;
+                }
+                colNum++;
+
                 if (ch == '(') {
                     // A ( indicated the start of a subexpression
                     expressionStack.push(new ArrayList<>());
@@ -93,7 +101,7 @@ public class Parser {
                 } else if (ch == ')') {
                     // A ) closes a subexpression, and if there is no current sub-expression, that's an error
                     if (expressionStack.isEmpty()) {
-                        throw new LispException("Got ) but there was no corresponding (");
+                        throw new LispException("Got ) but there was no corresponding ( at line "+lineNum+" column "+colNum);
                     }
 
                     // We have completed the subexpression being parsed

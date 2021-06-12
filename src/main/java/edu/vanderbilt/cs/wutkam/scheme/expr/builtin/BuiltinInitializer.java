@@ -75,6 +75,7 @@ public class BuiltinInitializer {
         new StringToList("string->list"),
         new Equals("equals?"),
         new Cons("cons"),
+        new ToList("->list"),
         new Range("range"),
         new Head("head"),
         new Tail("tail"),

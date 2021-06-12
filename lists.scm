@@ -105,3 +105,24 @@
   (if (null? l) #f
       (if (p (head l)) #t
           (some p (tail l)))))
+
+;;; Replaced the nth value in a list
+(define (replace-nth n val l)
+  (letrec (
+  ;;; append-back appends front to back in reverse order, it is the same as (append (reverse front) back)
+  ;;; but it is faster to do it here recursively since append reverses its first argument and then
+  ;;; does the equivalent of append-back
+           (append-back
+             (lambda (front back)
+               (if (null? front) back
+                   (append-back (tail front) (cons (head front) back)))))
+           (replace-nth'
+             (lambda (n' l acc)
+               (if (= n' n)
+               ;; If we are at the spot that needs to be replaced, prepend the new value onto
+               ;; the rest of the list, and then append the previous part of the list in front of it
+                   (append-back acc (cons val (tail l)))
+               ;; otherwise, stick the next list value onto acc, which is building up the items that
+               ;; come before the replaced item in reversed order
+                   (replace-nth' (+ n' 1) (tail l) (cons (head l) acc))))))
+    (replace-nth' 0 l nil)))

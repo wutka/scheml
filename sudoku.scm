@@ -65,6 +65,34 @@
   (print-sudoku-row (row 7 sud))
   (print-sudoku-row (row 8 sud)))
 
+(define (fixed? square)
+  (match square
+     ((Fixed _) #t)
+     ((Unfixed _) #f)))
+
+(define (set-correct? vals)
+  (= (fold (lambda (val n) 
+             (match val
+                    ((Fixed v) (+ (<< 1 v) n))
+                    ((Unfixed _) 0)))
+             0 vals) 1022))
+
+(define (set-fixed? vals)
+  (all fixed? vals))
+
+(define (pos-correct? n sud)
+  (and (set-correct? (row (row-num n) sud))
+      (and (set-correct? (col (col-num n) sud))
+           (set-correct? (box (box-num n) sud)))))
+
+(define (correct? sud) 
+  (letrec ((correct' 
+            (lambda (n)
+              (if (> n 80) #t
+                  (if (pos-correct? n sud) (correct' (+ n 1))
+                      #f)))))
+    (correct' 0)))
+
 (define (remove-from-set other-set set)
   (match set
          ((Fixed _) set)
@@ -95,15 +123,29 @@
      ((Fixed _) sq)
      ((Unfixed available) (try-fix-list sq available square-list))))
 
+(define (fix-if-one sq)
+  (match sq
+    ((Fixed _) sq)
+    ((Unfixed available)
+     (if (= 1 (length available)) (Fixed (head available))
+         sq))))
+
 (define (reduce-cell sud n-set n)
-  (let* ((row-squares (row (row-num n) sud))
+  (if (fixed? n-set) n-set
+    (let* ((row-squares (row (row-num n) sud))
          (col-squares (col (col-num n) sud))
          (box-squares (box (box-num n) sud))
-         (reduced (fold remove-from-set n-set 
+         (reduced 
+           (fix-if-one
+                    (fold remove-from-set n-set 
                         (append row-squares
-                                (append col-squares box-squares)))))
-    (try-fix (try-fix (try-fix reduced row-squares) col-squares) box-squares)))
-
+                                (append col-squares box-squares))))))
+    (if (fixed? reduced) reduced
+        (try-fix 
+          (try-fix 
+            (try-fix reduced row-squares) 
+            col-squares) 
+          box-squares)))))
 
 (define (reduce-cells sud)
   (letrec ((reduce-cells' 
@@ -118,46 +160,28 @@
     (if (equals? new-sud sud) new-sud
         (reduce new-sud))))
 
+(define (check-correct set)
+  (if (set-fixed? set)
+      (if (set-correct? set) #t
+          (fail "set is incorrect"))
+      #t))
+
 (define (set-cell val pos sud)
-  (letrec ((append-back 
-             (lambda (front back)
-               (if (null? front) back
-                   (append-back (tail front) (cons (head front) back)))))
-           (set-cell' 
-             (lambda (n sud-rest acc)
-               (if (= n pos) (append-back acc (cons (Fixed val) (tail sud-rest)))
-                   (set-cell' (+ n 1) (tail sud-rest) (cons (head sud-rest) acc))))))
-    (set-cell' 0 sud nil)))
-
-(define (set-correct? vals)
-  (= (fold (lambda (val n) 
-             (match val
-                    ((Fixed v) (+ (<< 1 v) n))
-                    ((Unfixed _) 0)))
-             0 vals) 1022))
-
-(define (pos-correct? n sud)
-  (and (set-correct? (row (row-num n) sud))
-      (and (set-correct? (col (col-num n) sud))
-           (set-correct? (box (box-num n) sud)))))
-
-(define (correct? sud) 
-  (letrec ((correct' 
-            (lambda (n)
-              (if (> n 80) #t
-                  (if (pos-correct? n sud) (correct' (+ n 1))
-                      #f)))))
-    (correct' 0)))
+  (let ((sud-orig sud)
+        (sud-updated (replace-nth pos val sud)))
+    (statements
+      (:= row-squares (row (row-num pos) sud-updated))
+      (check-correct row-squares)
+      (:= col-squares (col (col-num pos) sud-updated))
+      (check-correct col-squares)
+      (:= box-squares (box (box-num pos) sud-updated))
+      (check-correct box-squares)
+      sud-updated)))
 
 ;;(define (done sud)
 ;;  (if (all (= 1) (map length sud))
 ;;       (correct sud)
 ;;       #f))
-
-(define (fixed? square)
-  (match square
-     ((Fixed _) #t)
-     ((Unfixed _) #f)))
 
 (define (done sud)
   (if (all fixed? sud)
@@ -210,6 +234,8 @@
            tried))))
 
 (define (solve-list try-list sud)
+  (printf "%c[2J" (int->char 27))
+  (print-sudoku sud)
   (if (null? try-list) nil
       (let* ((n (head try-list))
              (sq (nth n sud)))
