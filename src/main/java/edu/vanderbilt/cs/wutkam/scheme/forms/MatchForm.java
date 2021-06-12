@@ -131,7 +131,7 @@ public class MatchForm implements Form {
             if (abstractTypeExpr.constructorName.equals("Nil")) {
                 return parseMatchPattern(new SymbolExpr("Nil"));
             }
-            throw new LispException("Invalid expression in match pattern: "+expr.toString());
+            throw new LispException("Invalid expression in match pattern: "+ expr);
         } else {
             throw new LispException("Invalid expression in match pattern: "+expr.toString());
         }

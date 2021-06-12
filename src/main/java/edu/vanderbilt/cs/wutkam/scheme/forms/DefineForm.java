@@ -38,7 +38,7 @@ public class DefineForm implements Form {
         } else if (aList.getElement(1) instanceof SymbolExpr) {
             return defineVariable(aList);
         } else {
-            throw new LispException("Defined item must be a function or a symbol in "+aList.toString());
+            throw new LispException("Defined item must be a function or a symbol in "+ aList);
         }
     }
 

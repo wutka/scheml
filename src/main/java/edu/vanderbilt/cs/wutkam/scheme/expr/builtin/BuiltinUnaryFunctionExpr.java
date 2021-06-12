@@ -20,6 +20,6 @@ public class BuiltinUnaryFunctionExpr<A,B>
 
     @Override
     public Expression executeBuiltin(Expression[] args) throws LispException {
-        return fromJavaValue((B) implFunc.apply((A) args[0].toJavaValue()));
+        return fromJavaValue(implFunc.apply((A) args[0].toJavaValue()));
     }
 }

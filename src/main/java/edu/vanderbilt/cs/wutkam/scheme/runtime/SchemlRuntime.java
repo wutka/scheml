@@ -10,7 +10,7 @@ import java.util.List;
 
 /** A holder for some of the symbol tables used by the runtime
  */
-public class SchemeRuntime {
+public class SchemlRuntime {
     /** The table of global functions and variables */
     protected static final Environment<Expression> topLevelEnvironment = new Environment<Expression>();
 

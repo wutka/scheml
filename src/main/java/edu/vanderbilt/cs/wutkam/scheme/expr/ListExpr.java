@@ -17,7 +17,7 @@ import java.util.Objects;
  * with Scheme syntax.
  */
 public class ListExpr implements Expression {
-    private List<Expression> elements;
+    private final List<Expression> elements;
 
     public ListExpr() {
         elements = new ArrayList<>();

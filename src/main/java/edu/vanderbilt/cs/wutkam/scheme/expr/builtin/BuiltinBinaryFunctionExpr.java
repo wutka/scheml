@@ -27,6 +27,6 @@ public class BuiltinBinaryFunctionExpr<A,B,C>
     @Override
     public Expression executeBuiltin(Expression[] args) throws LispException {
         // Use toJavaValue() to convert to a native java value, e.g. BooleanExpr -> Boolean
-        return fromJavaValue((C) implFunc.apply((A) args[0].toJavaValue(), (B) args[1].toJavaValue()));
+        return fromJavaValue(implFunc.apply((A) args[0].toJavaValue(), (B) args[1].toJavaValue()));
     }
 }
