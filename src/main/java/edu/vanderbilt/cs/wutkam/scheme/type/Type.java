@@ -96,6 +96,9 @@ public abstract class Type {
                 for (int i=0; i < paramTypes.length; i++) {
                     paramTypes[i] = nestedList.get(i);
                 }
+                if ((paramTypes.length == 1) && (paramTypes[0].getType().equals(VoidType.TYPE))) {
+                    paramTypes = new TypeRef[0];
+                }
                 TypeRef returnType = nestedList.get(nestedList.size()-1);
                 return new FunctionType(paramTypes.length, paramTypes, returnType);
             }

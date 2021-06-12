@@ -5,6 +5,7 @@ import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.AbstractType;
 import edu.vanderbilt.cs.wutkam.scheme.type.AbstractTypeDecl;
+import edu.vanderbilt.cs.wutkam.scheme.type.FunctionType;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
@@ -118,6 +119,12 @@ public class LetExpr implements Expression {
                 }
                 // Both let* and letrec put the value into the environment so it is immediately visible to
                 // other let definitions
+                if (value instanceof FunctionExpr) {
+                    FunctionExpr func = (FunctionExpr) value;
+                    if (func.isClosure) {
+                        func.closureEnv = null;
+                    }
+                }
                 letEnv.define(name, value.evaluate(letEnv, false));
             } else {
                 letEnv.define(name, value.evaluate(env, false));

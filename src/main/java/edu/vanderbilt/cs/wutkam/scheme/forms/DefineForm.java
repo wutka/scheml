@@ -9,6 +9,7 @@ import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.FunctionType;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
+import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -49,12 +50,18 @@ public class DefineForm implements Form {
         if (expr instanceof ListExpr) {
             expr = FormExpander.expand((ListExpr) expr, false);
         }
+        expr = expr.evaluate(new Environment<>(), false);
+
         // Define the variable at the top level
         SchemeRuntime.getTopLevel().define(sym.value, expr);
 
         // Store the variable's computed type in the unify top level
         TypeRef typeRef = new TypeRef();
-        expr.unify(typeRef, new Environment<>());
+        try {
+            expr.unify(typeRef, new Environment<>());
+        } catch (UnifyException exc) {
+            throw UnifyException.addCause("Error defining symbol "+sym.value, exc);
+        }
         SchemeRuntime.getUnifyTopLevel().define(sym.value, typeRef);
 
         return expr;
@@ -94,7 +101,11 @@ public class DefineForm implements Form {
         unifyTopLevel.define(functionName, new TypeRef(origFuncType));
 
         TypeRef functionType = new TypeRef(origFuncType);
-        functionExpr.unify(functionType, new Environment<>());
+        try {
+            functionExpr.unify(functionType, new Environment<>());
+        } catch (UnifyException exc) {
+            throw UnifyException.addCause("Error defining function " + functionName, exc);
+        }
 
         unifyTopLevel.define(functionName, functionType.copy(new HashMap<>()));
 

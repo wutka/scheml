@@ -81,13 +81,34 @@ public class MatchTypeConstructor implements Match {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append('(');
-        builder.append(constructorName);
-        for (Match match: targetPatterns) {
-            builder.append(' ');
-            builder.append(match.toString());
+        if (constructorName.equals("Nil")) {
+            return "nil";
+        } else if (constructorName.equals("Cons")) {
+            builder.append('(');
+            boolean isFirst = true;
+            MatchTypeConstructor curr = this;
+            while (curr.constructorName.equals("Cons")) {
+                if (!isFirst) builder.append(" ");
+                isFirst = false;
+                builder.append(curr.targetPatterns.get(0).toString());
+                Match tail = curr.targetPatterns.get(1);
+                if (tail instanceof MatchTypeConstructor) {
+                    curr = (MatchTypeConstructor) curr.targetPatterns.get(1);
+                } else {
+                    break;
+                }
+            }
+            builder.append(')');
+            return builder.toString();
+        } else {
+            builder.append('(');
+            builder.append(constructorName);
+            for (Match match : targetPatterns) {
+                builder.append(' ');
+                builder.append(match.toString());
+            }
+            builder.append(')');
+            return builder.toString();
         }
-        builder.append(')');
-        return builder.toString();
     }
 }

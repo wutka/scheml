@@ -32,3 +32,9 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+task copyJar(type: Copy) {
+    from jar
+    into "."
+    rename ".*.jar", "scheml.jar"
+}

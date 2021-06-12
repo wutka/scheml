@@ -53,11 +53,20 @@ public class BuiltinInitializer {
         new BuiltinUnaryFunctionExpr<>("int->double", "int->double", (Long a) -> (double) a),
         new BuiltinUnaryFunctionExpr<>("double->int", "double->int", (Double a) -> a.longValue()),
 
+        new BuiltinUnaryFunctionExpr<>("int->char", "int->char", (Long a) -> (char) a.intValue()),
+        new BuiltinUnaryFunctionExpr<>("char->int", "char->int", (Character a) -> (long) a),
+
         new BuiltinBinaryFunctionExpr<>("and", "bool -> bool -> bool", (Boolean a, Boolean b) -> a && b),
         new BuiltinBinaryFunctionExpr<>("or", "bool -> bool -> bool", (Boolean a, Boolean b) -> a || b),
         new BuiltinBinaryFunctionExpr<>("xor", "bool -> bool -> bool", (Boolean a, Boolean b) -> a ^ b),
-
         new BuiltinUnaryFunctionExpr<>("not", "bool -> bool", (Boolean a) -> !a),
+
+        new BuiltinBinaryFunctionExpr<>("&", "int -> int -> int", (Long a, Long b) -> a & b),
+        new BuiltinBinaryFunctionExpr<>("|", "int -> int -> int", (Long a, Long b) -> a | b),
+        new BuiltinBinaryFunctionExpr<>("^", "int -> int -> int", (Long a, Long b) -> a ^ b),
+        new BuiltinUnaryFunctionExpr<>("~", "int -> int", (Long a) -> ~a),
+        new BuiltinBinaryFunctionExpr<>("<<", "int -> int -> int", (Long a, Long b) -> a << b),
+        new BuiltinBinaryFunctionExpr<>(">>", "int -> int -> int", (Long a, Long b) -> a >> b),
 
         new BuiltinUnaryFunctionExpr<>("->string", "'a -> string", (Object a) -> a.toString()),
         new BuiltinUnaryFunctionExpr<>("id", "'a -> 'a", (Object a) -> a),
@@ -71,7 +80,14 @@ public class BuiltinInitializer {
         new Tail("tail"),
         new Null("null?"),
         new Print("print"),
+        new Load("load"),
+        new Quit("quit"),
+        new Input("input"),
+        new ReadLines("read-lines"),
+        new WriteLines("write-lines"),
         new Fail("fail"),
+        new Split("split"),
+        new Join("join"),
     };
 
     public static void initializeBuiltins(Environment<Expression> exprEnv, Environment<TypeRef> typeEnv) {

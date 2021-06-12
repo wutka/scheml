@@ -2,6 +2,7 @@ package edu.vanderbilt.cs.wutkam.scheme.parser;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.expr.*;
+import edu.vanderbilt.cs.wutkam.scheme.type.builtin.ConsTypeDecl;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -213,7 +214,7 @@ public class Parser {
                     // Turn the builder into a string, see if it is the nil constant
                     String symbol = builder.toString();
                     if (symbol.equals("nil")) {
-                        addExpression(new ConsExpr());
+                        addExpression(ConsTypeDecl.newNil());
                     } else {
                         addExpression(new SymbolExpr(symbol));
                     }

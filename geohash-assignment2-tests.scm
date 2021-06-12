@@ -63,13 +63,14 @@
     (assert-true (not (geodb-contains 45.0 -45.0 16 db)))
     ;;; Begin a slightly-ugle chain of lets to do some updates and
     ;;; assertions
-    (let (((Pair _ db-deleted1) (geodb-delete 90.0 -180.0 db)))
+    (statements
+      (:= (Pair _ db-deleted1) (geodb-delete 90.0 -180.0 db))
       (assert-true (not (geodb-contains 90.0 -180.0 16 db-deleted1)))
-      (let (((Pair _ db-deleted-all) (geodb-delete-all 1.0 1.0 1 db-deleted1)))
-        (assert-true (geodb-contains -90.0 -180.0 16 db-deleted-all))
-        (assert-true (not (geodb-contains 90.0 180.0 16 db-deleted-all)))
-        (let (((Pair _ db-inserted) (geodb-insert 90.0 180.0 db-deleted-all)))
-          (assert-true (geodb-contains 90.0 180.0 16 db-inserted)))))))
+      (:= (Pair _ db-deleted-all) (geodb-delete-all 1.0 1.0 1 db-deleted1))
+      (assert-true (geodb-contains -90.0 -180.0 16 db-deleted-all))
+      (assert-true (not (geodb-contains 90.0 180.0 16 db-deleted-all)))
+      (:= (Pair _ db-inserted) (geodb-insert 90.0 180.0 db-deleted-all))
+      (assert-true (geodb-contains 90.0 180.0 16 db-inserted)))))
 
 ;;; Run all the tests
 (define (test-suite)
@@ -78,4 +79,3 @@
   (test-zero-bits)
   (test-zero-bits-delete)
   (test-insert-delete-series))
-
