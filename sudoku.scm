@@ -220,7 +220,7 @@
     (make-sorted-try-list' 9 nil)))
 
 (define (try-solve-val-at-pos pos val sud try-func try-list)
-  (let ((reduced (reduce (set-cell val pos sud))))
+  (let ((reduced (reduce (set-cell (Fixed val) pos sud))))
     (if (done reduced) reduced
         (if (failed? reduced) nil
             (if (null? try-list) nil
