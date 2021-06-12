@@ -80,6 +80,7 @@
                     (length-1 (tail l) (+ n 1))))))
     (length-1 l 0)))
 
+;;; Returns the nth element in a list
 (define (nth n l)
   (if (null? l) (fail "Ran out of elements looking for nth element")
       (if (= n 0) (head l)
