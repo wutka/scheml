@@ -2,10 +2,9 @@ package edu.vanderbilt.cs.wutkam.scheme.expr;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
-import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.AbstractTypeDecl;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
-import edu.vanderbilt.cs.wutkam.scheme.type.builtin.ConsTypeDecl;
 import edu.vanderbilt.cs.wutkam.scheme.type.builtin.CustomToString;
 
 import java.util.List;
@@ -33,7 +32,7 @@ public class AbstractTypeExpr implements Expression {
 
     @Override
     public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
-        AbstractTypeDecl typeDecl = SchemeRuntime.getTypeRegistry().lookup(typeName);
+        AbstractTypeDecl typeDecl = SchemlRuntime.getTypeRegistry().lookup(typeName);
         TypeConstructorExpr typeConstructor = typeDecl.typeConstructors.get(constructorName);
         // We unify with the values here to make sure the return type has concrete values
         // when necessary
@@ -62,7 +61,7 @@ public class AbstractTypeExpr implements Expression {
 
     @Override
     public String toString() {
-        AbstractTypeDecl decl = SchemeRuntime.getTypeRegistry().lookup(this.typeName);
+        AbstractTypeDecl decl = SchemlRuntime.getTypeRegistry().lookup(this.typeName);
         if (decl instanceof CustomToString) {
             return ((CustomToString)decl).customToString(this);
         }

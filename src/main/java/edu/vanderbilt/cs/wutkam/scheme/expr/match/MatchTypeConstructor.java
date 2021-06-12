@@ -5,7 +5,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.AbstractTypeExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.TypeConstructorExpr;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
-import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.AbstractType;
 import edu.vanderbilt.cs.wutkam.scheme.type.AbstractTypeDecl;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
@@ -14,7 +14,6 @@ import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * Represents a type constructor within the context of a match expression
@@ -52,7 +51,7 @@ public class MatchTypeConstructor implements Match {
     @Override
     public void unify(TypeRef matchTargetType, Environment<TypeRef> env) throws LispException {
         // Find the definition for this type
-        AbstractTypeDecl abstractTypeDecl = SchemeRuntime.getTypeRegistry().findByConstructor(constructorName);
+        AbstractTypeDecl abstractTypeDecl = SchemlRuntime.getTypeRegistry().findByConstructor(constructorName);
 
         // Find the type constructor for this pattern
         TypeConstructorExpr constructorFunc = abstractTypeDecl.typeConstructors.get(constructorName);

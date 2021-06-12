@@ -2,10 +2,9 @@ package edu.vanderbilt.cs.wutkam.scheme.expr;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
-import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.AbstractType;
 import edu.vanderbilt.cs.wutkam.scheme.type.AbstractTypeDecl;
-import edu.vanderbilt.cs.wutkam.scheme.type.FunctionType;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
@@ -193,7 +192,7 @@ public class LetExpr implements Expression {
         @Override
         public void unify(int letType, Environment<TypeRef> env, Environment<TypeRef> letEnv) throws LispException {
             // Start with the abstract type declaration that this declaration uses
-            AbstractTypeDecl abstractTypeDecl = SchemeRuntime.getTypeRegistry().lookup(typeName);
+            AbstractTypeDecl abstractTypeDecl = SchemlRuntime.getTypeRegistry().lookup(typeName);
             TypeRef abstractTypeRef = new TypeRef(new AbstractType(abstractTypeDecl));
 
             // Unify that abstract type with the result from evaluating the value, which better

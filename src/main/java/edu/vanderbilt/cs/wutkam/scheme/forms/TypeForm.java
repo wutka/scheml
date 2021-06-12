@@ -6,7 +6,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.ListExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.SymbolExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.TypeConstructorExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.VoidExpr;
-import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.*;
 
 import java.util.*;
@@ -96,7 +96,7 @@ public class TypeForm implements Form {
         // Create a declaration for this type, and go ahead and define it in the type registry so it can
         // recursively refer to itself
         abstractTypeDecl = new AbstractTypeDecl(typeName, parametricList);
-        SchemeRuntime.getTypeRegistry().define(abstractTypeDecl);
+        SchemlRuntime.getTypeRegistry().define(abstractTypeDecl);
 
         // Process each type constructor
         for (Expression expr: aList.elementsFrom(nextPos)) {
@@ -113,8 +113,8 @@ public class TypeForm implements Form {
                 TypeConstructorExpr typeConstructor = new TypeConstructorExpr(abstractTypeDecl.typeName, sym.value,
                         abstractTypeDecl.parametricTypes, new ArrayList<>());
                 typeConstructors.add(typeConstructor);
-                SchemeRuntime.getTopLevel().define(sym.value, typeConstructor);
-                SchemeRuntime.getUnifyTopLevel().define(sym.value,
+                SchemlRuntime.getTopLevel().define(sym.value, typeConstructor);
+                SchemlRuntime.getUnifyTopLevel().define(sym.value,
                         new TypeRef(new FunctionType(typeConstructor)));
 
             } else if (expr instanceof ListExpr) {
@@ -141,8 +141,8 @@ public class TypeForm implements Form {
                 TypeConstructorExpr constructor = new TypeConstructorExpr(abstractTypeDecl.typeName, sym.value,
                         abstractTypeDecl.parametricTypes, typeParams);
                 typeConstructors.add(constructor);
-                SchemeRuntime.getTopLevel().define(sym.value, constructor);
-                SchemeRuntime.getUnifyTopLevel().define(sym.value,
+                SchemlRuntime.getTopLevel().define(sym.value, constructor);
+                SchemlRuntime.getUnifyTopLevel().define(sym.value,
                         new TypeRef(new FunctionType(constructor)));
             } else {
                 throw new LispException("Type constructor parameters must either be either symbols or lists");
@@ -209,7 +209,7 @@ public class TypeForm implements Form {
         if (typeNameExpr instanceof SymbolExpr) {
 
             SymbolExpr nameSym = (SymbolExpr) typeNameExpr;
-            AbstractTypeDecl abstractTypeDecl = SchemeRuntime.getTypeRegistry().lookup(nameSym.value);
+            AbstractTypeDecl abstractTypeDecl = SchemlRuntime.getTypeRegistry().lookup(nameSym.value);
             if (abstractTypeDecl != null) {
                 if (abstractTypeDecl.parametricTypes.size() != typeList.size() - nextPos) {
                     throw new LispException("Parametric type list for type " + nameSym.value + " must have " +

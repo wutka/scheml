@@ -6,7 +6,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.FunctionExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.ListExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.SymbolExpr;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
-import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.FunctionType;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
@@ -53,7 +53,7 @@ public class DefineForm implements Form {
         expr = expr.evaluate(new Environment<>(), false);
 
         // Define the variable at the top level
-        SchemeRuntime.getTopLevel().define(sym.value, expr);
+        SchemlRuntime.getTopLevel().define(sym.value, expr);
 
         // Store the variable's computed type in the unify top level
         TypeRef typeRef = new TypeRef();
@@ -62,7 +62,7 @@ public class DefineForm implements Form {
         } catch (UnifyException exc) {
             throw UnifyException.addCause("Error defining symbol "+sym.value, exc);
         }
-        SchemeRuntime.getUnifyTopLevel().define(sym.value, typeRef);
+        SchemlRuntime.getUnifyTopLevel().define(sym.value, typeRef);
 
         return expr;
     }
@@ -89,10 +89,10 @@ public class DefineForm implements Form {
                 functionBody);
 
         // Store the function in the top level
-        SchemeRuntime.getTopLevel().define(functionName, functionExpr);
+        SchemlRuntime.getTopLevel().define(functionName, functionExpr);
 
         // Compute the function type and store that in the top level
-        Environment<TypeRef> unifyTopLevel = SchemeRuntime.getUnifyTopLevel();
+        Environment<TypeRef> unifyTopLevel = SchemlRuntime.getUnifyTopLevel();
 
         TypeRef[] paramTypes = new TypeRef[functionExpr.arity];
         for (int i=0; i < paramTypes.length; i++) paramTypes[i] = new TypeRef();

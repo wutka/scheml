@@ -2,7 +2,7 @@ package edu.vanderbilt.cs.wutkam.scheme.expr;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
-import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
@@ -21,7 +21,7 @@ public class SymbolExpr implements Expression {
         // Look the symbol up
         Expression expr = env.lookup(value);
         if (expr == null) {
-            expr = SchemeRuntime.getTopLevel().lookup(value);
+            expr = SchemlRuntime.getTopLevel().lookup(value);
             if (expr == null) {
                 throw new LispException("Unknown symbol " + value);
             }
@@ -35,7 +35,7 @@ public class SymbolExpr implements Expression {
         TypeRef myType = env.lookup(value);
         boolean isTopLevel = false;
         if (myType == null) {
-            myType = SchemeRuntime.getUnifyTopLevel().lookup(value);
+            myType = SchemlRuntime.getUnifyTopLevel().lookup(value);
             if (myType == null) {
                 throw new UnifyException("Unknown symbol - " + value);
             }

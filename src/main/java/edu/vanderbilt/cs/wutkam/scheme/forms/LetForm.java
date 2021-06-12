@@ -2,7 +2,7 @@ package edu.vanderbilt.cs.wutkam.scheme.forms;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.expr.*;
-import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.AbstractTypeDecl;
 
 import java.util.ArrayList;
@@ -95,7 +95,7 @@ public class LetForm implements Form {
 
                 // Get the constructor name and find the type by the constructor name
                 String constructorName = ((SymbolExpr)bindList.getElement(0)).value;
-                AbstractTypeDecl abstractTypeDecl = SchemeRuntime.getTypeRegistry().findByConstructor(constructorName);
+                AbstractTypeDecl abstractTypeDecl = SchemlRuntime.getTypeRegistry().findByConstructor(constructorName);
                 if (abstractTypeDecl == null) {
                     throw new LispException("Unknown type constructor "+constructorName);
                 }

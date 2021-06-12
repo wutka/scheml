@@ -8,7 +8,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.ListExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.StatementsExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.SymbolExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.TypeConstructorExpr;
-import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.AbstractTypeDecl;
 
 import java.util.ArrayList;
@@ -75,7 +75,7 @@ public class StatementsForm implements Form {
 
             // Get the constructor name and find the type by the constructor name
             String constructorName = ((SymbolExpr)bindList.getElement(0)).value;
-            AbstractTypeDecl abstractTypeDecl = SchemeRuntime.getTypeRegistry().findByConstructor(constructorName);
+            AbstractTypeDecl abstractTypeDecl = SchemlRuntime.getTypeRegistry().findByConstructor(constructorName);
             if (abstractTypeDecl == null) {
                 throw new LispException("Unknown type constructor "+constructorName);
             }

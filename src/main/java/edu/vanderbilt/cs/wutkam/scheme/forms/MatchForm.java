@@ -2,7 +2,6 @@ package edu.vanderbilt.cs.wutkam.scheme.forms;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.expr.*;
-import edu.vanderbilt.cs.wutkam.scheme.expr.match.ExhaustivenessChecker;
 import edu.vanderbilt.cs.wutkam.scheme.expr.match.Match;
 import edu.vanderbilt.cs.wutkam.scheme.expr.match.MatchBool;
 import edu.vanderbilt.cs.wutkam.scheme.expr.match.MatchChar;
@@ -11,17 +10,12 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.match.MatchInt;
 import edu.vanderbilt.cs.wutkam.scheme.expr.match.MatchString;
 import edu.vanderbilt.cs.wutkam.scheme.expr.match.MatchTypeConstructor;
 import edu.vanderbilt.cs.wutkam.scheme.expr.match.MatchVariable;
-import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
-import edu.vanderbilt.cs.wutkam.scheme.type.AbstractType;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.AbstractTypeDecl;
-import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
-import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /** Provides a pattern-matching form for abstract types.
  * Only very basic patterns are provided in that you can only provide symbols in the type constructor
@@ -78,7 +72,7 @@ public class MatchForm implements Form {
             ListExpr listExpr = (ListExpr) expr;
             if (listExpr.size() >= 1 && (listExpr.getElement(0) instanceof SymbolExpr)) {
                 String constructorName = ((SymbolExpr)listExpr.getElement(0)).value;
-                AbstractTypeDecl abstractTypeDecl = SchemeRuntime.getTypeRegistry().findByConstructor(constructorName);
+                AbstractTypeDecl abstractTypeDecl = SchemlRuntime.getTypeRegistry().findByConstructor(constructorName);
 
                 if (abstractTypeDecl != null) {
                     TypeConstructorExpr typeConstructorExpr = abstractTypeDecl.typeConstructors.get(constructorName);
@@ -117,7 +111,7 @@ public class MatchForm implements Form {
             return new MatchString(((StringExpr) expr).value);
         } else if (expr instanceof SymbolExpr) {
             String name = ((SymbolExpr) expr).value;
-            AbstractTypeDecl abstractTypeDecl = SchemeRuntime.getTypeRegistry().findByConstructor(name);
+            AbstractTypeDecl abstractTypeDecl = SchemlRuntime.getTypeRegistry().findByConstructor(name);
 
             if (abstractTypeDecl != null) {
                 TypeConstructorExpr typeConstructorExpr = abstractTypeDecl.typeConstructors.get(name);

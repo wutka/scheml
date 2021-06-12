@@ -1,16 +1,13 @@
 package edu.vanderbilt.cs.wutkam.scheme.expr.match;
 
 import edu.vanderbilt.cs.wutkam.scheme.expr.TypeConstructorExpr;
-import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.AbstractTypeDecl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -31,7 +28,7 @@ public class ExhaustivenessChecker {
                 qpStack.push(patterns.get(i));
                 Stack<Match> usefulness = checkUsefulness(copyPatternMatrix(patternMatrix), qpStack);
                 if (usefulness == null) {
-                    SchemeRuntime.warn("Pattern " + patterns.get(i).toString() + " is redundant");
+                    SchemlRuntime.warn("Pattern " + patterns.get(i).toString() + " is redundant");
                 }
                 Stack<Match> pattStack = new Stack<>();
                 pattStack.push(patterns.get(i));
@@ -50,7 +47,7 @@ public class ExhaustivenessChecker {
         wildcardStack.push(WILDCARD);
         Stack<Match> exhaustive = checkUsefulness(patternMatrix, wildcardStack);
         if (exhaustive != null) {
-            SchemeRuntime.warn("Pattern match is not exhaustive, an unmatched pattern is "+
+            SchemlRuntime.warn("Pattern match is not exhaustive, an unmatched pattern is "+
                     exhaustive.pop().toString());
         }
     }
@@ -285,7 +282,7 @@ public class ExhaustivenessChecker {
     }
 
     protected static List<MatchString> getAllConstructorNames(String constructorName) {
-        AbstractTypeDecl abstractTypeDecl = SchemeRuntime.getTypeRegistry().findByConstructor(constructorName);
+        AbstractTypeDecl abstractTypeDecl = SchemlRuntime.getTypeRegistry().findByConstructor(constructorName);
         List<MatchString> retval = new ArrayList<>();
         for (TypeConstructorExpr typeConstructor: abstractTypeDecl.typeConstructors.values()) {
             retval.add(new MatchString(typeConstructor.name));
@@ -300,7 +297,7 @@ public class ExhaustivenessChecker {
     }
 
     protected static List<Match> getAllConstructorMatchers(String constructorName) {
-        AbstractTypeDecl abstractTypeDecl = SchemeRuntime.getTypeRegistry().findByConstructor(constructorName);
+        AbstractTypeDecl abstractTypeDecl = SchemlRuntime.getTypeRegistry().findByConstructor(constructorName);
         List<Match> retval = new ArrayList<>();
         for (TypeConstructorExpr typeConstructor: abstractTypeDecl.typeConstructors.values()) {
             List<Match> wildcards = new ArrayList<>();

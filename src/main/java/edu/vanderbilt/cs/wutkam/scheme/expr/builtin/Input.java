@@ -3,8 +3,7 @@ package edu.vanderbilt.cs.wutkam.scheme.expr.builtin;
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.StringExpr;
-import edu.vanderbilt.cs.wutkam.scheme.expr.VoidExpr;
-import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemlRuntime;
 
 /** Prints a string to stdout
  */
@@ -15,6 +14,6 @@ public class Input extends BuiltinFunctionExpr {
 
     @Override
     public Expression executeBuiltin(Expression[] args) throws LispException {
-        return new StringExpr(SchemeRuntime.getRepl().readLine());
+        return new StringExpr(SchemlRuntime.getRepl().readLine());
     }
 }

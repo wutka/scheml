@@ -8,12 +8,11 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.builtin.FailException;
 import edu.vanderbilt.cs.wutkam.scheme.forms.FormExpander;
 import edu.vanderbilt.cs.wutkam.scheme.parser.Parser;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
-import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -28,7 +27,7 @@ public class Repl {
 
     public static void main(String [] args) {
         Repl repl = new Repl();
-        SchemeRuntime.repl = repl;
+        SchemlRuntime.repl = repl;
         repl.run(args);
     }
 
@@ -112,7 +111,7 @@ public class Repl {
                 // Evaluate the expression
                 expr = expr.evaluate(new Environment<>(), false);
 
-                for (String warning: SchemeRuntime.getWarnings()) {
+                for (String warning: SchemlRuntime.getWarnings()) {
                     System.out.println(warning);
                 }
 

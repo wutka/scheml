@@ -4,12 +4,9 @@ import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.expr.match.ExhaustivenessChecker;
 import edu.vanderbilt.cs.wutkam.scheme.expr.match.Match;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
-import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
-import edu.vanderbilt.cs.wutkam.scheme.type.AbstractTypeDecl;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /** A match expression that evaluates an expression and matches it against a list of patterns
