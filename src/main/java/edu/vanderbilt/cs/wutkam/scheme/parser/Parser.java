@@ -235,7 +235,7 @@ public class Parser {
 
     /** Parses a number from the input stream */
     static Expression parseNumber(PushbackReader pushback, boolean isNegative, char ch) throws IOException, LispException {
-        int num = ch-'0';
+        long num = ch-'0';
         boolean inDouble = false;
         double doubleFrac = 0.1;
         double doubleNum = 0.0;
