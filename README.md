@@ -18,8 +18,11 @@ the same way against an s-expression.
 
 ## Building
 You'll need a recent Java (I am using OpenJDK 14), and the Gradle build system.
-If you run `gradle copyJar` it should build an executable jar file and then
-copy it into the current directory as `scheml.jar`.
+To run the build and copy the resulting jar file to `scheml.jar` in the current
+directory:
+```shell
+gradle copyJar
+ ```
 
 ## Running
 If you have done the build step above, then you can run Scheml one of two ways:
