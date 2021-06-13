@@ -24,8 +24,13 @@ import java.util.List;
 public class Repl {
     protected BufferedReader dataIn;
 
+    protected Environment<Expression> exprEnvironment;
+    protected Environment<TypeRef> typeEnvironment;
+
     public Repl() {
         dataIn = new BufferedReader(new InputStreamReader(System.in));
+        this.exprEnvironment = new Environment<>();
+        this.typeEnvironment = new Environment<>();
     }
 
     public static void main(String [] args) {
@@ -113,10 +118,10 @@ public class Repl {
                 // Do a type check - this is necessary since the interpreter assumes that types have
                 // been checked and it makes a lot of assumptions when doing type casts
                 TypeRef exprType = new TypeRef();
-                expr.unify(exprType, new Environment<>());
+                expr.unify(exprType, typeEnvironment);
 
                 // Evaluate the expression
-                expr = expr.evaluate(new Environment<>(), false);
+                expr = expr.evaluate(exprEnvironment, false);
 
                 for (String warning: SchemlRuntime.getWarnings()) {
                     System.out.println(warning);
@@ -126,7 +131,7 @@ public class Repl {
                     TypeRef resultType = new TypeRef();
                     // If we also are displaying the type of the result, get the type and print it
                     try {
-                        expr.unify(resultType, new Environment<>());
+                        expr.unify(resultType, typeEnvironment);
                         System.out.print(expr);
                         System.out.print(" : ");
                         System.out.println(resultType.getType());
