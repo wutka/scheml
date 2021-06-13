@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Prints a string to stdout
+/** Writes a list of string as separate lines in the named file
  */
 public class WriteLines extends BuiltinFunctionExpr {
     public WriteLines(String name) {

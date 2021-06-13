@@ -5,7 +5,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.StringExpr;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemlRuntime;
 
-/** Prints a string to stdout
+/** Reads a line from System.in
  */
 public class Input extends BuiltinFunctionExpr {
     public Input(String name) {

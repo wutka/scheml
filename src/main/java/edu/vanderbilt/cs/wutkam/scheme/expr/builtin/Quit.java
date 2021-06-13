@@ -5,7 +5,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.StringExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.VoidExpr;
 
-/** Prints a string to stdout
+/** Terminates the repl
  */
 public class Quit extends BuiltinFunctionExpr {
     public Quit(String name) {

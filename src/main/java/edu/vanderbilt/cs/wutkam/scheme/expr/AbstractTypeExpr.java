@@ -62,6 +62,8 @@ public class AbstractTypeExpr implements Expression {
     @Override
     public String toString() {
         AbstractTypeDecl decl = SchemlRuntime.getTypeRegistry().lookup(this.typeName);
+
+        // If there is a custom toString provided for this type, use it
         if (decl instanceof CustomToString) {
             return ((CustomToString)decl).customToString(this);
         }

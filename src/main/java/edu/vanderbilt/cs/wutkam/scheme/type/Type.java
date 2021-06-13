@@ -1,7 +1,7 @@
 package edu.vanderbilt.cs.wutkam.scheme.type;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
-import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemeRuntime;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemlRuntime;
 
 import java.io.PushbackReader;
 import java.io.StringReader;
@@ -136,7 +136,7 @@ public abstract class Type {
         }
 
         // If we get this far, the symbol must be an abstract type declaration, so look it up
-        AbstractTypeDecl abstractTypeDecl = SchemeRuntime.getTypeRegistry().lookup(parts[0]);
+        AbstractTypeDecl abstractTypeDecl = SchemlRuntime.getTypeRegistry().lookup(parts[0]);
 
         if (abstractTypeDecl != null) {
             // Make sure the number of parametric types is correct

@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-/**
+/** A match pattern for doubles
  */
 public class MatchDouble implements Match {
     public double value;
@@ -27,7 +27,7 @@ public class MatchDouble implements Match {
 
     @Override
     public void defineEnvironment(Expression expr, Environment<Expression> env) {
-
+        // There are no variables in a double so there is nothing to match
     }
 
     @Override

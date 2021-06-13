@@ -4,7 +4,8 @@ import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
-/**
+/** Represents a variable assignment in a statement form, which behaves just like the binding
+ * in a let expression
  */
 public class AssignExpr implements Expression {
     LetExpr.Declaration declaration;

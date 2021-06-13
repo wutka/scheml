@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-/**
+/** A match pattern for a character
  */
 public class MatchChar implements Match {
     public char value;
@@ -27,7 +27,7 @@ public class MatchChar implements Match {
 
     @Override
     public void defineEnvironment(Expression expr, Environment<Expression> env) {
-
+        // A character doesn't have any variables so there is nothing to define
     }
 
     @Override

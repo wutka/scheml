@@ -9,7 +9,7 @@ import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
 import java.util.Objects;
 
-/**
+/** A match pattern for a boolean
  */
 public class MatchBool implements Match {
     boolean value;
@@ -25,7 +25,7 @@ public class MatchBool implements Match {
 
     @Override
     public void defineEnvironment(Expression expr, Environment<Expression> env) {
-
+        // A bool doesn't contain any variables so there is nothing to define
     }
 
     @Override

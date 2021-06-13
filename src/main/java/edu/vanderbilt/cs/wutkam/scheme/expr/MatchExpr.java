@@ -24,6 +24,8 @@ public class MatchExpr implements Expression {
 
     @Override
     public Expression evaluate(Environment<Expression> env, boolean inTailPosition) throws LispException {
+        checkExhaustiveness();
+
         // Evaluate the expression being matched
         Expression matchAgainst = matchExpression.evaluate(env, false);
 
@@ -40,6 +42,7 @@ public class MatchExpr implements Expression {
 
     @Override
     public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
+        checkExhaustiveness();
 
         TypeRef matchExpressionType = new TypeRef();
         matchExpression.unify(matchExpressionType, env);
@@ -50,6 +53,9 @@ public class MatchExpr implements Expression {
             patternAndTarget.targetExpression.unify(typeRef, matchEnv);
         }
 
+    }
+
+    public void checkExhaustiveness() {
         if (!exhaustivenessChecked) {
             List<Match> patternList = new ArrayList<>();
             for (MatchExpr.MatchPatternAndTarget pattern: matchPatterns) {
@@ -59,7 +65,6 @@ public class MatchExpr implements Expression {
             exhaustivenessChecked = true;
         }
     }
-
     public static class MatchPatternAndTarget {
         public final Match pattern;
         public final Expression targetExpression;

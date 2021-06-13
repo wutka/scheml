@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-/**
+/** A match pattern for ints
  */
 public class MatchInt implements Match {
     public long value;
@@ -27,7 +27,7 @@ public class MatchInt implements Match {
 
     @Override
     public void defineEnvironment(Expression expr, Environment<Expression> env) {
-
+        // An int contains no variable so there is nothing to define
     }
 
     @Override

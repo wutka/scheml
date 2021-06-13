@@ -2,6 +2,11 @@ package edu.vanderbilt.cs.wutkam.scheme.runtime;
 
 import java.util.*;
 
+/** Provides some fairly simple profiling.
+ * If profiling is enabled, the ListExpr class will track the time it takes to apply each function
+ * and if the function has a name, it is recorded in the profiler. When profiling is disabled,
+ * the profiler prints a report of all the method calls sorted by total execution time.
+ */
 public class Profiler {
     Map<String,ProfileData> profile;
     boolean enabled;
@@ -24,6 +29,7 @@ public class Profiler {
         return enabled;
     }
 
+    /** Records a time in the map */
     public synchronized void record(String function, long nanos) {
         ProfileData data = profile.get(function);
         if (data == null) {
@@ -34,6 +40,7 @@ public class Profiler {
         data.totalNanoseconds += nanos;
     }
 
+    /** Prints a report of the profiling session, then clears out the profiling data and turns off profiling */
     public void printProfile() {
         List<String> functions = new ArrayList<>(profile.keySet());
         functions.sort((f1, f2) ->

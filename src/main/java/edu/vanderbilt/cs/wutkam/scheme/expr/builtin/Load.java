@@ -6,7 +6,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.StringExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.VoidExpr;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemlRuntime;
 
-/** Prints a string to stdout
+/** loads a file from disk and evaluates it
  */
 public class Load extends BuiltinFunctionExpr {
     public Load(String name) {

@@ -5,7 +5,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.StringExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.VoidExpr;
 
-/** Prints a string to stdout
+/** Fails with a message to the top level in the repl
  */
 public class Fail extends BuiltinFunctionExpr {
     public Fail(String name) {

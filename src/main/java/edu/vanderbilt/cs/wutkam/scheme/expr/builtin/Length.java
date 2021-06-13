@@ -5,7 +5,7 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.AbstractTypeExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.IntExpr;
 
-/** A function to find the nth element of a list
+/** A function to find the length of a string
  */
 public class Length extends BuiltinFunctionExpr {
     public Length(String name) {

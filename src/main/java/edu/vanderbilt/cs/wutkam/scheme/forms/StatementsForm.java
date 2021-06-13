@@ -14,7 +14,20 @@ import edu.vanderbilt.cs.wutkam.scheme.type.AbstractTypeDecl;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
+/** Represents a block of statements treated as a single expression, similar to (progn), but providing
+ * variable binding similar to let, using the (:=) form
+ * for example:
+ * (statements
+ *   (print "Say something: ")
+ *   (:= line (input))
+ *   (printf "You typed %s\n" line))
+ *
+ * The (:=) form allows for the same kind of bindings as let, for example:
+ * (type pair ('a 'b) (Pair 'a 'b))
+ * (define (do-something) (Pair "foo" 42))
+ * (statements
+ *   (:= (Pair name i) (do-something))
+ *   (printf "Name %s has value %d\n" name i))
  */
 public class StatementsForm implements Form {
     @Override
@@ -24,6 +37,7 @@ public class StatementsForm implements Form {
         }
 
         List<Expression> statements = new ArrayList<>();
+        // Parse each statement
         for (Expression expr: aList.elementsFrom(1)) {
             if (expr instanceof ListExpr) {
                 ListExpr listExpr = (ListExpr) expr;
@@ -31,19 +45,24 @@ public class StatementsForm implements Form {
                     throw new LispException("can't have an empty list as a statement");
                 }
                 if (listExpr.getElement(0) instanceof SymbolExpr) {
+                    // If the expression starts with :=, parse this as an assignment
                     if (((SymbolExpr)listExpr.getElement(0)).value.equals(":=")) {
                         statements.add(parseAssignment(listExpr.elementsFrom(1)));
                     } else {
+                        // Otherwise it is just a normal expression
                         statements.add(FormExpander.expand(listExpr, false));
                     }
                 }
             } else {
+                // A statement can just be a value, which is really only useful as the
+                // last statement in the list, because earlier ones don't affect anything
                 statements.add(expr);
             }
         }
         return new StatementsExpr(statements);
     }
 
+    /** Parse a (:=) assignment as if it was a let binding */
     protected Expression parseAssignment(List<Expression> decl) throws LispException {
         if (decl.size() != 2) {
             throw new LispException("assignment "+decl+" should be a list with a name and expression");

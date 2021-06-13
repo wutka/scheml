@@ -30,8 +30,11 @@ public class MatchTypeConstructor implements Match {
     @Override
     public boolean matches(Expression expr) {
         AbstractTypeExpr abstractTypeExpr = (AbstractTypeExpr) expr;
+
+        // If this abstract type was constructed with a different constructor, it doesn't match
         if (!abstractTypeExpr.constructorName.equals(constructorName)) return false;
 
+        // Try to match the target patterns in the expression with the target patterns in this matcher
         for (int i=0; i < targetPatterns.size(); i++) {
             if (!targetPatterns.get(i).matches(abstractTypeExpr.values.get(i))) return false;
         }
@@ -42,6 +45,7 @@ public class MatchTypeConstructor implements Match {
     public void defineEnvironment(Expression expr, Environment<Expression> env) {
         AbstractTypeExpr abstractTypeExpr = (AbstractTypeExpr) expr;
 
+        // For each target pattern, ask them to define themselves in the environment
         for (int i = 0; i < targetPatterns.size(); i++) {
             Match item = targetPatterns.get(i);
             item.defineEnvironment(abstractTypeExpr.values.get(i), env);
@@ -59,19 +63,26 @@ public class MatchTypeConstructor implements Match {
             throw new UnifyException("No constructor named " + constructorName + " in " + abstractTypeDecl);
         }
 
+        // Make sure the target type matches the type of the abstract type
         matchTargetType.unify(new TypeRef(new AbstractType(abstractTypeDecl)));
 
         // Make a copy of the parametric types and parameter types from the constructor fund
         Map<String, TypeRef> linkageMap = new HashMap<>();
+
+        // Although we don't do anything with the parametric types, we do copy them to make
+        // sure the linkage map is consistent
         TypeRef[] parametricTypes = new TypeRef[constructorFunc.parametricTypes.size()];
         for (int i = 0; i < parametricTypes.length; i++) {
             parametricTypes[i] = constructorFunc.parametricTypes.get(i).copy(linkageMap);
         }
+
+        // Copy each of the param types
         TypeRef[] paramTypes = new TypeRef[constructorFunc.paramTypes.length];
         for (int i = 0; i < paramTypes.length; i++) {
             paramTypes[i] = constructorFunc.paramTypes[i].copy(linkageMap);
         }
 
+        // Unify against all of the target patterns
         for (int i=0; i < paramTypes.length; i++) {
             targetPatterns.get(i).unify(paramTypes[i], env);
         }
@@ -80,18 +91,27 @@ public class MatchTypeConstructor implements Match {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
+        // Although the ConsTypeDecl has a custom toString method for an expression, we just
+        // do the toString for the Cons type matcher here
         if (constructorName.equals("Nil")) {
             return "nil";
         } else if (constructorName.equals("Cons")) {
             builder.append('(');
             boolean isFirst = true;
             MatchTypeConstructor curr = this;
+
+            // loop through the list
             while (curr.constructorName.equals("Cons")) {
                 if (!isFirst) builder.append(" ");
                 isFirst = false;
+
+                // Append the string value of the current cell to the builder
                 builder.append(curr.targetPatterns.get(0).toString());
+
+                // get the next cell in the list
                 Match tail = curr.targetPatterns.get(1);
                 if (tail instanceof MatchTypeConstructor) {
+                    // the next cell should be a match constructor
                     curr = (MatchTypeConstructor) curr.targetPatterns.get(1);
                 } else {
                     break;

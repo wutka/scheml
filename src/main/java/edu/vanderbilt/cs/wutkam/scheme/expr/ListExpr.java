@@ -69,8 +69,10 @@ public class ListExpr implements Expression {
         if (inTailPosition) {
             return new TailCallExpr(targetFunction, parameterList, env.previous());
         } else {
-            // Apply the function
+            // Record the current time
             long startTime = System.nanoTime();
+
+            // Apply the function
             Expression result = targetFunction.apply(parameterList, new Environment<>());
 
             // Since this call is not in the tail position, if we get a TailCallExpr, evaluate it, and keep
@@ -79,7 +81,10 @@ public class ListExpr implements Expression {
                 result = result.evaluate(env, false);
             }
 
+            // Record the finish time, including invoking the time to invoke the tail calls
             long endTime = System.nanoTime();
+
+            // If profiling is on, record the time it took to execute the function
             if (SchemlRuntime.getProfiler().enabled()) {
                 if (targetFunction instanceof FunctionExpr) {
                     FunctionExpr funcExpr = (FunctionExpr) targetFunction;

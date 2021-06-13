@@ -2,6 +2,7 @@ package edu.vanderbilt.cs.wutkam.scheme.expr.builtin;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 
+/** An exception to allow a fail message to be delivered up to the repl */
 public class FailException extends LispException {
     public FailException() {
     }

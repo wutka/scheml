@@ -13,7 +13,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
+/** A built-in AbstractTypeDecl for lists (Cons)
+ * including some utility methods for creating Cons and Nil instances and a
+ * custom toString that renders a Cons structure as a simple list
  */
 public class ConsTypeDecl extends AbstractTypeDecl implements CustomToString {
     public static String consTypeName = "cons";
@@ -78,6 +80,7 @@ public class ConsTypeDecl extends AbstractTypeDecl implements CustomToString {
         }
     }
 
+    /** Renders this abstract type as a simple list */
     public String customToString(AbstractTypeExpr expr) {
         StringBuilder builder = new StringBuilder();
         if (expr.constructorName.equals("Nil")) {

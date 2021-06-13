@@ -18,6 +18,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
+/** Represents the runtime Read-Eval-Print loop, but with hooks to allow other parts of the
+ * system to interact with the repl
+ */
 public class Repl {
     protected BufferedReader dataIn;
 
@@ -75,6 +78,7 @@ public class Repl {
         }
     }
 
+    /** Since the (input) function wants to read a line, let it use the same stream the repl does */
     public String readLine() throws LispException {
         try {
             return dataIn.readLine();
@@ -83,6 +87,7 @@ public class Repl {
         }
     }
 
+    /** Expose the loading operation performed by :r so that the (load) function can use it too */
     public void loadFile(String filename) {
         try {
             FileReader in = new FileReader(filename);
@@ -95,6 +100,8 @@ public class Repl {
             exc.printStackTrace(System.out);
         }
     }
+
+    /** Executes a list of expressions */
     public void executeExpressions(List<Expression> exprs, boolean displayType) {
         try {
             for (Expression expr : exprs) {

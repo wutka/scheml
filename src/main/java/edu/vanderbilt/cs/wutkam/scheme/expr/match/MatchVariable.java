@@ -8,7 +8,7 @@ import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
 import java.util.Objects;
 
-/**
+/** Represents a variable name or _ in a match
  */
 public class MatchVariable implements Match {
     public String name;
@@ -19,11 +19,14 @@ public class MatchVariable implements Match {
 
     @Override
     public boolean matches(Expression expression) {
+        // A variable always matches a value
         return true;
     }
 
     @Override
     public void defineEnvironment(Expression expr, Environment<Expression> env) {
+        // This is the only matcher that actually puts anything in the environment
+        // If the name isn't _, use this variable's name as the key in the environment
         if (!name.equals("_")) {
             env.define(name, expr);
         }
@@ -31,6 +34,7 @@ public class MatchVariable implements Match {
 
     @Override
     public void unify(TypeRef matchTargetType, Environment<TypeRef> env) throws LispException {
+        // As with defineEnvironment, if this isn't a _, store the target type in the environment
         if (!name.equals("_")) {
             env.define(name, matchTargetType);
         }
