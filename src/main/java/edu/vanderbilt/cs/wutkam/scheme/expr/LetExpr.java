@@ -116,14 +116,6 @@ public class LetExpr implements Expression {
                     // a let can contain a recursive function
                     letEnv.define(name, value);
                 }
-                // Both let* and letrec put the value into the environment so it is immediately visible to
-                // other let definitions
-                if (value instanceof FunctionExpr) {
-                    FunctionExpr func = (FunctionExpr) value;
-                    if (func.isClosure) {
-                        func.closureEnv = null;
-                    }
-                }
                 letEnv.define(name, value.evaluate(letEnv, false));
             } else {
                 letEnv.define(name, value.evaluate(env, false));

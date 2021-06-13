@@ -1,10 +1,7 @@
 package edu.vanderbilt.cs.wutkam.scheme.forms;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
-import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
-import edu.vanderbilt.cs.wutkam.scheme.expr.FunctionExpr;
-import edu.vanderbilt.cs.wutkam.scheme.expr.ListExpr;
-import edu.vanderbilt.cs.wutkam.scheme.expr.SymbolExpr;
+import edu.vanderbilt.cs.wutkam.scheme.expr.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +48,10 @@ public class LambdaForm implements Form {
         }
 
         // Create the FunctionExpr
-        return new FunctionExpr(name, headerSyms.size(), headerSyms, body, name == null);
+        if (name == null) {
+            return new ClosureExpr(name, headerSyms.size(), headerSyms, body);
+        } else {
+            return new FunctionExpr(name, headerSyms.size(), headerSyms, body);
+        }
     }
 }

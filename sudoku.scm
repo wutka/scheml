@@ -413,7 +413,7 @@
 ;;; Reads a file of sudokus, solves each one, and then writes the solution
 ;;; out to another file
 (define (solve-sudoku-file filename out-filename)
-  (statements
+  (progn
     ;;; Read the incoming list of sudokus
     (:= lines (read-lines filename))
     ;;; Run the solver on each one

@@ -29,7 +29,7 @@ public class FormExpander {
         specialForms.put("printf", new PrintfForm());
         specialForms.put("progn", new PrognForm());
         specialForms.put("sprintf", new PrintfForm());
-        specialForms.put("statements", new StatementsForm());
+        specialForms.put(":=", new AssignForm());
         specialForms.put("type", new TypeForm());
     }
 

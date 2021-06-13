@@ -63,7 +63,7 @@
     (assert-true (not (geodb-contains 45.0 -45.0 16 db)))
     ;;; Begin a slightly-ugle chain of lets to do some updates and
     ;;; assertions
-    (statements
+    (progn
       (:= (Pair _ db-deleted1) (geodb-delete 90.0 -180.0 db))
       (assert-true (not (geodb-contains 90.0 -180.0 16 db-deleted1)))
       (:= (Pair _ db-deleted-all) (geodb-delete-all 1.0 1.0 1 db-deleted1))
