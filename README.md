@@ -93,7 +93,7 @@ Example:
 ### Algebraic Data Types
 The `(type)` special form described below lets you define an algebraic data type.
 You can create instances of these types with type constructors you define, and
-you can use a `(match)` or in some cases `(let)` and `(statement)` to pull
+you can use a `(match)` or in some cases `(let)` and `(progn)` to pull
 individual fields from an algebraic data type.
 ```
 (TreeNode "fred" EmptyNode EmptyNode)
