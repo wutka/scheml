@@ -5,6 +5,9 @@ import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
 
 import java.util.List;
 
+/** A function declaration that captures its environment when it is evaluated and then returns a FunctionExpr
+ * so that if it gets evaluated again, it doesn't capture its environment
+ */
 public class ClosureExpr extends FunctionExpr {
 
     public ClosureExpr(String name, int arity, List<SymbolExpr> parameterList, List<Expression> targetExpressions) {
