@@ -7,6 +7,8 @@ the features that it has that make it different from vanilla Scheme:
 * Algebraic data types
 * Destructuring pattern matching with usefulness and exhaustiveness checking
 * Partial function application (and no variadic functions that aren't special forms)
+* Tail-call optimization (this is actually expected of a Scheme or ML, but it's good
+  to know it is available)
 
 The use of s-expressions as a syntactic representation is partially due to this
 language being created as a final project for a course that covered some of
