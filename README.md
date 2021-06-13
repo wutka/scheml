@@ -188,6 +188,28 @@ also deconstruct abstract data types with it:
 (printf "First part is %s, second part is %s\n" first second)
 ```
 
+### `(define _var_ _expr_)`
+The `define` form lets you define either a global value or a global function.
+It is possible to redefine a value with another define statement. But you
+can only do this from the top level of the Scheml REPL. That is, you can't
+modify global variables from within a function.
+Example:
+```
+(define foo "this is the foo string")
+```
+
+### `(define (_func-name_ _args_) _body_)`
+This form of `define` lets you define a global function. The items in
+parentheses are the name of the function and then a list of symbols that
+are the parameters to the function. A function that takes no parameters would just
+have `(_function-name_)` in this part. The body of the function is a sequence of
+statements that may use any of the symbols in the function argument list including
+the function name itself.
+Example:
+```
+(define (multiply-by-7 a) (* a 7))
+```
+
 ### (if _test_ _true-expr_ _false-expr_)
 The `(if)` special form works like it does in other Lisp-like languages. It
 evaluates the _test_ expression, and if it is true, it then evaluates the
@@ -403,4 +425,93 @@ the different abstract types. For example, a list is defined internally with thi
 ```
 
 This means that the type named `cons` has one type parameter that for the purposes of this
-declaration is named 'a
+declaration is named `'a`. If a constructor doesn't take any arguments, it
+can just be specified by its name, as `Nil` is above, while those that do take
+arguments must be parenthesized, as is `(Cons 'a (cons 'a))`. It is not a
+typo that the second `cons` in this example is lowercase, it doesn't refer to
+the `Cons` constructor but the `cons 'a` type, meaning that could be a `Nil` or
+it could be another `Cons`.
+
+Here's an example with multiple type parameters:
+```
+(type pair ('a 'b) (Pair 'a 'b)
+```
+This is a simple pair of items where each item can be any type. For example, the
+expression `(Pair "foo" 42)` has the type `(pair string int)`.
+
+Type constructors are functions, which means you can partially evaluate them.
+This `(Pair 123)` is a partial function that has the type `'a -> pair int 'a`.
+That is, it is a function that takes an argument of any type and returns a
+pair of an int and that type.
+
+## REPL features
+The REPL is mostly just a way to enter expressions and see what they
+evaluate to. But, there are two special commands:
+
+### `:r _filename_`
+The `:r` command reads in the named file and evaluates it.
+
+### `:t _expr_`
+Evaluates an expression and prints its type along with its value.
+
+## Builtin Functions
+Scheml has a number of built-in functions, mostly for dealing with strings and
+numbers. Many of the common functions associated with lists are provided by
+a separate lists.scm file.
+
+### Arithmetic functions `+, -, *, /, div, mod, +., -. *., /., div. mod.`
+Scheml doesn't do any kind of type conversion, and following the example of
+Ocaml, it has separate operators for floating point operations. That is,
+to add two ints, you use `+` but to add two doubles you use `+.`. The convention
+is that the double version of an arithmetic or comparison function just has
+a `.` after the int version of the same function. For example:
+`(+ 3 4)` adds two integers, while `(+. 3.0 4.0)` adds two doubles.
+
+The built-in functions can be partially applied, so `(+ 5)` is a partial
+function that takes one argument and adds 5 to it. For example,
+using the `map` function from `lists.scm`:
+```
+(map (+ 5) (list 1 2 3 4 5))
+(6 7 8 9 10)
+```
+
+### Comparison functions `= != > >= < <= =. !=. >. >=. <. <=.`
+As with the arithmetic functions, the comparison functions also have
+separate int and double versions, although this could change in the future
+because the return type is always bool.
+
+### `min max min. max.`
+The `min` and `max` functions pick the minimum or maximum of two ints (or two
+doubles for min. and max.).
+
+### 'neg neg.'
+The `neg` and `neg.` functions return the negative of an int or a double
+
+### `int->double double->int`
+The `int->double` and `double->int` functions provide conversions between int
+and double.
+
+### `and or xor not`
+The `and`, `or`, `xor`, and `not` functions perform the boolean operations
+their names indicate. Since `and` and `or` are functions whose arguments are
+evaluated before they are called, they cannot do short-circuiting. If you
+need a short-circuited and where the second argument isn't evaluated if the
+first is false, do `(if first-test second-test #f)`. Similarly, for a
+short-circuited `or` do `(if first-test #t second-test)`.
+
+### `& | ^ ~ << >>`
+The `&`, `|`, and `^` functions perform bitwise-and, -or, and -xor operations
+respectively on ints. The `~` function does a bitwise invert on an int, and
+`<<` and `>>` shift their first int argument left or right the number of bits
+specified by their second int argument.
+
+### `->string`
+Converts any value to its string representation.
+
+### `id`
+The `id` function is the identity function that just returns its argument.
+
+### `list->string` `string->list`
+The `list->string` and `string->list` functions convert between a string
+and a list of chars (not a list of any other type).
+
