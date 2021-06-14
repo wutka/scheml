@@ -31,6 +31,10 @@ public class PartialApplicationExpr implements Expression, Applicable {
         // If the target function's param types have already been determined, create a FunctionType representing
         // the remaining args, and unify against the requested type
         if (targetFunc.paramTypes != null) {
+
+            for (int i=0; i < partialArgs.size(); i++) {
+                partialArgs.get(i).unify(targetFunc.paramTypes[i], env);
+            }
             // Get the param types for the remaining args
             TypeRef[] remainingArgs = new TypeRef[targetFunc.arity - partialArgs.size()];
             for (int i=0; i < remainingArgs.length; i++) {
