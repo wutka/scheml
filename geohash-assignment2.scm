@@ -10,7 +10,7 @@
 ;;; reversed list
   (letrec ((reverse-1
              (lambda (l revved)
-               (if (null? l) revved
+               (if (empty? l) revved
                    (reverse-1 (tail l) (cons (head l) revved))))))
     ;;; Call the tail-recursive func
     (reverse-1 l nil)))
@@ -18,7 +18,7 @@
 ;;; Returns a list created by applying function f to every element of list l
 ;;; This function is not tail recursive
 (define (map f l) 
-  (if (null? l) nil
+  (if (empty? l) nil
       (cons (f (head l)) (map f (tail l)))))
 
 ;;; Appends list b to the end of list a
@@ -27,14 +27,14 @@
 (define (append a b)
   (letrec ((append-1
              (lambda (l appended)
-               (if (null? l) appended
+               (if (empty? l) appended
                    (append-1 (tail l) (cons (head l) appended))))))
     ;;; Call the tail-recursive func
     (append-1 (reverse a) b)))
 
 ;;; Returns #t if a is a member of list l
 (define (member? a l)
-  (if (null? l) #f
+  (if (empty? l) #f
       (if (equals? a (head l)) #t
           (member? a (tail l)))))
 
@@ -47,7 +47,7 @@
              (lambda (a l acc)
 ;;; If we get to the end of l without finding the item, acc will
 ;;; just be the reverse of l, so we return (reverse acc)
-                (if (null? l) (reverse acc)
+                (if (empty? l) (reverse acc)
 ;;; Otherwise, at the point we find a in l, acc has everything in l
 ;;; before that point in reverse order, and the tail of l is everything
 ;;; that comes after it, so the list with a removed is
@@ -64,7 +64,7 @@
 ;;; the reverse order that we want them, so we reverse it
 (define (take n l)
   (letrec ((take-1 (lambda (n l acc)
-                     (if (null? l) (reverse acc)
+                     (if (empty? l) (reverse acc)
                          (if (<= n 0) (reverse acc)
                              (take-1 (- n 1) (tail l)
                                      (cons (head l) acc)))))))
@@ -76,7 +76,7 @@
 (define (length l) 
   (letrec ((length-1
              (lambda (l n)
-                (if (null? l) n
+                (if (empty? l) n
                     (length-1 (tail l) (+ n 1))))))
     (length-1 l 0)))
 
@@ -115,11 +115,11 @@
 
   ; If the first list is empty, we are done, return the accumulated bits, which
   ; were accumulated in reverse order
-  (if (null? l1) (reverse accum)
+  (if (empty? l1) (reverse accum)
 
       ; If the second list is null, add the head of the first list onto the accum
       ; and then return the accumulated bits after reversing them
-      (if (null? l2) (reverse (cons (head l1) accum))
+      (if (empty? l2) (reverse (cons (head l1) accum))
 
           ; Otherwise, add the head of l2 and l1 onto the accum and recurse
           ; on the tails of the two lists. We put l1 onto accum first and then
@@ -176,7 +176,7 @@
 ;;; having applied function f to the node that was reached by the
 ;;; geohash (function f must return a tree-node)
 (define (tree-update f hash node)
-  (if (null? hash)
+  (if (empty? hash)
       ;;; If we reach the end of the hash, apply f to this node
       (f node)
 
@@ -206,7 +206,7 @@
 ;;; Since this function doesn't mutate the tree, it doesn't create
 ;;; nodes along the way
 (define (tree-query f hash node)
-  (if (null? hash) (f node)
+  (if (empty? hash) (f node)
       (match node
              (EmptyNode (f node))
              ((TreeNode coords left right) 
@@ -239,7 +239,7 @@
          ;;; Otherwise, if coords is not null, or the left has at least one
          ;;; or the right has at least one, then this node has at least one
          ((TreeNode coords left right) 
-               (or (not (null? coords))
+               (or (not (empty? coords))
                    (or (tree-at-least-one left)
                        (tree-at-least-one right))))))
 
@@ -363,7 +363,7 @@
 ;;; version of the GeoDB
 (define (geodb-chain db ops)
   ;;; If we hit the end of the list, return the last version of the GeoDB
-  (if (null? ops) db
+  (if (empty? ops) db
       ;;; Execute the first function in the ops list, and bind the
       ;;; resulting database value to db-next, while ignoring the first
       ;;; part of the Pair

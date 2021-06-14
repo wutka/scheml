@@ -21,7 +21,7 @@
 ;;; values and then returning a list of every 9th value
 (define (col n sud)
   (letrec ((col' (lambda (sud)
-                    (if (null? sud) nil
+                    (if (empty? sud) nil
                         (cons (head sud) (col' (drop 9 sud)))))))
     (col' (drop n sud))))
 
@@ -142,7 +142,7 @@
 ;;; How many times does value n occur in the available lists in a given
 ;;; list of squares. The acc parameter should be passed in as 0.
 (define (count-occurrences n square-list acc)
-  (if (null? square-list) acc
+  (if (empty? square-list) acc
       (if (occurs-free? n (head square-list))
           (count-occurrences n (tail square-list) (+ acc 1))
           (count-occurrences n (tail square-list) acc))))
@@ -154,7 +154,7 @@
 ;;; Since 7 only occurs in one list, the that particular square can be fixed
 ;;; at 7 since none of the other squares can.
 (define (try-fix-list sq vals square-list)
-  (if (null? vals) sq
+  (if (empty? vals) sq
       ;;; If the value at the head of the list only occurs once in the list
       ;;; of squares (which includes this square), then fix this square at
       ;;; that number
@@ -266,7 +266,7 @@
 (define (find-squares-with-length n sud acc)
   (letrec ((find-square-with-length' 
              (lambda (pos sud acc)
-                (if (null? sud) acc
+                (if (empty? sud) acc
                     (if (= (num-available (head sud)) n) 
                         ;;; if this square has n available digits, add it to cons
                         (find-square-with-length' (+ pos 1) (tail sud) (cons pos acc))
@@ -303,7 +303,7 @@
         ;;; return nil to indicate that this try has failed
         (if (failed? reduced) nil
             ;;; If there are no more values to try in the try-list, give up
-            (if (null? try-list) nil
+            (if (empty? try-list) nil
                 ;;; Otherwise, call back to solve-list to try solving the next
                 ;;; square in the list
                 (try-func (tail try-list) reduced))))))
@@ -312,11 +312,11 @@
 ;;; that the value didn't lead to a solution, try the next vaue
 (define (try-solve-vals pos available sud try-func try-list)
   ;; If there are no more values to try, this path has failed
-   (if (null? available) nil
+   (if (empty? available) nil
        ;; Try the next value
        (let ((tried (try-solve-val-at-pos pos (head available) sud try-func try-list)))
          ;; if that try failed, try the next value
-         (if (null? tried)
+         (if (empty? tried)
            (try-solve-vals pos (tail available) sud try-func try-list)
            ;; Otherwise, if it succeeded return the success
            tried))))
@@ -327,7 +327,7 @@
 ;;  (printf "%c[2J%c[H" (int->char 27) (int->char 27))
 ;;  (print-sudoku sud)
   ;; If the list is empty, give up
-  (if (null? try-list) nil
+  (if (empty? try-list) nil
       ;; Get the position of the next square to try
       (let* ((n (head try-list))
              ;; Get the next square to try

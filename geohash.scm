@@ -7,7 +7,7 @@
 ;;; If l is empty, return revved, which should be the
 ;;; reversed list
 (define (reverse-1 l revved)
-  (if (null? l) revved
+  (if (empty? l) revved
       (reverse-1 (tail l) (cons (head l) revved))))
 
 ;;; Use a tail-recursive mechanism to reverse list
@@ -49,11 +49,11 @@
 
   ; If the first list is empty, we are done, return the accumulated bits, which
   ; were accumulated in reverse order
-  (if (null? l1) (reverse accum)
+  (if (empty? l1) (reverse accum)
 
       ; If the second list is null, add the head of the first list onto the accum
       ; and then return the accumulated bits after reversing them
-      (if (null? l2) (reverse (cons (head l1) accum))
+      (if (empty? l2) (reverse (cons (head l1) accum))
 
           ; Otherwise, add the head of l2 and l1 onto the accum and recurse
           ; on the tails of the two lists. We put l1 onto accum first and then

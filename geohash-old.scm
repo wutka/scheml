@@ -4,7 +4,7 @@
 (define LONGITUDE-MAX 180.0)
 
 (define (reverse-1 l revved)
-  (if (null? l) revved
+  (if (empty? l) revved
       (reverse-1 (tail l) (cons (head l) revved))))
 
 (define (reverse l) (reverse-1 l nil))
@@ -24,8 +24,8 @@
                                 0 nil))
 
 (define (merge-bits l1 l2 accum)
-  (if (null? l1) (reverse accum)
-      (if (null? l2) (reverse (cons (head l1) accum))
+  (if (empty? l1) (reverse accum)
+      (if (empty? l2) (reverse (cons (head l1) accum))
           (merge-bits (tail l1) (tail l2) (cons (head l2) 
                                                 (cons (head l1) accum))))))
 
