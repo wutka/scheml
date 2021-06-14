@@ -45,6 +45,31 @@ Scheml Repl
 >
 ```
 
+## A Quick Review For People Who Know Scheme
+The basic forms described below should work the same way as Scheme. There
+are a few differences, such as using `head` and `tail` for lists instead
+of `car` and `cdr`. There are a couple of special forms that aren't in
+Scheme like `:=`, `type`, and `match` and in addition to the usual types,
+it also has abstract data types.
+
+The big difference between Scheml and Scheml boils down to the fact that
+in Scheml, lists cannot contain mixed data types. A list can't contain both
+an int and a string. This restriction really inhibits the usefulness of
+S-expressions in Scheml, since a Scheml program is not a valid expression
+in Scheml, where in Scheme that is true, and allows you to create macros or
+special syntactic constructs.
+
+Scheml doesn't expose symbols to the programmer, and doesn't have a notion
+of quoted values.
+
+Because Scheml supports partial function application, there are situations
+where you might use a `lambda` in Scheme that can be replaced witbh a
+partial application. For example, to add 5 to every item in a list, instead of
+the Scheme version `(map (lambda x) (+ 5 x) (list 1 2 3 4 5))` you can
+just do `(map (+ 5) (list 1 2 3 4 5))`. On the other hand, because Scheml is
+more strict about the types of functions, you can't make a function that takes
+a variable number of arguments.
+
 ## Language Features
 
 ### Data types
@@ -480,6 +505,12 @@ As with the arithmetic functions, the comparison functions also have
 separate int and double versions, although this could change in the future
 because the return type is always bool.
 
+### `equals?`
+Unlike the `=` comparison function, the `equals?` function can test the
+equality of any two objects. It just uses the Java equals method to compare
+the object, but the simple expressions in Scheml, as well as the
+abstract data types, all implement the Java equals method.
+
 ### `min max min. max.`
 The `min` and `max` functions pick the minimum or maximum of two ints (or two
 doubles for min. and max.).
@@ -515,3 +546,65 @@ The `id` function is the identity function that just returns its argument.
 The `list->string` and `string->list` functions convert between a string
 and a list of chars (not a list of any other type).
 
+### `cons` `head` `tail` `->list` `empty?`
+Like Scheme, Scheml uses `cons` to build a list, but it discards a piece
+of Lisp history in not calling the `head` and `tail` functions `car` and
+`cdr`. The `head` function returns the first item in a list, and the
+`tail` function returns the rest of the list (everthing except for the
+head). The `head` function will throw an exception if you try to take the
+head of an empty list. The `->list` function turns any object into a one-object
+list. Unlike the `(list)` form, you can map `->list` over a list to create
+a list of lists.
+
+The `empty?` function returns true if a list is empty.
+
+### `range`
+The `range` function takes two arguments, a beginning and end, and returns a
+list of numbers from the first argument to the last argument **inclusive**. That
+is, (range 1 5) returns the list (1 2 3 4 5).
+
+### `print`
+The `print` function prints a string to stdout.
+
+### `input`
+Takes no arguments, reads a line from stdin and returns it as a string
+with the newline stripped off the end.
+
+### `load`
+The `load` function takes a string argument and loads and evaluates the
+expressions in that file. It does the same thing as the `:r` command
+in the REPL.
+
+### `quit`
+Terminates the REPL.
+
+### `read-lines` `write-lines`
+The `read-lines` function takes a string filename and reads all the lines
+from the named file, returning them as a list. The lines will have all
+the newlines stripped off the end.
+
+The `write-lines` function takes a list of strings and a string filename,
+and writes each string to the named file as a separate line, appending a
+newline to each string.
+
+### `fail`
+Takes a string message and throws an exception to terminate the current
+evaluation and return the REPL. The REPL will display the message.
+
+### `split` `join`
+The `split` function is a thin wrapper around the Java String split method,
+in that it takes a string value, and also a string representation of a
+regular expression, and splits the first string at the points where it
+matches the regular expression. A simple `split` call would be:
+```
+(split "foo bar baz" " ")
+("foo" "bar" "baz")
+```
+
+### `profiling`
+Scheml includes a very basic profiler. You activate the profiler by calling
+`(profiling #t)` and then do the operations you want to profile. When you
+are done, call `(profiling #f)` and that will both stop the profiling and
+also print out a report of the profiling, showing the number of calls of each
+function, the total time each function too, and the average time each function
+took.
