@@ -7,8 +7,8 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 
 /** Checks to see if a list is null
  */
-public class Null extends BuiltinFunctionExpr {
-    public Null(String name) {
+public class Empty extends BuiltinFunctionExpr {
+    public Empty(String name) {
         super(name, "cons 'a -> bool");
     }
 
