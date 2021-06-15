@@ -50,28 +50,15 @@ public class TypeRef {
                 linkageMap.put(thisType.id, newCopy);
             }
             return newCopy;
-        } else if (type instanceof FunctionType) {
-            // Copy all the param types and return types of this function
-            FunctionType thisType = (FunctionType) type;
-            TypeRef[] paramTypes = new TypeRef[thisType.arity];
-            for (int i = 0; i < paramTypes.length; i++) {
-                paramTypes[i] = thisType.paramTypes[i].copy(linkageMap);
-            }
-            TypeRef returnType = thisType.returnType.copy(linkageMap);
-            // Return a reference to a new function type instance that uses the new copies
-            return new TypeRef(new FunctionType(paramTypes.length, paramTypes, returnType));
-        } else if (type instanceof AbstractType) {
-            AbstractType thisType = (AbstractType) type;
-            List<TypeRef> typeParameters = new ArrayList<>();
-            // Copy all the abstract type's type parameters
-            for (TypeRef typeRef: thisType.typeParameters) {
-                typeParameters.add(typeRef.copy(linkageMap));
-            }
-            // Return a ref to the new copy of the abstract type
-            return new TypeRef(new AbstractType(thisType.typeName, typeParameters));
         } else {
-            // Simple types like BoolType and DoubleType don't need their references copied
-            return this;
+            // Try copying the type
+            Type copy = getType().copy(linkageMap);
+
+            // If the type is the same as the current one (i.e. it's a simple type), don't copy this
+            if (copy == getType()) return this;
+
+            // Otherwise return a new typeref
+            return new TypeRef(copy);
         }
     }
 
@@ -108,68 +95,7 @@ public class TypeRef {
             if (other.isFull()) {
                 // If both types are full, they might still be complex types whose underlying components
                 // are empty
-                if (getType() instanceof FunctionType) {
-                    // Make sure they are both functions
-                    if (!(other.getType() instanceof FunctionType)) {
-                        throw new UnifyException("Unable to unify " + getType() + " with " + other.getType());
-                    }
-                    FunctionType thisFunc = (FunctionType) getType();
-                    FunctionType otherFunc = (FunctionType) other.getType();
-
-                    // Make sure the arity matches
-                    if (thisFunc.arity != otherFunc.arity) {
-                        throw new UnifyException("Can't unify function " + getType() +
-                                " with different arity function " + other.getType());
-                    }
-
-                    for (int i = 0; i < thisFunc.arity; i++) {
-                        try {
-                            // Unify the param types
-                            thisFunc.paramTypes[i].unify(otherFunc.paramTypes[i]);
-                        } catch (UnifyException exc) {
-                            throw UnifyException.addCause("Can't unify parameter " + i + " of " + getType() + " with " +
-                                    other.getType(), exc);
-                        }
-                    }
-
-                    // Unify the return types
-                    try {
-                        thisFunc.returnType.unify(otherFunc.returnType);
-                    } catch (UnifyException exc) {
-                        throw UnifyException.addCause("Can't unify return type of " + getType() +
-                                " with " + other.getType(), exc);
-                    }
-                } else if (getType() instanceof AbstractType) {
-                    // Make sure they are both abstract types
-                    if (!(other.getType() instanceof AbstractType)) {
-                        throw new UnifyException("Unable to unify " + getType() + " with " + other.getType());
-                    }
-                    AbstractType thisType = (AbstractType) getType();
-                    AbstractType otherType = (AbstractType) other.getType();
-
-                    // with the same type name
-                    if (!thisType.typeName.equals(otherType.typeName)) {
-                        throw new UnifyException("Unable to unify " + getType() + " with " + other.getType());
-                    }
-
-                    // and same number of parametric types
-                    if (thisType.typeParameters.size() != otherType.typeParameters.size()) {
-                        throw new UnifyException("Unable to unify " + getType() + " with " + other.getType());
-                    }
-
-                    // unify the parametric types
-                    for (int i=0; i < thisType.typeParameters.size(); i++) {
-                        try {
-                            thisType.typeParameters.get(i).unify(otherType.typeParameters.get(i));
-                        } catch (UnifyException exc) {
-                            throw UnifyException.addCause("Unable to unify " + getType() + " with " +
-                                    other.getType() + " because type parameters don't match", exc);
-                        }
-                    }
-                } else if (!getType().equals(other.getType())) {
-                    // otherwise if this type is different from the other type, the unification has failed
-                    throw new UnifyException("Can't unify "+getType()+" with "+other.getType());
-                }
+                getType().unify(other.getType());
             } else {
                 other.setType(this.getType());
             }
