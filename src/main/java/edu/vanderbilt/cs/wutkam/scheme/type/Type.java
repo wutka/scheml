@@ -1,6 +1,7 @@
 package edu.vanderbilt.cs.wutkam.scheme.type;
 
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
+import edu.vanderbilt.cs.wutkam.scheme.expr.CharExpr;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemlRuntime;
 
 import java.io.PushbackReader;
@@ -13,6 +14,17 @@ import java.util.Stack;
 
 /** The base class for all types. This class also has utility methods to parse type signatures from strings */
 public abstract class Type {
+    public void unify(Type other) throws LispException {
+        if (this == other) return;
+        if (getClass() != other.getClass()) {
+            throw new UnifyException("Can't unify "+toString()+" with "+other.toString());
+        }
+    }
+
+    public Type copy(Map<String,TypeRef> linkageMap) {
+        return this;
+    }
+
     @Override
     public String toString() {
         return toSignatureString(new TypeSymbolGenerator());
