@@ -411,6 +411,9 @@ public class ExhaustivenessChecker {
             List<String> strings = values.stream().filter(m -> m instanceof MatchString).
                     map(ms -> ((MatchString) ms).value).collect(Collectors.toList());
 
+            // Sort the values
+            Collections.sort(strings);
+
             // If there are no strings, return the first of the pre-configured tryStrings
             if (strings.size() == 0) return new MatchString(tryStrings[0]);
 
