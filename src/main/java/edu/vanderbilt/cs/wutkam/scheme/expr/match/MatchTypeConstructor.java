@@ -3,6 +3,7 @@ package edu.vanderbilt.cs.wutkam.scheme.expr.match;
 import edu.vanderbilt.cs.wutkam.scheme.LispException;
 import edu.vanderbilt.cs.wutkam.scheme.expr.AbstractTypeExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
+import edu.vanderbilt.cs.wutkam.scheme.expr.SymbolExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.TypeConstructorExpr;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemlRuntime;
@@ -63,17 +64,21 @@ public class MatchTypeConstructor implements Match {
             throw new UnifyException("No constructor named " + constructorName + " in " + abstractTypeDecl);
         }
 
-        // Make sure the target type matches the type of the abstract type
-        matchTargetType.unify(new TypeRef(new AbstractType(abstractTypeDecl)));
 
         // Make a copy of the parametric types and parameter types from the constructor fund
         Map<String, TypeRef> linkageMap = new HashMap<>();
+
+        AbstractType abstractType = (AbstractType) (new AbstractType(abstractTypeDecl)).copy(linkageMap);
+        // Make sure the target type matches the type of the abstract type
+        matchTargetType.unify(new TypeRef(abstractType));
+
 
         // Although we don't do anything with the parametric types, we do copy them to make
         // sure the linkage map is consistent
         TypeRef[] parametricTypes = new TypeRef[constructorFunc.parametricTypes.size()];
         for (int i = 0; i < parametricTypes.length; i++) {
             parametricTypes[i] = constructorFunc.parametricTypes.get(i).copy(linkageMap);
+            parametricTypes[i].unify(abstractType.typeParameters.get(i));
         }
 
         // Copy each of the param types
