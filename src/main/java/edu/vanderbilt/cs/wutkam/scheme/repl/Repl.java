@@ -43,7 +43,7 @@ public class Repl {
         System.out.println("\nScheml Repl");
 
         for (String arg: args) {
-            loadFile(arg);
+            loadFile(arg, false);
         }
         for (;;) {
             try {
@@ -63,17 +63,17 @@ public class Repl {
                 if (line.startsWith(":r ")) {
                     // load a file, where the filename comes after the ":r "
                     String filename = line.substring(3).trim();
-                    loadFile(filename);
+                    loadFile(filename, true);
                     continue;
                 } else if (line.startsWith(":t ")) {
                     // A :t means display the type of the expression, parse the rest
-                    exprs = Parser.parse(line.substring(3));
+                    exprs = Parser.parse(line.substring(3), false);
                     displayType = true;
                 } else {
                     // Otherwise just parse the line, but if the line is incomplete (as when pasting code
                     // into the repl), let the parser prompt for more data, but right now just make the
                     // prompt empty, characters get in the way
-                    exprs = Parser.parseWithPrompt(line, "", dataIn);
+                    exprs = Parser.parseWithPrompt(line, "", dataIn, false);
                 }
 
                 executeExpressions(exprs, displayType);
@@ -93,10 +93,10 @@ public class Repl {
     }
 
     /** Expose the loading operation performed by :r so that the (load) function can use it too */
-    public void loadFile(String filename) {
+    public void loadFile(String filename, boolean display) {
         try {
             FileReader in = new FileReader(filename);
-            List<Expression> exprs = Parser.parse(in);
+            List<Expression> exprs = Parser.parse(in, display);
             executeExpressions(exprs, false);
         } catch (IOException exc) {
             System.out.println("Exception loading file: "+exc.getMessage());
@@ -151,7 +151,7 @@ public class Repl {
             System.out.println("Fail: "+exc.getMessage());
         } catch (StackOverflowError exc) {
             System.out.println("Stack overflow");
-            exc.printStackTrace();
+//            exc.printStackTrace();
         } catch (Exception exc) {
             exc.printStackTrace(System.out);
         }

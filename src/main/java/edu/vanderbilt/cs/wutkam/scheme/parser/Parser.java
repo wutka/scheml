@@ -20,26 +20,27 @@ public class Parser {
 
     /** Parses a string and returns a list of all the expressions found in the string. If an expression
      * is incomplete, a LispException will be thrown. */
-    public static List<Expression> parse(String str) throws LispException {
-        return parse(new StringReader(str));
+    public static List<Expression> parse(String str, boolean display) throws LispException {
+        return parse(new StringReader(str), display);
     }
 
     /** Parses a string and returns a list of all the expressions found in the string. If the expression is
      * incomplete, the prompt string will be printed and an additional line of data will be read from
      * dataIn using the readLine method.
      */
-    public static List<Expression> parseWithPrompt(String str, String prompt, BufferedReader dataIn) throws LispException {
+    public static List<Expression> parseWithPrompt(String str, String prompt, BufferedReader dataIn,
+                                                   boolean display) throws LispException {
         Parser parser = new Parser();
-        parser.parseImpl(new StringReader(str), true, prompt, dataIn);
+        parser.parseImpl(new StringReader(str), true, prompt, dataIn, display);
         return parser.items;
     }
 
     /** Parses expressions from a reader. If the input ends before the last expression is complete,
      * a LispException is thrown.
      */
-    public static List<Expression> parse(Reader rdr) throws LispException {
+    public static List<Expression> parse(Reader rdr, boolean display) throws LispException {
         Parser parser = new Parser();
-        parser.parseImpl(rdr, false, null, null);
+        parser.parseImpl(rdr, false, null, null, display);
         return parser.items;
     }
 
@@ -60,8 +61,8 @@ public class Parser {
         }
     }
 
-    protected void parseImpl(Reader rdr, boolean promptForMore, String prompt, BufferedReader dataIn)
-            throws LispException {
+    protected void parseImpl(Reader rdr, boolean promptForMore, String prompt, BufferedReader dataIn,
+                             boolean display) throws LispException {
         PushbackReader pushback = new PushbackReader(rdr);
 
         char ch;
@@ -87,6 +88,7 @@ public class Parser {
                     }
                     break;
                 }
+                if (display) System.out.print(ch);
 
                 if (ch == '\n') {
                     lineNum++;
@@ -120,6 +122,7 @@ public class Parser {
                 } else if (ch == ';') {
                     // A ; is a comment character, read until end of line
                     while (((ch = (char) pushback.read()) != (char) -1)) {
+                        if (display) System.out.print(ch);
                         if ((ch == '\r') || (ch == '\n')) break;
                     }
                 } else if (ch == '"') {
@@ -128,6 +131,7 @@ public class Parser {
                     boolean escape = false;
 
                     while (((ch = (char) pushback.read()) != (char) -1)) {
+                        if (display) System.out.print(ch);
                         // If the last character was a \, check for special characters and append
                         // the special character, otherwise just append the character after the \
                         if (escape) {
@@ -173,7 +177,8 @@ public class Parser {
                         // if it is a digit, assume this is a number
                         char ch2 = (char) pushback.read();
                         if (Character.isDigit(ch2)) {
-                            addExpression(parseNumber(pushback, true, ch2));
+                            addExpression(parseNumber(pushback, true, ch2, display));
+                            if (display) System.out.print(ch2);
                             continue;
                         }  else {
                             // If the first char was '-' but the second wasn't a digit, unread the second digit, so
@@ -184,22 +189,27 @@ public class Parser {
                         // A # could indicate the start of a symbol, but could also be a character or #t or #f
                         char ch2 = (char) pushback.read();
                         if (ch2 == (char) -1) {
+                            if (display) System.out.print(ch2);
                             addExpression(new SymbolExpr("#"));
                             continue;
                         }
                         // If the second character is \, treat this as a character constant and read the next character
                         if (ch2 == '\\') {
+                            if (display) System.out.print(ch2);
                             char ch3 = (char) pushback.read();
                             if (ch3 == (char) -1) {
                                 throw new LispException("Unexpected EOF while reading char constant");
                             }
+                            if (display) System.out.print(ch3);
                             addExpression(new CharExpr(ch3));
                             continue;
                         } else if (ch2 == 't') {
+                            if (display) System.out.print(ch2);
                             // #t is the constant for true
                             addExpression(new BoolExpr(true));
                             continue;
                         } else if (ch2 == 'f') {
+                            if (display) System.out.print(ch2);
                             // #f is the constant for false
                             addExpression(new BoolExpr(false));
                             continue;
@@ -213,6 +223,7 @@ public class Parser {
                     StringBuilder builder = new StringBuilder();
                     builder.append(ch);
                     while (((ch = (char) pushback.read()) != (char) -1) && (isSymbolChar(ch) || Character.isDigit(ch))) {
+                        if (display) System.out.print(ch);
                         builder.append(ch);
                     }
 
@@ -228,7 +239,7 @@ public class Parser {
                     }
                 } else if (Character.isDigit(ch)) {
                     // If we get a digit, parse it as a number
-                    addExpression(parseNumber(pushback, false, ch));
+                    addExpression(parseNumber(pushback, false, ch, display));
                 } else if (!Character.isWhitespace(ch)){
                     // We skip whitespace, but anything else is an illegal character
                     throw new LispException("Unexpected character - "+ ch);
@@ -243,13 +254,15 @@ public class Parser {
     }
 
     /** Parses a number from the input stream */
-    static Expression parseNumber(PushbackReader pushback, boolean isNegative, char ch) throws IOException, LispException {
+    static Expression parseNumber(PushbackReader pushback, boolean isNegative, char ch, boolean display)
+            throws IOException, LispException {
         long num = ch-'0';
         boolean inDouble = false;
         double doubleFrac = 0.1;
         double doubleNum = 0.0;
         // Keep reading as long as we get digits or a decimal point
         while (((ch = (char) pushback.read()) != (char) -1) && (Character.isDigit(ch) || ch == '.')) {
+            if (display) System.out.print(ch);
             if (inDouble) {
                 if (ch == '.') {
                     // ... but only one decimal point
