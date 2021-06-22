@@ -63,7 +63,7 @@ Scheml doesn't expose symbols to the programmer, and doesn't have a notion
 of quoted values.
 
 Because Scheml supports partial function application, there are situations
-where you might use a `lambda` in Scheme that can be replaced witbh a
+where you might use a `lambda` in Scheme that can be replaced with a
 partial application. For example, to add 5 to every item in a list, instead of
 the Scheme version `(map (lambda x) (+ 5 x) (list 1 2 3 4 5))` you can
 just do `(map (+ 5) (list 1 2 3 4 5))`. On the other hand, because Scheml is
@@ -213,7 +213,7 @@ also deconstruct abstract data types with it:
 (printf "First part is %s, second part is %s\n" first second)
 ```
 
-### `(define _var_ _expr_)`
+### (define _var_ _expr_)
 The `define` form lets you define either a global value or a global function.
 It is possible to redefine a value with another define statement. But you
 can only do this from the top level of the Scheml REPL. That is, you can't
@@ -223,7 +223,7 @@ Example:
 (define foo "this is the foo string")
 ```
 
-### `(define (_func-name_ _args_) _body_)`
+### (define (_func-name_ _args_) _body_)
 This form of `define` lets you define a global function. The items in
 parentheses are the name of the function and then a list of symbols that
 are the parameters to the function. A function that takes no parameters would just
@@ -330,12 +330,12 @@ To maintain some level of type safety, the let binding currently only lets you b
 an abstract type if that type has only one constructor. If you need to work with an
 abstract type that has multiple constructors, use a `(match)` form.
 
-### `(list item item item ... item)`
+### (list item item item ... item)
 As mentioned above, the `list` special form creates a list from any number of items.
 It just creates an expression that evaluates to the abstract type
 `(Cons item1 (Cons item2 (Cons item3 ... (Cons item-last Nil) ...)))`
 
-### `(match _expr_ (_pattern_ _expr) ...)`
+### (match _expr_ (_pattern_ _expr) ...)
 The `(match)` form allows you to deconstruct each case in an abstract type, but because
 it also allows simple types in the match, it can act like a `case` or `switch` statement
 in other languages. It evaluates the expression that appears just after `match` and then
@@ -410,7 +410,7 @@ way to match the list (1 2 3)
   (_ (printf "It was something else\n")))
 ```
 
-### `(printf _format_ _args_)`
+### (printf _format_ _args_)
 You have probably been noticing all the `printf` calls in the various examples and might
 have thought that `printf` is a function. But, as was the situation with the `list` form,
 `printf` is a special form because it takes a variable number of arguments. 
@@ -424,7 +424,7 @@ they are correct, although the fact that the %s format in the Java Formatter can
 object and just print the toString of it means that Scheml will allow you to pass any type
 for %s. For a %d, however, the parameter must be an int, and for %f it must be a float.
 
-### `(progn _expr_ _expr_ _expr_ ... _expr_)`
+### (progn _expr_ _expr_ _expr_ ... _expr_)
 `progn` is probably a bit of an archaic name, but it just encapsulates a block of statements
 so that the last statement is the return value of the block, similar to how `function` and
 `let` bodies work.
@@ -440,7 +440,7 @@ Progn body returned foo
 
 ```
 
-### `(type [(_type-parameters_)] constructor constructor ...)`
+### (type [(_type-parameters_)] constructor constructor ...)
 The `type` form lets you define abstract types. When you define an abstract type that
 may contain varying types of object (if you haven't seen this before it's like template
 parameters in Java & C++), and if you do that, you need to declare type variables for
@@ -473,10 +473,10 @@ pair of an int and that type.
 The REPL is mostly just a way to enter expressions and see what they
 evaluate to. But, there are two special commands:
 
-### `:r _filename_`
+### :r _filename_
 The `:r` command reads in the named file and evaluates it.
 
-### `:t _expr_`
+### :t _expr_
 Evaluates an expression and prints its type along with its value.
 
 ## Builtin Functions
