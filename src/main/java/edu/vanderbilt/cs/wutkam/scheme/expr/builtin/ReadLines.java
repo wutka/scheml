@@ -5,8 +5,10 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.AbstractTypeExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.StringExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.VoidExpr;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheme.type.builtin.ConsTypeDecl;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -24,7 +26,8 @@ public class ReadLines extends BuiltinFunctionExpr {
         Expression expr = args[0];
         // Type unification will ensure the expr is a string
         try {
-            List<String> lines = Files.readAllLines(Paths.get(((StringExpr) expr).value));
+            File file = SchemlRuntime.getRepl().getFile(((StringExpr)expr).value);
+            List<String> lines = Files.readAllLines(file.toPath());
             AbstractTypeExpr curr = ConsTypeDecl.newNil();
             for (int i=lines.size()-1; i >= 0; i--) {
                 curr = ConsTypeDecl.newCons(new StringExpr(lines.get(i)), curr);

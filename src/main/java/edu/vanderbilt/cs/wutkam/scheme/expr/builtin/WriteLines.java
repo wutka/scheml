@@ -5,7 +5,9 @@ import edu.vanderbilt.cs.wutkam.scheme.expr.AbstractTypeExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.StringExpr;
 import edu.vanderbilt.cs.wutkam.scheme.expr.VoidExpr;
+import edu.vanderbilt.cs.wutkam.scheme.runtime.SchemlRuntime;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,7 +25,8 @@ public class WriteLines extends BuiltinFunctionExpr {
         String filename = ((StringExpr)args[0]).value;
         AbstractTypeExpr stringList = (AbstractTypeExpr) args[1];
         try {
-            FileWriter out = new FileWriter(filename);
+            File file = SchemlRuntime.getRepl().getFile(filename);
+            FileWriter out = new FileWriter(file);
             while (!stringList.constructorName.equals("Nil")) {
                 out.write(((StringExpr)stringList.values.get(0)).value);
                 out.write("\n");

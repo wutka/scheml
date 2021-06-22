@@ -13,9 +13,12 @@ import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.List;
 
 /** Represents the runtime Read-Eval-Print loop, but with hooks to allow other parts of the
@@ -26,17 +29,24 @@ public class Repl {
 
     protected Environment<Expression> exprEnvironment;
     protected Environment<TypeRef> typeEnvironment;
+    protected File currentDir;
 
     public Repl() {
         dataIn = new BufferedReader(new InputStreamReader(System.in));
         this.exprEnvironment = new Environment<>();
         this.typeEnvironment = new Environment<>();
+        this.currentDir = new File(".");
     }
 
     public static void main(String [] args) {
         Repl repl = new Repl();
         SchemlRuntime.repl = repl;
         repl.run(args);
+    }
+
+    public File getFile(String filename) {
+        if (filename.startsWith("/")) return new File(filename);
+        return new File(currentDir, filename);
     }
 
     public void run(String[] args) {
@@ -60,7 +70,26 @@ public class Repl {
                 boolean displayType = false;
 
                 List<Expression> exprs;
-                if (line.startsWith(":r ")) {
+                if (line.startsWith(":cd ")) {
+                    String dir = line.substring(4).trim();
+                    File newDir = getFile(dir);
+                    if (newDir.exists() && newDir.isDirectory()) {
+                        currentDir = newDir;
+                    }
+                    continue;
+                } else if (line.equals(":pwd")) {
+                    System.out.println(currentDir.getCanonicalPath());
+                    continue;
+                } else if (line.startsWith(":!")) {
+                    String commandLine = line.substring(2).trim();
+                    Process p = Runtime.getRuntime().exec(commandLine, null, currentDir);
+                    new Thread(new SyncPipe(p.getErrorStream(), System.err)).start();
+                    new Thread(new SyncPipe(p.getInputStream(), System.out)).start();
+                    p.getOutputStream().close();
+                    int returnCode = p.waitFor();
+                    System.out.flush();
+                    continue;
+                } else if (line.startsWith(":r ")) {
                     // load a file, where the filename comes after the ":r "
                     String filename = line.substring(3).trim();
                     loadFile(filename, true);
@@ -95,7 +124,8 @@ public class Repl {
     /** Expose the loading operation performed by :r so that the (load) function can use it too */
     public void loadFile(String filename, boolean display) {
         try {
-            FileReader in = new FileReader(filename);
+            File file = getFile(filename);
+            FileReader in = new FileReader(file);
             List<Expression> exprs = Parser.parse(in, display);
             executeExpressions(exprs, false);
         } catch (IOException exc) {
@@ -155,5 +185,28 @@ public class Repl {
         } catch (Exception exc) {
             exc.printStackTrace(System.out);
         }
+    }
+
+    static class SyncPipe implements Runnable
+    {
+        public SyncPipe(InputStream istrm, OutputStream ostrm) {
+            istrm_ = istrm;
+            ostrm_ = ostrm;
+        }
+        public void run() {
+            try
+            {
+                final byte[] buffer = new byte[1024];
+                for (int length = 0; (length = istrm_.read(buffer)) != -1; )
+                {
+                    ostrm_.write(buffer, 0, length);
+                }
+            }
+            catch (Exception e)
+            {
+            }
+        }
+        private final OutputStream ostrm_;
+        private final InputStream istrm_;
     }
 }
