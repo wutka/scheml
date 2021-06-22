@@ -52,7 +52,7 @@ of `car` and `cdr`. There are a couple of special forms that aren't in
 Scheme like `:=`, `type`, and `match` and in addition to the usual types,
 it also has abstract data types.
 
-The big difference between Scheml and Scheml boils down to the fact that
+The big difference between Scheml and Scheme boils down to the fact that
 in Scheml, lists cannot contain mixed data types. A list can't contain both
 an int and a string. This restriction really inhibits the usefulness of
 S-expressions in Scheml, since a Scheml program is not a valid expression
