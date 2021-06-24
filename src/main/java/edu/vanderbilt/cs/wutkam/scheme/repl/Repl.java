@@ -150,6 +150,10 @@ public class Repl {
                 TypeRef exprType = new TypeRef();
                 expr.unify(exprType, typeEnvironment);
 
+                for (String warning: SchemlRuntime.getWarnings()) {
+                    System.out.println(warning);
+                }
+
                 // Evaluate the expression
                 expr = expr.evaluate(exprEnvironment, false);
 
@@ -168,6 +172,10 @@ public class Repl {
                     } catch (UnifyException exc) {
                         System.out.println("Error unifying expression: " + expr + "\n" + exc.getMessage());
                     }
+                    for (String warning: SchemlRuntime.getWarnings()) {
+                        System.out.println(warning);
+                    }
+
                 } else {
                     // Don't bother printing a void result, which is returned by functions like print
                     if (!(expr instanceof VoidExpr)) {
@@ -178,12 +186,17 @@ public class Repl {
         } catch (UnifyException exc) {
             System.out.println("Unification error:\n" + exc.getMessage());
         } catch (FailException exc) {
-            System.out.println("Fail: "+exc.getMessage());
+            System.out.println("Fail: " + exc.getMessage());
+        } catch (LispException exc) {
+            System.out.println("Lisp Exception: " + exc.getMessage());
         } catch (StackOverflowError exc) {
             System.out.println("Stack overflow");
 //            exc.printStackTrace();
         } catch (Exception exc) {
             exc.printStackTrace(System.out);
+        }
+        for (String warning: SchemlRuntime.getWarnings()) {
+            System.out.println(warning);
         }
     }
 
