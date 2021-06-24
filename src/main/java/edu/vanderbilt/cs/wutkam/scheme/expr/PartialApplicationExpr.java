@@ -7,7 +7,9 @@ import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheme.type.UnifyException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /** Represents the partial application of a function
  */
@@ -16,7 +18,21 @@ public class PartialApplicationExpr implements Expression, Applicable {
     List<Expression> partialArgs;
 
     public PartialApplicationExpr(FunctionExpr targetFunction, List<Expression> args) {
-        this.targetFunc = targetFunction;
+        this.targetFunc = new FunctionExpr(targetFunction);
+
+        // Make a copy of the target function's types if they are present
+        // because we could be holding on to the copy that came from the top level registry
+        if (targetFunc.paramTypes != null) {
+            Map<String,TypeRef> linkageMap = new HashMap<>();
+            TypeRef[] newParamTypes = new TypeRef[targetFunc.paramTypes.length];
+            for (int i=0; i < targetFunc.paramTypes.length; i++) {
+                 newParamTypes[i] = targetFunc.paramTypes[i].copy(linkageMap);
+            }
+            targetFunc.paramTypes = newParamTypes;
+            if (targetFunc.returnType != null) {
+                targetFunc.returnType = targetFunc.returnType.copy(linkageMap);
+            }
+        }
         this.partialArgs = args;
     }
 
