@@ -16,21 +16,22 @@ import java.util.Map;
 public class PartialApplicationExpr implements Expression, Applicable {
     FunctionExpr targetFunc;
     List<Expression> partialArgs;
+    TypeRef[] paramTypes;
+    TypeRef returnType;
 
     public PartialApplicationExpr(FunctionExpr targetFunction, List<Expression> args) {
-        this.targetFunc = new FunctionExpr(targetFunction);
+        this.targetFunc = targetFunction;
 
         // Make a copy of the target function's types if they are present
         // because we could be holding on to the copy that came from the top level registry
         if (targetFunc.paramTypes != null) {
             Map<String,TypeRef> linkageMap = new HashMap<>();
-            TypeRef[] newParamTypes = new TypeRef[targetFunc.paramTypes.length];
+            this.paramTypes = new TypeRef[targetFunc.paramTypes.length];
             for (int i=0; i < targetFunc.paramTypes.length; i++) {
-                 newParamTypes[i] = targetFunc.paramTypes[i].copy(linkageMap);
+                 this.paramTypes[i] = targetFunc.paramTypes[i].copy(linkageMap);
             }
-            targetFunc.paramTypes = newParamTypes;
             if (targetFunc.returnType != null) {
-                targetFunc.returnType = targetFunc.returnType.copy(linkageMap);
+                this.returnType = targetFunc.returnType.copy(linkageMap);
             }
         }
         this.partialArgs = args;
@@ -46,15 +47,15 @@ public class PartialApplicationExpr implements Expression, Applicable {
 
         // If the target function's param types have already been determined, create a FunctionType representing
         // the remaining args, and unify against the requested type
-        if (targetFunc.paramTypes != null) {
+        if (paramTypes != null) {
 
             for (int i=0; i < partialArgs.size(); i++) {
-                partialArgs.get(i).unify(targetFunc.paramTypes[i], env);
+                partialArgs.get(i).unify(paramTypes[i], env);
             }
             // Get the param types for the remaining args
             TypeRef[] remainingArgs = new TypeRef[targetFunc.arity - partialArgs.size()];
             for (int i=0; i < remainingArgs.length; i++) {
-                remainingArgs[i] = targetFunc.paramTypes[i+partialArgs.size()];
+                remainingArgs[i] = paramTypes[i+partialArgs.size()];
             }
 
             // The type of this function consists of the remaining args and the return type of the function
