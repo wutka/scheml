@@ -479,6 +479,16 @@ The `:r` command reads in the named file and evaluates it.
 ### :t _expr_
 Evaluates an expression and prints its type along with its value.
 
+### :cd _dir_
+Changes the current directory to the specified directory
+
+### :pwd
+Prints the current directory
+
+### :!_shell command_
+Executes the shell command (e.g. `:!ls` to list the files in the current
+directory).
+
 ## Builtin Functions
 Scheml has a number of built-in functions, mostly for dealing with strings and
 numbers. Many of the common functions associated with lists are provided by
