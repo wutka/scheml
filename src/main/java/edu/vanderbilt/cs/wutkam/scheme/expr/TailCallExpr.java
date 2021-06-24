@@ -12,17 +12,15 @@ import java.util.List;
 public class TailCallExpr implements Expression {
     public Applicable func;
     public List<Expression> arguments;
-    public Environment<Expression> env;
 
-    public TailCallExpr(Applicable func, List<Expression> arguments, Environment<Expression> env) {
+    public TailCallExpr(Applicable func, List<Expression> arguments) {
         this.func = func;
         this.arguments = arguments;
-        this.env = env;
     }
 
     @Override
     public Expression evaluate(Environment<Expression> env, boolean inTailPosition) throws LispException {
-        return func.apply(arguments, this.env);
+        return func.apply(arguments, new Environment<>());
     }
 
     @Override
