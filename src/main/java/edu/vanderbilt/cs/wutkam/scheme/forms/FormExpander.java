@@ -31,6 +31,7 @@ public class FormExpander {
         specialForms.put("sprintf", new PrintfForm());
         specialForms.put(":=", new AssignForm());
         specialForms.put("type", new TypeForm());
+        specialForms.put("when", new WhenForm());
     }
 
     public static Expression expand(ListExpr aList, boolean isTopLevel) throws LispException
