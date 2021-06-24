@@ -59,7 +59,7 @@ public class PartialApplicationExpr implements Expression, Applicable {
             }
 
             // The type of this function consists of the remaining args and the return type of the function
-            FunctionType newFuncType = new FunctionType(remainingArgs.length, remainingArgs, targetFunc.returnType);
+            FunctionType newFuncType = new FunctionType(remainingArgs.length, remainingArgs, this.returnType);
             try {
                 // Unify this function type with the requested type
                 typeRef.unify(new TypeRef(newFuncType));
