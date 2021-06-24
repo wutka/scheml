@@ -63,14 +63,24 @@ public abstract class Type {
 
                     // Once we hit a -> we are done parsing the symbol we were parsing,
                     String symbolName = currSymbol.toString().trim();
-                    typeStack.peek().add(parseSymbolName(symbolName, symbolNameMap));
-                    currSymbol = new StringBuilder();
+                    if (symbolName.length() > 0) {
+                        typeStack.peek().add(parseSymbolName(symbolName, symbolNameMap));
+                        currSymbol = new StringBuilder();
+                    }
 
                 } else if (ch == '(') {
                     // A ( begins a sub expression
                     typeStack.push(new ArrayList<>());
                 } else if (ch == ')') {
                     // A ) ends the current sub-expression
+
+                    // Get the symbol that was being built before we hit the paren
+                    String symbolName = currSymbol.toString().trim();
+                    if (symbolName.length() > 0) {
+                        typeStack.peek().add(parseSymbolName(symbolName, symbolNameMap));
+                        currSymbol = new StringBuilder();
+                    }
+
                     List<TypeRef> nestedList = typeStack.pop();
                     if (nestedList.size() == 1) {
                         throw new RuntimeException("Parenthesized expression should be a function or a construction, " +
