@@ -91,4 +91,17 @@ public abstract class BuiltinFunctionExpr extends FunctionExpr {
         }
     }
 
+    /** If a built-in function calls apply directly, it is possible that apply will return a TailCallExpr.
+     * This loop keeps applying the result of that tail call until it returns a result.
+     */
+    protected static Expression applyLoop(Applicable f, List<Expression> args)
+            throws LispException
+    {
+        Expression result = f.apply(args, new Environment<>());
+        while (result instanceof TailCallExpr) {
+            result = result.evaluate(new Environment<>(), false);
+        }
+        return result;
+    }
+
 }

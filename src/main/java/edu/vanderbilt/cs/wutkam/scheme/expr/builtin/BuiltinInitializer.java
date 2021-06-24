@@ -1,6 +1,19 @@
 package edu.vanderbilt.cs.wutkam.scheme.expr.builtin;
 
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
+import edu.vanderbilt.cs.wutkam.scheme.expr.builtin.list.All;
+import edu.vanderbilt.cs.wutkam.scheme.expr.builtin.list.Append;
+import edu.vanderbilt.cs.wutkam.scheme.expr.builtin.list.Drop;
+import edu.vanderbilt.cs.wutkam.scheme.expr.builtin.list.Fold;
+import edu.vanderbilt.cs.wutkam.scheme.expr.builtin.list.Length;
+import edu.vanderbilt.cs.wutkam.scheme.expr.builtin.list.Map;
+import edu.vanderbilt.cs.wutkam.scheme.expr.builtin.list.Member;
+import edu.vanderbilt.cs.wutkam.scheme.expr.builtin.list.Nth;
+import edu.vanderbilt.cs.wutkam.scheme.expr.builtin.list.ReplaceNth;
+import edu.vanderbilt.cs.wutkam.scheme.expr.builtin.list.Remove;
+import edu.vanderbilt.cs.wutkam.scheme.expr.builtin.list.Reverse;
+import edu.vanderbilt.cs.wutkam.scheme.expr.builtin.list.Some;
+import edu.vanderbilt.cs.wutkam.scheme.expr.builtin.list.Take;
 import edu.vanderbilt.cs.wutkam.scheme.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheme.type.FunctionType;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
@@ -91,6 +104,19 @@ public class BuiltinInitializer {
         new Split("split"),
         new Join("join"),
         new Profiling("profiling"),
+        new Length("length"),
+        new Nth("nth"),
+        new Map("map"),
+        new Reverse("reverse"),
+        new Append("append"),
+        new Member("member?"),
+        new Remove("remove"),
+        new Take("take"),
+        new Drop("drop"),
+        new Fold("fold"),
+        new All("all"),
+        new Some("some"),
+        new ReplaceNth("replace-nth"),
     };
 
     public static void initializeBuiltins(Environment<Expression> exprEnv, Environment<TypeRef> typeEnv) {
