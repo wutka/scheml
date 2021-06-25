@@ -16,12 +16,12 @@ run {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'edu.vanderbilt.cs.wutkam.scheme.repl.Repl'
+        attributes 'Main-Class': 'edu.vanderbilt.cs.wutkam.scheml.repl.Repl'
     }
 }
 
 application {
-    mainClass = 'edu.vanderbilt.cs.wutkam.scheme.repl.Repl'
+    mainClass = 'edu.vanderbilt.cs.wutkam.scheml.repl.Repl'
 }
 
 dependencies {
