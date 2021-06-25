@@ -2,9 +2,12 @@ package edu.vanderbilt.cs.wutkam.scheme.runtime;
 
 import edu.vanderbilt.cs.wutkam.scheme.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheme.expr.builtin.BuiltinInitializer;
+import edu.vanderbilt.cs.wutkam.scheme.parser.Parser;
 import edu.vanderbilt.cs.wutkam.scheme.repl.Repl;
 import edu.vanderbilt.cs.wutkam.scheme.type.TypeRef;
 
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,4 +53,16 @@ public class SchemlRuntime {
     }
 
     public static Profiler getProfiler() { return profiler; }
+
+    public static void initializeStdlib() {
+        try {
+            List<Expression> exprs = Parser.parse(new InputStreamReader(
+                    SchemlRuntime.class.getClassLoader().getResourceAsStream(
+                            "edu/vanderbilt/cs/wutkam/scheme/stdlib.scm")), false);
+            repl.executeExpressions(exprs, false);
+        } catch (Exception exc) {
+            exc.printStackTrace();
+        }
+
+    }
 }

@@ -31,6 +31,8 @@ public class Repl {
     protected Environment<TypeRef> typeEnvironment;
     protected File currentDir;
 
+    protected boolean displayExpressions;
+
     public Repl() {
         dataIn = new BufferedReader(new InputStreamReader(System.in));
         this.exprEnvironment = new Environment<>();
@@ -41,12 +43,19 @@ public class Repl {
     public static void main(String [] args) {
         Repl repl = new Repl();
         SchemlRuntime.repl = repl;
+        repl.setDisplayExpressions(false);
+        SchemlRuntime.initializeStdlib();
+        repl.setDisplayExpressions(true);
         repl.run(args);
     }
 
     public File getFile(String filename) {
         if (filename.startsWith("/")) return new File(filename);
         return new File(currentDir, filename);
+    }
+
+    public void setDisplayExpressions(boolean flag) {
+        displayExpressions = flag;
     }
 
     public void run(String[] args) {
@@ -178,7 +187,7 @@ public class Repl {
 
                 } else {
                     // Don't bother printing a void result, which is returned by functions like print
-                    if (!(expr instanceof VoidExpr)) {
+                    if (!(expr instanceof VoidExpr) && displayExpressions) {
                         System.out.println(expr);
                     }
                 }
