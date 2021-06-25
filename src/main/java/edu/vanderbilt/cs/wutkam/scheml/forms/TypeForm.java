@@ -11,8 +11,6 @@ import edu.vanderbilt.cs.wutkam.scheml.type.*;
 
 import java.util.*;
 
-import static edu.vanderbilt.cs.wutkam.scheme.runtime.SchemlRuntime.getTypeRegistry;
-
 /** Defines an abstract type of the form (type type-name (parametric types) (Constructor-1 args) ...)
  * For example:
  * (type tree-node ('a)
@@ -98,7 +96,7 @@ public class TypeForm implements Form {
         // Create a declaration for this type, and go ahead and define it in the type registry so it can
         // recursively refer to itself
         abstractTypeDecl = new AbstractTypeDecl(typeName, parametricList);
-        getTypeRegistry().define(abstractTypeDecl);
+        SchemlRuntime.getTypeRegistry().define(abstractTypeDecl);
 
         // Process each type constructor
         for (Expression expr: aList.elementsFrom(nextPos)) {
@@ -216,7 +214,7 @@ public class TypeForm implements Form {
         if (typeNameExpr instanceof SymbolExpr) {
 
             SymbolExpr nameSym = (SymbolExpr) typeNameExpr;
-            AbstractTypeDecl abstractTypeDecl = getTypeRegistry().lookup(nameSym.value);
+            AbstractTypeDecl abstractTypeDecl = SchemlRuntime.getTypeRegistry().lookup(nameSym.value);
             if (abstractTypeDecl != null) {
                 if (abstractTypeDecl.parametricTypes.size() != typeList.size() - nextPos) {
                     throw new LispException("Parametric type list for type " + nameSym.value + " must have " +
