@@ -137,6 +137,12 @@
 (define (correct? sud) 
   (all id (map (sets-correct? sud) (range 0 8))))
 
+;;; If there exists an unfixed square with no possible values, this particular
+;;; solution attempt has failed. It's not a bug, just that it's not a workable
+;;; combination of possibilities.
+(define (failed? sud)
+  (some (= 0) (map num-available sud)))
+
 ;;; If other-square is fixed and sq is unfixed, remove other-square's value
 ;;; from sq's list of available squares
 (define (remove-from-available other-square sq)
@@ -230,6 +236,7 @@
 ;;; Reduce the squares in the sudoku, updating the sudoku each time before processing the
 ;;; next one to make sure any changes aren't ignored when processing the next square
 (define (reduce-squares sud)
+  (if (failed? sud) sud
   (letrec ((reduce-squares'
              (lambda (n curr-sud)
                ;;; If we hit the end, curr-sud is the reduced sudoku
@@ -251,7 +258,7 @@
     ;;; except that recurring with a value that goes down towards 0 is a good practice
     ;;; if you work with proofs in programs where it can prove that recursion terminates
     ;;; because a particular value keeps getting smaller. 
-    (reduce-squares' 80 sud)))
+    (reduce-squares' 80 sud))))
 
 
 (define *sudoku-display* #f)
@@ -270,11 +277,6 @@
       (correct? sud)
       #f))
 
-;;; If there exists an unfixed square with no possible values, this particular
-;;; solution attempt has failed. It's not a bug, just that it's not a workable
-;;; combination of possibilities.
-(define (failed? sud)
-  (some (= 0) (map num-available sud)))
 
 ;;; Tries to fix val at position pos in the sudoku. The try-func parameter is an
 ;;; alternative to making this function and the next one as nested functions
