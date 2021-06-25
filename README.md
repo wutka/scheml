@@ -469,6 +469,12 @@ This `(Pair 123)` is a partial function that has the type `'a -> pair int 'a`.
 That is, it is a function that takes an argument of any type and returns a
 pair of an int and that type.
 
+### (when _test_ _body_)
+If the test expression returns true, `(when)` executes the body. This form
+always has a type of void, because there isn't another logical choice if
+the test returns false. Given that only I/O functions have side-effects,
+this form isn't very useful except for printing output.
+
 ## REPL features
 The REPL is mostly just a way to enter expressions and see what they
 evaluate to. But, there are two special commands:
@@ -494,7 +500,21 @@ Scheml has a number of built-in functions, mostly for dealing with strings and
 numbers. Many of the common functions associated with lists are provided by
 a separate lists.scm file.
 
-### Arithmetic functions `+, -, *, /, div, mod, +., -. *., /., div. mod.`
+### Arithmetic functions
+```
+(+ inta intb)
+(- inta intb)
+(* inta intb)
+(/ inta intb)
+(div inta intb)
+(mod inta intb)
+(+. doublea doubleb)
+(-. doublea doubleb)
+(*. doublea doubleb)
+(/. doublea doubleb)
+(div. doublea doubleb)
+(mod. doublea doubleb)
+```
 Scheml doesn't do any kind of type conversion, and following the example of
 Ocaml, it has separate operators for floating point operations. That is,
 to add two ints, you use `+` but to add two doubles you use `+.`. The convention
@@ -510,29 +530,66 @@ using the `map` function from `lists.scm`:
 (6 7 8 9 10)
 ```
 
-### Comparison functions `= != > >= < <= =. !=. >. >=. <. <=.`
+### Comparison functions
+```
+(= inta intb)
+(!= inta intb)
+(> inta intb)
+(>= inta intb)
+(< inta intb)
+(<= inta intb)
+(=. doublea doubleb)
+(!=. doublea doubleb)
+(>. doublea doubleb)
+(>=. doublea doubleb)
+(<. doublea doubleb)
+(<=.`  doublea doubleb)
+```
 As with the arithmetic functions, the comparison functions also have
 separate int and double versions, although this could change in the future
 because the return type is always bool.
 
 ### `equals?`
+```
+(equals? x y)
+```
 Unlike the `=` comparison function, the `equals?` function can test the
 equality of any two objects. It just uses the Java equals method to compare
 the object, but the simple expressions in Scheml, as well as the
 abstract data types, all implement the Java equals method.
 
 ### `min max min. max.`
+```
+(min inta intb)
+(max inta intb)
+(min. doublea doubleb)
+(max. doublea doubleb)
+```
 The `min` and `max` functions pick the minimum or maximum of two ints (or two
 doubles for min. and max.).
 
-### 'neg neg.'
+### `neg neg.`
+```
+(neg inta)
+(neg. doublea)
+```
 The `neg` and `neg.` functions return the negative of an int or a double
 
 ### `int->double double->int`
+```
+(int->double inta)
+(double->int doublaa)
+```
 The `int->double` and `double->int` functions provide conversions between int
 and double.
 
 ### `and or xor not`
+```
+(and boola boolb)
+(or boola boolb)
+(xor boola boolb)
+(not boola)
+```
 The `and`, `or`, `xor`, and `not` functions perform the boolean operations
 their names indicate. Since `and` and `or` are functions whose arguments are
 evaluated before they are called, they cannot do short-circuiting. If you
@@ -541,22 +598,49 @@ first is false, do `(if first-test second-test #f)`. Similarly, for a
 short-circuited `or` do `(if first-test #t second-test)`.
 
 ### `& | ^ ~ << >>`
+```scheme
+(& inta intb)
+(| inta intb)
+(^ inta intb)
+(~ inta)
+(<< inta num-bits)
+(>> inta num-bits)
+```
 The `&`, `|`, and `^` functions perform bitwise-and, -or, and -xor operations
 respectively on ints. The `~` function does a bitwise invert on an int, and
 `<<` and `>>` shift their first int argument left or right the number of bits
 specified by their second int argument.
 
 ### `->string`
+```
+(->string x)
+```
 Converts any value to its string representation.
 
 ### `id`
+```
+(id x)
+```
 The `id` function is the identity function that just returns its argument.
 
 ### `list->string` `string->list`
+```
+(list->string lista)
+(string->list stirnga)
+```
 The `list->string` and `string->list` functions convert between a string
 and a list of chars (not a list of any other type).
 
 ### `cons` `head` `tail` `->list` `empty?`
+```
+(cons x lista)
+(head lista)
+(tail lista)
+(->list x)
+(empty? lista)
+(length lista)
+(nth n lista)
+```
 Like Scheme, Scheml uses `cons` to build a list, but it discards a piece
 of Lisp history in not calling the `head` and `tail` functions `car` and
 `cdr`. The `head` function returns the first item in a list, and the
@@ -568,27 +652,143 @@ a list of lists.
 
 The `empty?` function returns true if a list is empty.
 
+The `length` function returns the length of a list.
+
+The `nth` function takes a number n and a list and returns the item in the
+list at the nth position, where the first item in the list is at position 0.
+
+### `all` `some`
+```
+(all pred lista)
+(some pred lista)
+```
+Given a predicate function of type `'a -> bool`, and a list of type `'a`,
+the `all` function returns true if the predicate function returns true for
+every item in the list. The `some` function returns true if the predicate
+returns true for any item in the list.
+
+### `append`
+```
+(append lista listb)
+```
+Given two lists, return the list made by appending the second list to
+the end of the first.
+
+### `drop` `take`
+```
+(drop n lista)
+(take n lista)
+```
+Given an integer value n and a list of items, the `drop` skips the first n
+items of the list and returns the rest of the list. The `take` function
+returns the first n items of the list as a separate list.
+
+### `map`
+```
+(map f lista)
+```
+Given a function from `'a` to `'b` and a list of type `'a`, the `map` function
+applies the function to each item of the list and returns the function results
+as a list of type `'b`.
+
+### `fold`
+```
+(fold f start-val lista)
+```
+Given a function from type `'a` to `'b`, a start value of type `'b` and
+a list of type `'a`, `fold` applies the function to each element of the
+list and the result of the previous application (using the start value
+is the second argument when invoking the function the first time). When
+all the items have been processed, it returns the last function result.
+
+For example, to sum the numbers from 1 to 10: `(fold + 0 (range 1 10))`
+The calls to function + in this case would be:
+```
+(+ 1 0)  ; the 0 here is the second argument to fold
+(+ 2 1)
+(+ 3 3)
+(+ 4 6)
+(+ 5 10)
+(+ 6 15)
+(+ 7 21)
+(+ 8 28)
+(+ 9 36)
+(+ 10 45)
+```
+The result of the fold would then be 55 (10 + 45)
+
+### `member`
+```
+(member x lista)
+```
+Returns true if item x appears in the list.
+
+### `filter`
+```
+(filter pred lista)
+```
+Given a function from type `'a` to `bool` and a list of type `'a`, `(filter)`
+returns a list of all the items in the list for which the predicate was true.
+
+### `remove`
+```
+(remove x lista)
+```
+Returns the list resulting from removing item x from the given list. If item x
+does not appear in the list, it will return the original list.
+
+### `replace-nth`
+```
+(replace-nth n x lista)
+```
+Replaces the nth item in the given list with item x.
+
+### `reverse`
+```
+(reverse lista)
+```
+Reverses the given list.
+
 ### `range`
+```
+(range start end)
+```
 The `range` function takes two arguments, a beginning and end, and returns a
 list of numbers from the first argument to the last argument **inclusive**. That
 is, (range 1 5) returns the list (1 2 3 4 5).
 
 ### `print`
+```
+(print stringa)
+```
 The `print` function prints a string to stdout.
 
 ### `input`
+```
+(input)
+```
 Takes no arguments, reads a line from stdin and returns it as a string
 with the newline stripped off the end.
 
 ### `load`
+```
+(load filename)
+```
 The `load` function takes a string argument and loads and evaluates the
 expressions in that file. It does the same thing as the `:r` command
 in the REPL.
 
 ### `quit`
+```
+(quit)
+```
 Terminates the REPL.
 
 ### `read-lines` `write-lines`
+```
+(read-lines filenmae)
+(write-lines lines filename)
+```
 The `read-lines` function takes a string filename and reads all the lines
 from the named file, returning them as a list. The lines will have all
 the newlines stripped off the end.
@@ -598,10 +798,17 @@ and writes each string to the named file as a separate line, appending a
 newline to each string.
 
 ### `fail`
+```
+(fail message)
+```
 Takes a string message and throws an exception to terminate the current
 evaluation and return the REPL. The REPL will display the message.
 
 ### `split` `join`
+```
+(split stringa split-on-regex)
+(join string-list separator)
+```
 The `split` function is a thin wrapper around the Java String split method,
 in that it takes a string value, and also a string representation of a
 regular expression, and splits the first string at the points where it
@@ -611,7 +818,31 @@ matches the regular expression. A simple `split` call would be:
 ("foo" "bar" "baz")
 ```
 
+The `join` function appends a list of strings together separated by
+the given string separator. For example:
+```
+(join (list "foo" "bar" "baz") ", ")
+"foo, bar, baz"
+```
+
+### `swap`
+```
+(swap f a b)
+```
+Takes a function f and two arguments a and b, and returns the result of
+applying f to a and b in reverse order, that is `(f b a)`. This is useful
+when working using comparison operators for list predicates. For example,
+to filter a list for items less than 5, it would be nice to filter on
+`(< 5)` but that would be items that 5 is less than. Instead of creating
+a lambda like `(lambda (x) (< x 5))` you can just do `(swap < 5)` which
+essentially does partial function application where the second argument
+is partially applied.
+
 ### `profiling`
+```
+(profiling #t)
+(profiling #f)
+```
 Scheml includes a very basic profiler. You activate the profiler by calling
 `(profiling #t)` and then do the operations you want to profile. When you
 are done, call `(profiling #f)` and that will both stop the profiling and
