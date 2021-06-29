@@ -227,9 +227,11 @@ Example:
 This form of `define` lets you define a global function. The items in
 parentheses are the name of the function and then a list of symbols that
 are the parameters to the function. A function that takes no parameters would just
-have `(_function-name_)` in this part. The body of the function is a sequence of
+have (_function-name_) in this part. The body of the function is a sequence of
 statements that may use any of the symbols in the function argument list including
-the function name itself.
+the function name itself. There is no special `return` statement, the return value
+of a function is just the value returned by the last statement in the
+function body.
 Example:
 ```
 (define (multiply-by-7 a) (* a 7))
@@ -250,7 +252,7 @@ Example:
 
 ### (lambda (_args_) _body_)
 The `(lambda)` form defines an anonymous function (although it can be
-given a name via a `(let)` or `(statements)` special form). The items
+given a name via a `(let)` or `(:=)` special form). The items
 in parens after the `lambda` should be zero or more symbols representing
 the names of the parameters that should be passed to the function. After
 that come the statements that make up the body of the function.
@@ -284,7 +286,7 @@ In a `let*` form, each binding is visible to the bindings that follow it. For ex
 ```
 
 In a `letrec` form, the binding is visible within the expression being bound. This is mostly
-useful for creating recursive lambda functions. For example, one commmon pattern in functional
+useful for creating recursive lambda functions. For example, one common pattern in functional
 languages is to make a tail-recursive version of a function that might take some extra parameters.
 Here is an implementation of the factorial function that uses an accumulator for the products
 so that it can be implemented tail-recursively. The tail-recursive function is implemented
@@ -374,7 +376,8 @@ you'll see a warning like this:
 the result is 7
 Pattern match is not exhaustive, an unmatched pattern is 1
 ```
-You will always get that warning when matching against ints, doubles, chars, and strings because
+You will always get that warning when matching against ints, doubles, chars, and strings without a
+wildcard because
 there are too many possibilities to match (yes, if you made 65,536 matchers, you _could_ avoid
 the warning for chars).
 
@@ -384,9 +387,10 @@ covers that case, you'll get a different warning:
 (match "baz"
   ("foo" (printf "it was foo\n"))
   ("bar" (printf "it was bar\n"))
-  ("baz" (printf "it was baz\n")))
-it was baz
-Pattern match is not exhaustive, an unmatched pattern is "quux"
+  ("foo" (printf "IT WAS FOO!\n"))
+  (_     (printf "it was something else\n")))
+Pattern "foo" is redundant
+it was something else
 ```
 
 Although you could use the Cons and Nil patterns to deconstruct a list, the `match` form
@@ -402,7 +406,7 @@ If you are matching against a list, just know that if you don't include _ as an 
 you will get a warning about the match being incomplete because lists can essentially be
 any length, so no matter how long your match is, it will always fall one short.
 
-Finally, when deconstructing an abstract type, the match can be recursive. Here's another
+Finally, when deconstructing an abstract type, the match pattern can include nested patterns. Here's another
 way to match the list (1 2 3)
 ```
 (match (list 1 2 3)
@@ -578,7 +582,7 @@ The `neg` and `neg.` functions return the negative of an int or a double
 ### `int->double double->int`
 ```
 (int->double inta)
-(double->int doublaa)
+(double->int doublea)
 ```
 The `int->double` and `double->int` functions provide conversions between int
 and double.
@@ -593,7 +597,7 @@ and double.
 The `and`, `or`, `xor`, and `not` functions perform the boolean operations
 their names indicate. Since `and` and `or` are functions whose arguments are
 evaluated before they are called, they cannot do short-circuiting. If you
-need a short-circuited and where the second argument isn't evaluated if the
+need a short-circuited `and` where the second argument isn't evaluated if the
 first is false, do `(if first-test second-test #f)`. Similarly, for a
 short-circuited `or` do `(if first-test #t second-test)`.
 
@@ -679,7 +683,7 @@ the end of the first.
 (drop n lista)
 (take n lista)
 ```
-Given an integer value n and a list of items, the `drop` skips the first n
+Given an integer value n and a list of items, the `drop` function skips the first n
 items of the list and returns the rest of the list. The `take` function
 returns the first n items of the list as a separate list.
 
@@ -695,7 +699,7 @@ as a list of type `'b`.
 ```
 (fold f start-val lista)
 ```
-Given a function from type `'a` to `'b`, a start value of type `'b` and
+Given a two-parameter function from types `'a` and `'b` to type`'b`, a start value of type `'b` and
 a list of type `'a`, `fold` applies the function to each element of the
 list and the result of the previous application (using the start value
 is the second argument when invoking the function the first time). When
@@ -704,8 +708,8 @@ all the items have been processed, it returns the last function result.
 For example, to sum the numbers from 1 to 10: `(fold + 0 (range 1 10))`
 The calls to function + in this case would be:
 ```
-(+ 1 0)  ; the 0 here is the second argument to fold
-(+ 2 1)
+(+ 1 0)  ; the 0 here is the second argument to fold (start-val)
+(+ 2 1)  ; the 1 here is the result of the previous (+ 1 0)
 (+ 3 3)
 (+ 4 6)
 (+ 5 10)
