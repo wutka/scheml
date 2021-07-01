@@ -10,13 +10,9 @@ the features that it has that make it different from vanilla Scheme:
 * Tail-call optimization (this is actually expected of a Scheme or ML, but it's good
   to know it is available)
 
-The use of s-expressions as a syntactic representation is partially due to this
-language being created as a final project for a course that covered some of
-the functional features of Java as well as some well-known design patterns. It
-uses the Interpreter pattern both for evaluating expressions, and for unifying
-expressions in the type checker. Special forms use a mechanism like the
-Command pattern where there is a registry of forms and each one is executed
-the same way against an s-expression.
+## Design
+Because of its length, I have moved the design description to
+a [separate document](DESIGN.md).
 
 ## Building
 You'll need a recent Java (I am using OpenJDK 14), and the Gradle build system.

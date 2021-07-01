@@ -24,15 +24,12 @@ public class IfExpr implements Expression {
     @Override
     public Expression evaluate(Environment<Expression> env, boolean inTailPosition) throws LispException {
         Expression testResult = test.evaluate(env, false);
-        if (testResult instanceof BoolExpr) {
-            // If the if expression is in the tail position then so are trueOption and falseOption
-            if (((BoolExpr)testResult).value) {
-                return trueOption.evaluate(env, inTailPosition);
-            } else {
-                return falseOption.evaluate(env, inTailPosition);
-            }
+        // If the if expression is in the tail position then so are trueOption and falseOption
+        // No need to check the cast here, the type unifier will have checked it already
+        if (((BoolExpr)testResult).value) {
+            return trueOption.evaluate(env, inTailPosition);
         } else {
-            throw new LispException("If expression test did not evaluate to a boolean");
+            return falseOption.evaluate(env, inTailPosition);
         }
     }
 
