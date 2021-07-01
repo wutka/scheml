@@ -10,7 +10,7 @@ import edu.vanderbilt.cs.wutkam.scheml.type.builtin.ConsTypeDecl;
  */
 public class Reverse extends BuiltinFunctionExpr {
     public Reverse(String name) {
-        super(name, "cons 'a -> 'a");
+        super(name, "cons 'a -> cons 'a");
     }
 
     @Override
