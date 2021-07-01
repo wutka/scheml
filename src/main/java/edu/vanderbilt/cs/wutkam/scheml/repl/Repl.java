@@ -43,7 +43,6 @@ public class Repl {
     public static void main(String [] args) {
         Repl repl = new Repl();
         SchemlRuntime.repl = repl;
-        repl.setDisplayExpressions(false);
         SchemlRuntime.initializeStdlib();
         repl.setDisplayExpressions(true);
         repl.run(args);
@@ -54,6 +53,7 @@ public class Repl {
         return new File(currentDir, filename);
     }
 
+    public boolean getDisplayExpressions() { return displayExpressions; }
     public void setDisplayExpressions(boolean flag) {
         displayExpressions = flag;
     }
@@ -162,6 +162,7 @@ public class Repl {
                 for (String warning: SchemlRuntime.getWarnings()) {
                     System.out.println(warning);
                 }
+                SchemlRuntime.clearWarnings();
 
                 // Evaluate the expression
                 expr = expr.evaluate(exprEnvironment, false);
@@ -169,6 +170,7 @@ public class Repl {
                 for (String warning: SchemlRuntime.getWarnings()) {
                     System.out.println(warning);
                 }
+                SchemlRuntime.clearWarnings();
 
                 if (displayType) {
                     TypeRef resultType = new TypeRef();
@@ -184,6 +186,7 @@ public class Repl {
                     for (String warning: SchemlRuntime.getWarnings()) {
                         System.out.println(warning);
                     }
+                    SchemlRuntime.clearWarnings();
 
                 } else {
                     // Don't bother printing a void result, which is returned by functions like print
@@ -207,6 +210,7 @@ public class Repl {
         for (String warning: SchemlRuntime.getWarnings()) {
             System.out.println(warning);
         }
+        SchemlRuntime.clearWarnings();
     }
 
     static class SyncPipe implements Runnable

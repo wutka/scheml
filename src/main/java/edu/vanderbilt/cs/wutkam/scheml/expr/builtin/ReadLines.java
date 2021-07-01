@@ -32,7 +32,7 @@ public class ReadLines extends BuiltinFunctionExpr {
             }
             return curr;
         } catch (IOException exc) {
-            throw new LispException("Error reading file "+((StringExpr)expr).value+": "+exc.getMessage());
+            throw new FailException("Error reading file "+((StringExpr)expr).value+": "+exc.getMessage());
         }
     }
 }

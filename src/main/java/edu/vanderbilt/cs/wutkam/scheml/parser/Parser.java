@@ -45,7 +45,7 @@ public class Parser {
     }
 
     /** The characters allowed in a symbol */
-    protected final String symbolChars = "'*/+-!@#$%&_=:.<>?";
+    protected final String symbolChars = "'*/+-!@#$%&_=:.<>?~|^";
 
     /** Returns true if a character may appear as the first character in a symbol */
     protected boolean isSymbolChar(int ch) {

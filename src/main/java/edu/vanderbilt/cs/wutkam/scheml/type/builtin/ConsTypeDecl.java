@@ -3,8 +3,10 @@ package edu.vanderbilt.cs.wutkam.scheml.type.builtin;
 import edu.vanderbilt.cs.wutkam.scheml.expr.AbstractTypeExpr;
 import edu.vanderbilt.cs.wutkam.scheml.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheml.expr.TypeConstructorExpr;
+import edu.vanderbilt.cs.wutkam.scheml.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheml.type.AbstractType;
 import edu.vanderbilt.cs.wutkam.scheml.type.AbstractTypeDecl;
+import edu.vanderbilt.cs.wutkam.scheml.type.FunctionType;
 import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
 
 import java.util.ArrayList;
@@ -106,9 +108,20 @@ public class ConsTypeDecl extends AbstractTypeDecl implements CustomToString {
                 Arrays.asList(parametricType), Arrays.asList(parametricType,
                 new TypeRef(new AbstractType(decl))));
 
+        TypeRef consTargetType = new TypeRef();
+        TypeRef abstractTypeRef = new TypeRef(new AbstractType("cons", Arrays.asList(consTargetType)));
+
         Map<String,TypeConstructorExpr> consMap = new HashMap<>();
         consMap.put("Nil", nilConstructor);
+        SchemlRuntime.getTopLevel().define("Nil", nilConstructor);
+        SchemlRuntime.getUnifyTopLevel().define("Nil",
+                new TypeRef(new FunctionType(0, new TypeRef[0], abstractTypeRef)));
         consMap.put("Cons", consConstructor);
+        SchemlRuntime.getTopLevel().define("Cons", consConstructor);
+        SchemlRuntime.getUnifyTopLevel().define("Cons",
+                new TypeRef(new FunctionType(2, new TypeRef[] { consTargetType, abstractTypeRef},
+                        abstractTypeRef)));
+
         return consMap;
     }
 

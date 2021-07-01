@@ -33,7 +33,7 @@ public class WriteLines extends BuiltinFunctionExpr {
             out.close();
             return new VoidExpr();
         } catch (IOException exc) {
-            throw new LispException("Error writing to file "+filename+": "+exc.getMessage());
+            throw new FailException("Error writing to file "+filename+": "+exc.getMessage());
         }
     }
 }

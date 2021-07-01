@@ -14,17 +14,17 @@ import java.util.List;
  */
 public class SchemlRuntime {
     /** The table of global functions and variables */
-    protected static final Environment<Expression> topLevelEnvironment = new Environment<Expression>();
+    protected static Environment<Expression> topLevelEnvironment = new Environment<>();
 
     /** The table of types of global functions and variables */
-    protected static final Environment<TypeRef> topLevelUnifyEnvironment = new Environment<TypeRef>();
+    protected static Environment<TypeRef> topLevelUnifyEnvironment = new Environment<>();
 
     /** The registry of abstract types defined with the (type) form */
-    protected static final TypeRegistry typeRegistry = new TypeRegistry();
+    protected static TypeRegistry typeRegistry = new TypeRegistry();
 
-    protected static final List<String> warnings = new ArrayList<>();
+    protected static List<String> warnings = new ArrayList<>();
 
-    protected static final Profiler profiler = new Profiler();
+    protected static Profiler profiler = new Profiler();
 
     /** Initialize the builtin functions */
     static {
@@ -41,8 +41,11 @@ public class SchemlRuntime {
 
     public static String[] getWarnings() {
         String[] result = warnings.toArray(new String[warnings.size()]);
-        warnings.clear();
         return result;
+    }
+
+    public static void clearWarnings() {
+        warnings.clear();
     }
 
     public static Repl repl;
@@ -55,13 +58,28 @@ public class SchemlRuntime {
 
     public static void initializeStdlib() {
         try {
+            boolean displayExpressions = repl.getDisplayExpressions();
+            repl.setDisplayExpressions(false);
             List<Expression> exprs = Parser.parse(new InputStreamReader(
-                    SchemlRuntime.class.getClassLoader().getResourceAsStream(
+                    Thread.currentThread().getContextClassLoader().getResourceAsStream(
                             "edu/vanderbilt/cs/wutkam/scheml/stdlib.scm")), false);
+            repl.setDisplayExpressions(displayExpressions);
             repl.executeExpressions(exprs, false);
         } catch (Exception exc) {
             exc.printStackTrace();
         }
 
+    }
+
+    public static void reset() {
+        topLevelEnvironment = new Environment<>();
+        topLevelUnifyEnvironment = new Environment<>();
+        typeRegistry = new TypeRegistry();
+        warnings = new ArrayList<>();
+        profiler = new Profiler();
+        repl = new Repl();
+
+        BuiltinInitializer.initializeBuiltins(topLevelEnvironment, topLevelUnifyEnvironment);
+        initializeStdlib();
     }
 }

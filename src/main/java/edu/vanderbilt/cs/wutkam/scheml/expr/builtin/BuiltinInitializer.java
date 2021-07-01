@@ -9,7 +9,7 @@ import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
 /** An initializer for all the built-in functions.
  */
 public class BuiltinInitializer {
-    static BuiltinFunctionExpr[] builtins = new BuiltinFunctionExpr[] {
+    protected static BuiltinFunctionExpr[] builtins = new BuiltinFunctionExpr[] {
         new BuiltinBinaryFunctionExpr<>("+", "int -> int -> int", (Long a, Long b) -> a+b),
         new BuiltinBinaryFunctionExpr<>("-", "int -> int -> int", (Long a, Long b) -> a-b),
         new BuiltinBinaryFunctionExpr<>("*", "int -> int -> int", (Long a, Long b) -> a*b),

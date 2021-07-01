@@ -19,7 +19,7 @@ public class Head extends BuiltinFunctionExpr {
         // Following the Scheme convention where (car '()) is an error
         // rather than the Lisp convention where (car nil) is nil
         if (cons.constructorName.equals("Nil")) {
-            throw new LispException("Tried to get head of empty list");
+            throw new FailException("Tried to get head of empty list");
         }
         return cons.values.get(0);
     }

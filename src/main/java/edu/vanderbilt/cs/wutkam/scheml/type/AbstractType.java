@@ -65,17 +65,6 @@ public class AbstractType extends Type {
     }
 
     @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(typeName);
-        for (TypeRef typeParameter: typeParameters) {
-            builder.append(" ");
-            builder.append(typeParameter.getType().toString());
-        }
-        return builder.toString();
-    }
-
-    @Override
     public String toSignatureString(TypeSymbolGenerator gen) {
         StringBuilder builder = new StringBuilder();
         builder.append(typeName);
