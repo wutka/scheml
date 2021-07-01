@@ -8,4 +8,4 @@ To run the solver against one of these files:
 (solve-sudoku-file "easy50.txt" "easy50-results.txt")
 ```
 
-The top95.txt file can take an hour and a half to run.
+The top95.txt file can take about 20 minutes to run.
