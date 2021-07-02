@@ -8,4 +8,8 @@ To run the solver against one of these files:
 (solve-sudoku-file "easy50.txt" "easy50-results.txt")
 ```
 
+If you run scheml from a terminal window that supports ANSI escape sequences,
+you can run `(define *sudoku-display* #t)` to display the sudoku as it tries
+to solve it.
+
 The top95.txt file can take about 20 minutes to run.
