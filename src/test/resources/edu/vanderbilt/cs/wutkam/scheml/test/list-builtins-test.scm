@@ -97,5 +97,5 @@
 
 (test test-take
   (assert-equals (take 5 nil) nil "take 5 of nil is nil")
-  (assert-equals (take 5 (list 1 2 3 4)) (list 1 2 3) "take 5 of (1 2 3) is (1 2 3)")
+  (assert-equals (take 5 (list 1 2 3)) (list 1 2 3) "take 5 of (1 2 3) is (1 2 3)")
   (assert-equals (take 3 (range 1 10)) (list 1 2 3) "take 3 of (1 .. 10) is (1 2 3)"))
