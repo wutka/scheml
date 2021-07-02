@@ -41,6 +41,35 @@ Scheml Repl
 >
 ```
 
+### Examples
+The `examples` directory contains various example/test programs. Two of interest
+are the geohash example and the sudoku example.
+
+#### Geohash example
+The `examples/geohash` directory contains Scheml implementations of the first
+two Geohash assignments from CS 5278. The first assignment is implemented
+in `geohash.scm`, while its unit tests are in `geohashtest.scm`. The
+second assignment is implemented in `geohash-assignment2.scm` and its unit
+tests are in `geohash-assignment2-tests.scm`. A quick way to run each of
+these is with the `run-a1-tests.scm` and `run-a2-tests.scm`:
+```shell
+../../scheml run-a1-tests.scm
+../../scheml run-a2-tests.scm
+```
+#### Sudoku example
+The `examples/sudoku` directory contains a Scheml implementation of a
+Sudoku solver. It also contains a couple of files containing easy and hard
+Sudoku problems. An interesting way to enjoy the Sudoku solver is to
+do this from a terminal window that supports ANSI escape sequences:
+```
+../../scheml sudoku.scm
+>(define *sudoku-display* #t)
+#t
+>(solve-sudoku-file "top95.txt" "foobar.txt")
+```
+You should see something like this:
+![Sudoku solver in action](images/sudoku.png)
+
 ## A Quick Review For People Who Know Scheme
 The basic forms described below should work the same way as Scheme. There
 are a few differences, such as using `head` and `tail` for lists instead
