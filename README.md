@@ -127,7 +127,7 @@ displaying a list in the form (1 2 3) instead of the internal representation whi
 would look like `(Cons 1 (Cons 2 (Cons 3 Nil)))`. In Lisp-like languages you can
 create a quoted list like `'(1 2 3)` where the elements of the list are not evaluated
 or you can use a function to create a list like `(list 1 2 3)`. In Scheml, because there
-are no variadic functions (functions that can take a variable number of functions), you
+are no variadic functions (functions that can take a variable number of arguments), you
 can't define a `list` function that takes multiple parameters. However, there is a `list`
 form that behaves like the list function in that `(list 1 2 3)` does create an expression
 that is displayed as `(1 2 3)`. Likewise, `(list 1 2 3 4 5)` generates `(1 2 3 4 5)`.
@@ -158,7 +158,7 @@ A symbol can be a function name or a variable name. Scheml is pretty lax in
 what characters are allowed in a symbol. A symbol can't start with a digit,
 and if it starts with -0 it is assumed to be a number, and if it starts
 with #\ it is assumed to be a character constant, otherwise any of
-these characters may appear in a symbol: `'*/+-!@#$%&_=:.<>?`.
+these characters may appear in a symbol: `'*/+-!@#$%&_=:.<>?~|^`.
 Unlike Scheme, you can't manipulate symbols as data values, and they can't
 appear as types in an expression.
 
@@ -238,7 +238,7 @@ The `(if)` special form works like it does in other Lisp-like languages. It
 evaluates the _test_ expression, and if it is true, it then evaluates the
 _true-expr_, and if it is false it evaluates the _false-expr_. Since Scheml is
 strictly typed, both _true-expr_ and _false-expr_ must have the same type
-and _test_ must be an express with a type of `bool`.
+and _test_ must be an expression with a type of `bool`.
 Example:
 ```
 (if (> x 5)
@@ -261,7 +261,7 @@ Example:
 
 ### (let/let*/letrec ((_binding_ _expr_) ...) _body_)
 The three types of `(let)` allow you to bind values to variables within the
-context of a body. You can destructure abstract types with variables, to extract
+context of a body. You can destructure abstract types with variables to extract
 specific values.
 
 The difference between `let`, `let*` and `letrec` is the scope in which the bound value
@@ -441,7 +441,7 @@ Progn body returned foo
 ```
 
 ### (type [(_type-parameters_)] constructor constructor ...)
-The `type` form lets you define abstract types. When you define an abstract type that
+The `type` form lets you define abstract types. When you define an abstract type, it
 may contain varying types of object (if you haven't seen this before it's like template
 parameters in Java & C++), and if you do that, you need to declare type variables for
 the different abstract types. For example, a list is defined internally with this type:
@@ -491,7 +491,7 @@ Changes the current directory to the specified directory
 ### :pwd
 Prints the current directory
 
-### :!_shell command_
+### :!_shell-command_
 Executes the shell command (e.g. `:!ls` to list the files in the current
 directory).
 
@@ -698,7 +698,7 @@ as a list of type `'b`.
 Given a two-parameter function from types `'a` and `'b` to type`'b`, a start value of type `'b` and
 a list of type `'a`, `fold` applies the function to each element of the
 list and the result of the previous application (using the start value
-is the second argument when invoking the function the first time). When
+as the second argument when invoking the function the first time). When
 all the items have been processed, it returns the last function result.
 
 For example, to sum the numbers from 1 to 10: `(fold + 0 (range 1 10))`
@@ -734,8 +734,8 @@ returns a list of all the items in the list for which the predicate was true.
 ```
 (remove x lista)
 ```
-Returns the list resulting from removing item x from the given list. If item x
-does not appear in the list, it will return the original list.
+Returns the list resulting from removing the first occurrence of item x from
+the given list. If item x does not appear in the list, it will return the original list.
 
 ### `replace-nth`
 ```

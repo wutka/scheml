@@ -8,7 +8,7 @@ as well as in generating JUnit tests on-the-fly using JUnit's
 While Scheml doesn't necessarily use as many of Java's functional
 features, it certainly demonstrates the concepts of functional
 programming in that it is a language with first-class functions. The
-only side-effects that functions are allows to have is I/O either to/from
+only side-effects that functions are allowed to have is I/O either to/from
 the user or to/from files. There is no mutable state within the language.
 
 ## Basic Flow
@@ -54,14 +54,16 @@ type. This is an abbreviated version of the `unify` method for an if statement:
 ```java
 
 public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
-    // Unify the test with boolean
+    // Unify the test with bool
+    // If the test isn't of type bool, unify will throw a UnifyException
     TypeRef testType = new TypeRef(BooleanType.TYPE);
     test.unify(testType, env);
 
+    // Unify the true option with the return type of the if
     trueOption.unify(typeRef, env);
     
-    // Unify the false option with the requested type ref, which also has the effect of unifying
-    // it with the true option
+    // Unify the false option with the return type of the if,
+    // which also has the effect of unifying it with the true option
     falseOption.unify(typeRef, env);
 }
 ```
@@ -198,7 +200,7 @@ algorithm. Here is an example function:
 ```
 When Scheml wants to determine the type of the add-five function,
 it first says "`add-five` has one parameter named `x`, I will assign
-`x` an unknown type. Since a function must have a return type it says,
+`x` an unknown type". Since a function must have a return type it says,
 "I will assign the return type of `add-five` a different unknown type".
 Next, it sees that `(+ x 5)` is the last value returned by the
 function, so it unifies `(+ x 5)` with the unknown return type of `add-five`.
@@ -230,7 +232,7 @@ the whole declaration of the abstract type including each type constructor.
 The `TypeRef` class is crucial for type inference because it contains the
 logic to link classes together during unification, so that if there are several
 references to unknown types that turn out to all refer to the same unknown
-type, they are linked together. When the type is finally determined for a type,
+type, they are linked together. When the type is finally determined for a type ref,
 each type ref that it is linked to is automatically assigned the same type.
 There are some tricky parts here because when
 you copy a type that has several references that must refer to the same type,
@@ -266,6 +268,16 @@ it gets to a function call that was not in the tail position. Once this happens,
 the `TailCallExpr` is evaluated, performing the function call. The process
 of returning the `TailCallExpr` down the call stack means that the tail call
 is not using additional stack space.
+
+You may have noticed that the second parameter to the `evaluate` method in the
+Expression interface is named `inTailPosition`. This allows us to identify which
+function calls are made from the tail position. The logic for whether something
+is in tail position is simple:
+* Starting with a function, the last statement in the function body is in tail position
+* If an `if` statement is in tail position then its true and false options are in tail position
+* If a `let` statement is in tail position, then its last statement is in tail position
+* If a `progn` statement is in tail position, then its last statement is in tail position
+* If a function call is a statement in tail position, then it is a tail call
 
 ## Unit Testing
 Because it is much easier to test the various functions of Scheml from
