@@ -162,7 +162,7 @@ public abstract class Type {
         if (abstractTypeDecl != null) {
             // Make sure the number of parametric types is correct
             if (parts.length-1 != abstractTypeDecl.parametricTypes.size()) {
-                throw new LispException("Type constructor for type "+parts[0]+" must have "+
+                throw new LispException("Value constructor for type "+parts[0]+" must have "+
                         abstractTypeDecl.parametricTypes.size()+" type parameters");
             }
 

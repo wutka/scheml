@@ -3,7 +3,7 @@ package edu.vanderbilt.cs.wutkam.scheml.expr.match;
 import edu.vanderbilt.cs.wutkam.scheml.LispException;
 import edu.vanderbilt.cs.wutkam.scheml.expr.AbstractTypeExpr;
 import edu.vanderbilt.cs.wutkam.scheml.expr.Expression;
-import edu.vanderbilt.cs.wutkam.scheml.expr.TypeConstructorExpr;
+import edu.vanderbilt.cs.wutkam.scheml.expr.ValueConstructorExpr;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheml.type.AbstractType;
@@ -16,13 +16,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Represents a type constructor within the context of a match expression
+ * Represents a value constructor within the context of a match expression
  */
-public class MatchTypeConstructor implements Match {
+public class MatchValueConstructor implements Match {
     public String constructorName;
     public List<Match> targetPatterns;
 
-    public MatchTypeConstructor(String constructorName, List<Match> targetPatterns) {
+    public MatchValueConstructor(String constructorName, List<Match> targetPatterns) {
         this.constructorName = constructorName;
         this.targetPatterns = targetPatterns;
     }
@@ -57,8 +57,8 @@ public class MatchTypeConstructor implements Match {
         // Find the definition for this type
         AbstractTypeDecl abstractTypeDecl = SchemlRuntime.getTypeRegistry().findByConstructor(constructorName);
 
-        // Find the type constructor for this pattern
-        TypeConstructorExpr constructorFunc = abstractTypeDecl.typeConstructors.get(constructorName);
+        // Find the value constructor for this pattern
+        ValueConstructorExpr constructorFunc = abstractTypeDecl.valueConstructors.get(constructorName);
         if (constructorFunc == null) {
             throw new UnifyException("No constructor named " + constructorName + " in " + abstractTypeDecl);
         }
@@ -102,7 +102,7 @@ public class MatchTypeConstructor implements Match {
         } else if (constructorName.equals("Cons")) {
             builder.append('(');
             boolean isFirst = true;
-            MatchTypeConstructor curr = this;
+            MatchValueConstructor curr = this;
 
             // loop through the list
             while (curr.constructorName.equals("Cons")) {
@@ -114,9 +114,9 @@ public class MatchTypeConstructor implements Match {
 
                 // get the next cell in the list
                 Match tail = curr.targetPatterns.get(1);
-                if (tail instanceof MatchTypeConstructor) {
+                if (tail instanceof MatchValueConstructor) {
                     // the next cell should be a match constructor
-                    curr = (MatchTypeConstructor) curr.targetPatterns.get(1);
+                    curr = (MatchValueConstructor) curr.targetPatterns.get(1);
                 } else {
                     break;
                 }

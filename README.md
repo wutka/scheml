@@ -142,7 +142,7 @@ Example:
 
 ### Algebraic Data Types
 The `(type)` special form described below lets you define an algebraic data type.
-You can create instances of these types with type constructors you define, and
+You can create instances of these types with value constructors you define, and
 you can use a `(match)` or in some cases `(let)` and `(progn)` to pull
 individual fields from an algebraic data type.
 ```
@@ -338,7 +338,7 @@ foo, and so on.
 As you can see in the above examples, you can bind a simple variable name to the result
 of an expression. You can also unpack an abstract data type and assign its components
 to variable names as well. If you don't care about a particular component, you can use `_`
-as the variable name. For example, given the definition below of a Pair type constructor, you
+as the variable name. For example, given the definition below of a Pair value constructor, you
 can unpack both halves of the pair into separate variables:
 
 ```
@@ -349,7 +349,7 @@ can unpack both halves of the pair into separate variables:
       first-part second-part))
 ```
 Notice that you need an extra pair of parens when deconstructing an abstract type because
-the type constructor looks like a function. That is, in the previous let statements
+the value constructor looks like a function. That is, in the previous let statements
 where the binding for a simple variable was `(foo some-expression)`, the binding for an
 abstract type is `((Pair foo bar) some-expression)`.
 
@@ -493,7 +493,7 @@ Here's an example with multiple type parameters:
 This is a simple pair of items where each item can be any type. For example, the
 expression `(Pair "foo" 42)` has the type `(pair string int)`.
 
-Type constructors are functions, which means you can partially evaluate them.
+Value constructors are functions, which means you can partially evaluate them.
 This `(Pair 123)` is a partial function that has the type `'a -> pair int 'a`.
 That is, it is a function that takes an argument of any type and returns a
 pair of an int and that type.

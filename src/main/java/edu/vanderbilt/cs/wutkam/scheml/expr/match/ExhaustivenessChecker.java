@@ -1,6 +1,6 @@
 package edu.vanderbilt.cs.wutkam.scheml.expr.match;
 
-import edu.vanderbilt.cs.wutkam.scheml.expr.TypeConstructorExpr;
+import edu.vanderbilt.cs.wutkam.scheml.expr.ValueConstructorExpr;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheml.type.AbstractTypeDecl;
 
@@ -105,11 +105,11 @@ public class ExhaustivenessChecker {
         // Pop the next item off the q stack
         Match q = qStack.pop();
 
-        if (q instanceof MatchTypeConstructor) {
+        if (q instanceof MatchValueConstructor) {
 
             // If q is a match constructor, push all its target patterns (the individual fields of the
             // constructed item) onto the stack
-            MatchTypeConstructor qMatchCons = (MatchTypeConstructor) q;
+            MatchValueConstructor qMatchCons = (MatchValueConstructor) q;
             for (int i=qMatchCons.targetPatterns.size()-1; i >= 0; i--) {
                 qStack.push(qMatchCons.targetPatterns.get(i));
             }
@@ -122,7 +122,7 @@ public class ExhaustivenessChecker {
             // For each pattern in the matrix, pop off the constructor and push its target patterns just as
             // was done with q, so q and each pattern in the matrix should be the same length
             for (Stack<Match> subPatt: submatrix) {
-                MatchTypeConstructor subPattCons = (MatchTypeConstructor) subPatt.pop();
+                MatchValueConstructor subPattCons = (MatchValueConstructor) subPatt.pop();
                 for (int i=subPattCons.targetPatterns.size()-1; i >= 0; i--) {
                     subPatt.push(subPattCons.targetPatterns.get(i));
                 }
@@ -137,15 +137,15 @@ public class ExhaustivenessChecker {
             }
 
             // Otherwise, since Q did match something, the matched stack should contain a match for
-            // each targetPattern in Q. Re-create the type constructor for Q by popping its target patterns
+            // each targetPattern in Q. Re-create the value constructor for Q by popping its target patterns
             // off the stack
-            List<Match> typeCons = new ArrayList<>();
+            List<Match> valueCons = new ArrayList<>();
             for (int i=0; i < qMatchCons.targetPatterns.size(); i++) {
-                typeCons.add(matched.pop());
+                valueCons.add(matched.pop());
             }
 
-            // ... and then instantiate an instance of q's type constructor
-            MatchTypeConstructor resultMatch = new MatchTypeConstructor(qMatchCons.constructorName, typeCons);
+            // ... and then instantiate an instance of q's value constructor
+            MatchValueConstructor resultMatch = new MatchValueConstructor(qMatchCons.constructorName, valueCons);
 
             // and push that back onto the result match
             matched.push(resultMatch);
@@ -156,12 +156,12 @@ public class ExhaustivenessChecker {
             // matrix and seeing if any of the first items in each of those stacks is not a match variable
             Match matchType = findExampleType(patternMatrix, q);
 
-            if (matchType instanceof MatchTypeConstructor) {
-                MatchTypeConstructor matchTypeConstructor = (MatchTypeConstructor) matchType;
+            if (matchType instanceof MatchValueConstructor) {
+                MatchValueConstructor matchValueConstructor = (MatchValueConstructor) matchType;
 
                 // If q is a match variable and is matching against some kind of constructed type, get a list
                 // of all the constructors for that constructed type
-                List<Match> matchers = getAllConstructorMatchers(matchTypeConstructor.constructorName);
+                List<Match> matchers = getAllConstructorMatchers(matchValueConstructor.constructorName);
 
                 // We will try matching q against each type of constructor
                 for (Match match: matchers) {
@@ -242,7 +242,7 @@ public class ExhaustivenessChecker {
                 return null;
             }
         } else {
-            // If q wasn't a variable or a type constructor, it must be a simple variable
+            // If q wasn't a variable or a value constructor, it must be a simple variable
             // so compare it with the top of each pattern stack. If the top of the
             // pattern stack is a variable then consider it to match
             List<Stack<Match>> subpatterns = new ArrayList<>();
@@ -308,10 +308,10 @@ public class ExhaustivenessChecker {
      * that type that has not been matched against.
      */
     protected static Match findMissingValue(Set<Match> values, Match matchType) {
-        if (matchType instanceof MatchTypeConstructor) {
-            // For a type constructor, just get a list of all the constructors
+        if (matchType instanceof MatchValueConstructor) {
+            // For a value constructor, just get a list of all the constructors
             List<MatchString> constructors = getAllConstructorNames(
-                    ((MatchTypeConstructor) matchType).constructorName);
+                    ((MatchValueConstructor) matchType).constructorName);
 
             // See if there is one that isn't in the value set
             for (MatchString con: constructors) {
@@ -430,8 +430,8 @@ public class ExhaustivenessChecker {
 
     }
 
-    /** Returns the subset of the patternMatrix that starts with the given type constructor */
-    public static List<Stack<Match>> getPatternsWithConstructor(MatchTypeConstructor matchTypeCons,
+    /** Returns the subset of the patternMatrix that starts with the given value constructor */
+    public static List<Stack<Match>> getPatternsWithConstructor(MatchValueConstructor matchValueCons,
                                                                 List<Stack<Match>> patternMatrix) {
         List<Stack<Match>> retval = new ArrayList<>();
 
@@ -439,17 +439,17 @@ public class ExhaustivenessChecker {
         for (Stack<Match> pattStack: patternMatrix) {
             Match m = pattStack.peek();
             if (m instanceof MatchVariable) {
-                // If the entry in the stack is a variable, replace it with the type constructor
+                // If the entry in the stack is a variable, replace it with the value constructor
                 // with _ for every component of the constructor
                 Stack<Match> newStack = new Stack<>();
                 newStack.addAll(pattStack);
                 newStack.pop();
-                newStack.push(getWildcardMatcher(matchTypeCons));
+                newStack.push(getWildcardMatcher(matchValueCons));
                 retval.add(newStack);
-            } else if (m instanceof MatchTypeConstructor) {
-                // If the pattern has a type constructor, add it if it is the same constructor
-                MatchTypeConstructor pattCons = (MatchTypeConstructor) m;
-                if (pattCons.constructorName.equals(matchTypeCons.constructorName)) {
+            } else if (m instanceof MatchValueConstructor) {
+                // If the pattern has a value constructor, add it if it is the same constructor
+                MatchValueConstructor pattCons = (MatchValueConstructor) m;
+                if (pattCons.constructorName.equals(matchValueCons.constructorName)) {
                     retval.add(pattStack);
                 }
             }
@@ -464,17 +464,17 @@ public class ExhaustivenessChecker {
         List<MatchString> retval = new ArrayList<>();
 
         // Add all the constructor names for that type
-        for (TypeConstructorExpr typeConstructor: abstractTypeDecl.typeConstructors.values()) {
-            retval.add(new MatchString(typeConstructor.name));
+        for (ValueConstructorExpr valueConstructor: abstractTypeDecl.valueConstructors.values()) {
+            retval.add(new MatchString(valueConstructor.name));
         }
         return retval;
     }
 
-    /** Returns a MatchTypeConstructor for the given type where every target pattern is a wildcard */
-    protected static MatchTypeConstructor getWildcardMatcher(MatchTypeConstructor type) {
+    /** Returns a MatchValueConstructor for the given type where every target pattern is a wildcard */
+    protected static MatchValueConstructor getWildcardMatcher(MatchValueConstructor type) {
         List<Match> targetPatterns = new ArrayList<>();
         for (int i=0; i < type.targetPatterns.size(); i++) targetPatterns.add(WILDCARD);
-        return new MatchTypeConstructor(type.constructorName, targetPatterns);
+        return new MatchValueConstructor(type.constructorName, targetPatterns);
     }
 
     /** Get a list of wildcard matches for all the constructors of a particular type */
@@ -484,14 +484,14 @@ public class ExhaustivenessChecker {
         List<Match> retval = new ArrayList<>();
 
         // Loop through all the constructors for this type
-        for (TypeConstructorExpr typeConstructor: abstractTypeDecl.typeConstructors.values()) {
+        for (ValueConstructorExpr valueConstructor: abstractTypeDecl.valueConstructors.values()) {
             List<Match> wildcards = new ArrayList<>();
 
             // Set each target pattern to a wildcard
-            for (int i=0; i < typeConstructor.paramTypes.length; i++) {
+            for (int i=0; i < valueConstructor.paramTypes.length; i++) {
                 wildcards.add(WILDCARD);
             }
-            retval.add(new MatchTypeConstructor(typeConstructor.name, wildcards));
+            retval.add(new MatchValueConstructor(valueConstructor.name, wildcards));
         }
         return retval;
     }

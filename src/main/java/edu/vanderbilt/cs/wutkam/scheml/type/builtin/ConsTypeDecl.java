@@ -2,7 +2,7 @@ package edu.vanderbilt.cs.wutkam.scheml.type.builtin;
 
 import edu.vanderbilt.cs.wutkam.scheml.expr.AbstractTypeExpr;
 import edu.vanderbilt.cs.wutkam.scheml.expr.Expression;
-import edu.vanderbilt.cs.wutkam.scheml.expr.TypeConstructorExpr;
+import edu.vanderbilt.cs.wutkam.scheml.expr.ValueConstructorExpr;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheml.type.AbstractType;
 import edu.vanderbilt.cs.wutkam.scheml.type.AbstractTypeDecl;
@@ -25,7 +25,7 @@ public class ConsTypeDecl extends AbstractTypeDecl implements CustomToString {
 
     public ConsTypeDecl() {
         super(consTypeName, Arrays.asList(new TypeRef()));
-        this.addTypeConstructors(createConstructorMap(this));
+        this.addValueConstructors(createConstructorMap(this));
     }
 
     protected ConsTypeDecl(String typeName, List<TypeRef> parametricTypes) {
@@ -33,14 +33,14 @@ public class ConsTypeDecl extends AbstractTypeDecl implements CustomToString {
     }
 
     protected ConsTypeDecl(String typeName, List<TypeRef> parametricTypes,
-                           Map<String, TypeConstructorExpr> typeConstructors) {
-        super(typeName, parametricTypes, typeConstructors);
+                           Map<String, ValueConstructorExpr> valueConstructors) {
+        super(typeName, parametricTypes, valueConstructors);
     }
 
     @Override
     public AbstractTypeDecl copy() {
         // Create a linkage map so that all the named parametric types will be linked with their usage
-        // in the various type constructors
+        // in the various value constructors
         Map<String,TypeRef> linkageMap = new HashMap<>();
         List<TypeRef> newParametricTypes = new ArrayList<>();
 
@@ -49,33 +49,33 @@ public class ConsTypeDecl extends AbstractTypeDecl implements CustomToString {
             newParametricTypes.add(ref.copy(linkageMap));
         }
 
-        if (typeConstructors != null) {
-            Map<String, TypeConstructorExpr> newTypeConstructors = new HashMap<>();
+        if (valueConstructors != null) {
+            Map<String, ValueConstructorExpr> newValueConstructors = new HashMap<>();
 
-            // Copy each type constructor
-            for (String key : typeConstructors.keySet()) {
-                TypeConstructorExpr typeConstructor = typeConstructors.get(key);
+            // Copy each value constructor
+            for (String key : valueConstructors.keySet()) {
+                ValueConstructorExpr valueConstructor = valueConstructors.get(key);
 
                 // Create copies of the parametric types in the constructor (the linkage map will make them
                 // refer to the same types as those from the abstract type itself
                 List<TypeRef> parametricTypes = new ArrayList<>();
-                for (TypeRef ref : typeConstructor.parametricTypes) {
+                for (TypeRef ref : valueConstructor.parametricTypes) {
                     parametricTypes.add(ref.copy(linkageMap));
                 }
 
-                // Create copies of the parameter types for the type constructor, again linking them
+                // Create copies of the parameter types for the value constructor, again linking them
                 // with the parametric types in the abstract type and the other constructors
                 List<TypeRef> paramTypes = new ArrayList<>();
-                for (int i = 0; i < typeConstructor.paramTypes.length; i++) {
-                    paramTypes.add(typeConstructor.paramTypes[i].copy(linkageMap));
+                for (int i = 0; i < valueConstructor.paramTypes.length; i++) {
+                    paramTypes.add(valueConstructor.paramTypes[i].copy(linkageMap));
                 }
 
                 // Add this constructor to the new constructor map
-                newTypeConstructors.put(key, new TypeConstructorExpr(typeConstructor.typeName,
-                        typeConstructor.name, parametricTypes, paramTypes));
+                newValueConstructors.put(key, new ValueConstructorExpr(valueConstructor.typeName,
+                        valueConstructor.name, parametricTypes, paramTypes));
             }
             // Return the new type decl
-            return new ConsTypeDecl(typeName, newParametricTypes, newTypeConstructors);
+            return new ConsTypeDecl(typeName, newParametricTypes, newValueConstructors);
         } else {
             // If we don't have the constructors yet, just return a copy of the decl without them
             return new ConsTypeDecl(typeName, newParametricTypes);
@@ -101,17 +101,17 @@ public class ConsTypeDecl extends AbstractTypeDecl implements CustomToString {
         return builder.toString();
     }
 
-    protected static Map<String, TypeConstructorExpr> createConstructorMap(ConsTypeDecl decl) {
-        TypeConstructorExpr nilConstructor = new TypeConstructorExpr("cons", "Nil",
+    protected static Map<String, ValueConstructorExpr> createConstructorMap(ConsTypeDecl decl) {
+        ValueConstructorExpr nilConstructor = new ValueConstructorExpr("cons", "Nil",
                 Arrays.asList(parametricType), new ArrayList<>());
-        TypeConstructorExpr consConstructor = new TypeConstructorExpr("cons", "Cons",
+        ValueConstructorExpr consConstructor = new ValueConstructorExpr("cons", "Cons",
                 Arrays.asList(parametricType), Arrays.asList(parametricType,
                 new TypeRef(new AbstractType(decl))));
 
         TypeRef consTargetType = new TypeRef();
         TypeRef abstractTypeRef = new TypeRef(new AbstractType("cons", Arrays.asList(consTargetType)));
 
-        Map<String,TypeConstructorExpr> consMap = new HashMap<>();
+        Map<String, ValueConstructorExpr> consMap = new HashMap<>();
         consMap.put("Nil", nilConstructor);
         SchemlRuntime.getTopLevel().define("Nil", nilConstructor);
         SchemlRuntime.getUnifyTopLevel().define("Nil",

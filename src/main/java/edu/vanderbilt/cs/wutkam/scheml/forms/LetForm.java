@@ -9,14 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Expands the form (let ((var1 expr1) (var2 expr2) ...) body) into a LetExpr
- * The var part of the declaration can either be a symbol or a type constructor for an abstract data type
+ * The var part of the declaration can either be a symbol or a value constructor for an abstract data type
  * that only has one constructor (you must use the match form when an abstract type has multiple constructors).
  * For instance:
  * (type point-3d (Point double double double))
  * (let (((Point x y z) (find-center universe)))
  *    (printf "The center of the universe is at %f,%f,%f\n" x y z))
  *
- * Note that an extra pair of parens is needed when specifying a type constructor since it is a list instead
+ * Note that an extra pair of parens is needed when specifying a value constructor since it is a list instead
  * of a symbol.
  *
  * In addition to let, it expands let* and letrec. The let* form allows subsequent let declarations (bindings)
@@ -78,7 +78,7 @@ public class LetForm implements Form {
                 }
                 letDeclarations.add(new LetExpr.SymbolDeclaration(sym.value, value));
 
-            // Otherwise, if it is a list, assume it is a type constructor
+            // Otherwise, if it is a list, assume it is a value constructor
             } else if (decl.getElement(0) instanceof ListExpr) {
                 // It can't be empty
                 ListExpr bindList = (ListExpr) decl.getElement(0);
@@ -97,26 +97,26 @@ public class LetForm implements Form {
                 String constructorName = ((SymbolExpr)bindList.getElement(0)).value;
                 AbstractTypeDecl abstractTypeDecl = SchemlRuntime.getTypeRegistry().findByConstructor(constructorName);
                 if (abstractTypeDecl == null) {
-                    throw new LispException("Unknown type constructor "+constructorName);
+                    throw new LispException("Unknown value constructor "+constructorName);
                 }
 
                 // This only makes sense from a type-safety standpoint if the type has one constructor. Otherwise
                 // you should use match to handle each possible case
-                if (abstractTypeDecl.typeConstructors.size() > 1) {
+                if (abstractTypeDecl.valueConstructors.size() > 1) {
                     throw new LispException("Let match binding only allowed on types with one constructor");
                 }
 
                 // Get the definition for this constructor
-                TypeConstructorExpr constructor = abstractTypeDecl.typeConstructors.get(constructorName);
+                ValueConstructorExpr constructor = abstractTypeDecl.valueConstructors.get(constructorName);
 
                 // Make sure the number of parameters match (bindList includes the constructor name, so subtract 1)
                 if (constructor.paramTypes.length != bindList.size()-1) {
                     throw new LispException("Expected "+constructor.paramTypes.length+
-                            " parameters for type constructor, but got "+(bindList.size()-1));
+                            " parameters for value constructor, but got "+(bindList.size()-1));
                 }
 
                 // Expand the value - the expression that should generate the abstract type instance
-                // that the type constructor will be matched against
+                // that the value constructor will be matched against
                 Expression value = decl.getElement(1);
                 if (value instanceof ListExpr) {
                     value = FormExpander.expand((ListExpr) value, false);
@@ -131,7 +131,7 @@ public class LetForm implements Form {
                 letDeclarations.add(new LetExpr.MatchDeclaration(abstractTypeDecl.typeName,
                         constructorName, paramNames, value));
             } else {
-                throw new LispException("Let binding should either contains a symbol or a type constructor");
+                throw new LispException("Let binding should either contains a symbol or a value constructor");
             }
         }
 

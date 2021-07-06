@@ -141,7 +141,7 @@ public class LetExpr implements Expression {
         }
     }
 
-    /** Represents a let declaration where an expression is bound to a type constructor */
+    /** Represents a let declaration where an expression is bound to a value constructor */
     public static class MatchDeclaration implements Declaration {
         public String typeName;
         public String constructorName;
@@ -195,7 +195,7 @@ public class LetExpr implements Expression {
                 value.unify(abstractTypeRef, env);
             }
 
-            TypeConstructorExpr constructorFunc = abstractTypeDecl.typeConstructors.get(constructorName);
+            ValueConstructorExpr constructorFunc = abstractTypeDecl.valueConstructors.get(constructorName);
             if (constructorFunc == null) {
                 throw new UnifyException("No constructor named "+constructorName+" in "+abstractTypeDecl);
             }

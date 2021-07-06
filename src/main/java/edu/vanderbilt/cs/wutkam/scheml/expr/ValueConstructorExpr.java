@@ -7,12 +7,12 @@ import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
 
 import java.util.List;
 
-/** Represents a type constructor function that creates a new instance of a type */
-public class TypeConstructorExpr extends FunctionExpr {
+/** Represents a value constructor function that creates a new instance of a type */
+public class ValueConstructorExpr extends FunctionExpr {
     public String typeName;
     public List<TypeRef> parametricTypes;
 
-    public TypeConstructorExpr(String typeName, String name, List<TypeRef> parametricTypes, List<TypeRef> parameters) {
+    public ValueConstructorExpr(String typeName, String name, List<TypeRef> parametricTypes, List<TypeRef> parameters) {
         super(name, parameters, new TypeRef(new AbstractType(typeName, parametricTypes)));
         this.typeName = typeName;
         this.parametricTypes = parametricTypes;
@@ -20,7 +20,7 @@ public class TypeConstructorExpr extends FunctionExpr {
 
     @Override
     public Expression apply(List<Expression> arguments, Environment<Expression> env) throws LispException {
-        // You can partially apply a type constructor func too
+        // You can partially apply a value constructor func too
         if (arguments.size() < paramTypes.length) {
             return new PartialApplicationExpr(this, arguments);
         } else {

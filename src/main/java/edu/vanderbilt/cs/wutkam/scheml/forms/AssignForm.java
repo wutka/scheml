@@ -21,7 +21,7 @@ public class AssignForm implements Form {
             }
             return new AssignExpr(new LetExpr.SymbolDeclaration(sym.value, value));
 
-            // Otherwise, if it is a list, assume it is a type constructor
+            // Otherwise, if it is a list, assume it is a value constructor
         } else if (decl.getElement(1) instanceof ListExpr) {
             // It can't be empty
             ListExpr bindList = (ListExpr) decl.getElement(1);
@@ -29,7 +29,7 @@ public class AssignForm implements Form {
                 throw new LispException("Assignment binding must have a constructor name and parameters");
             }
 
-            // The bindind can only contain symbols
+            // The binding can only contain symbols
             for (Expression expr: bindList.elementsFrom(0)) {
                 if (!(expr instanceof SymbolExpr)) {
                     throw new LispException("Assignment binding must contain only symbols");
@@ -40,26 +40,26 @@ public class AssignForm implements Form {
             String constructorName = ((SymbolExpr)bindList.getElement(0)).value;
             AbstractTypeDecl abstractTypeDecl = SchemlRuntime.getTypeRegistry().findByConstructor(constructorName);
             if (abstractTypeDecl == null) {
-                throw new LispException("Unknown type constructor "+constructorName);
+                throw new LispException("Unknown value constructor "+constructorName);
             }
 
             // This only makes sense from a type-safety standpoint if the type has one constructor. Otherwise
             // you should use match to handle each possible case
-            if (abstractTypeDecl.typeConstructors.size() > 1) {
+            if (abstractTypeDecl.valueConstructors.size() > 1) {
                 throw new LispException("Assignment binding only allowed on types with one constructor");
             }
 
             // Get the definition for this constructor
-            TypeConstructorExpr constructor = abstractTypeDecl.typeConstructors.get(constructorName);
+            ValueConstructorExpr constructor = abstractTypeDecl.valueConstructors.get(constructorName);
 
             // Make sure the number of parameters match (bindList includes the constructor name, so subtract 1)
             if (constructor.paramTypes.length != bindList.size()-1) {
                 throw new LispException("Expected "+constructor.paramTypes.length+
-                        " parameters for type constructor, but got "+(bindList.size()-1));
+                        " parameters for value constructor, but got "+(bindList.size()-1));
             }
 
             // Expand the value - the expression that should generate the abstract type instance
-            // that the type constructor will be matched against
+            // that the value constructor will be matched against
             Expression value = decl.getElement(2);
             if (value instanceof ListExpr) {
                 value = FormExpander.expand((ListExpr) value, false);
@@ -74,7 +74,7 @@ public class AssignForm implements Form {
             return new AssignExpr(new LetExpr.MatchDeclaration(abstractTypeDecl.typeName,
                     constructorName, paramNames, value));
         } else {
-            throw new LispException("Assignment should either contains a symbol or a type constructor");
+            throw new LispException("Assignment should either contains a symbol or a value constructor");
         }
     }
 }

@@ -226,8 +226,8 @@ type inference system relies on the classes in the `type` package that represent
 the various types within Scheml. An abstract type is represented by the
 `AbstractType` and `AbstractTypeDecl` classes. An `AbstractType` object 
 represents the general abstract type - that is, the type with its type
-parameters, but not the type constructors. An `AbstractTypeDecl` represents
-the whole declaration of the abstract type including each type constructor.
+parameters, but not the value constructors. An `AbstractTypeDecl` represents
+the whole declaration of the abstract type including each value constructor.
 
 The `TypeRef` class is crucial for type inference because it contains the
 logic to link classes together during unification, so that if there are several

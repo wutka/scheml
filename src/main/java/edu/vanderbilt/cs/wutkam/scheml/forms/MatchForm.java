@@ -8,7 +8,7 @@ import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchChar;
 import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchDouble;
 import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchInt;
 import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchString;
-import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchTypeConstructor;
+import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchValueConstructor;
 import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchVariable;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheml.type.AbstractTypeDecl;
@@ -17,11 +17,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/** Provides nested pattern matching. You can match against simple values or type constructors where each
- * target value of a type constructor can be a match expression, so they can nest as far down as necessary.
+/** Provides nested pattern matching. You can match against simple values or value constructors where each
+ * target value of a value constructor can be a match expression, so they can nest as far down as necessary.
  * There is a simple syntax for matching lists where if a match starts with a ( and the next symbol is
- * not a type constructor named, it is assumed to be a list, and will be translated automatically into the
- * correct combination of MatchTypeConstructor instances
+ * not a value constructor named, it is assumed to be a list, and will be translated automatically into the
+ * correct combination of MatchValueConstructor instances
  */
 public class MatchForm implements Form {
     @Override
@@ -54,7 +54,7 @@ public class MatchForm implements Form {
 
             Expression matchExpr = pattern.getElement(0);
 
-            // For a type constructor that has no arguments, you can just provide the name here without
+            // For a value constructor that has no arguments, you can just provide the name here without
             // putting it in a list. In other words, for (type cons-type ('a) Nil (Cons 'a (cons-type 'a)))
             // you can do:
             // (match (get-some-cons x)
@@ -77,7 +77,7 @@ public class MatchForm implements Form {
 
     /** Parses a match pattern, which may include matches that need to be parsed recursively */
     protected Match parseMatchPattern(Expression expr) throws LispException {
-        if (expr instanceof ListExpr) {   // Type constructor or list
+        if (expr instanceof ListExpr) {   // Value constructor or list
             ListExpr listExpr = (ListExpr) expr;
 
             // See if the list starts with a symbol
@@ -85,13 +85,13 @@ public class MatchForm implements Form {
                 String constructorName = ((SymbolExpr)listExpr.getElement(0)).value;
                 AbstractTypeDecl abstractTypeDecl = SchemlRuntime.getTypeRegistry().findByConstructor(constructorName);
 
-                // If the symbol is the name of a type constructor, treat this list like a type constructor
+                // If the symbol is the name of a value constructor, treat this list like a value constructor
                 if (abstractTypeDecl != null) {
-                    TypeConstructorExpr typeConstructorExpr = abstractTypeDecl.typeConstructors.get(constructorName);
+                    ValueConstructorExpr valueConstructorExpr = abstractTypeDecl.valueConstructors.get(constructorName);
 
-                    if (listExpr.size() - 1 != typeConstructorExpr.paramTypes.length) {
-                        throw new LispException("Type constructor " + constructorName + " takes exactly " +
-                                typeConstructorExpr.paramTypes.length + " parameters");
+                    if (listExpr.size() - 1 != valueConstructorExpr.paramTypes.length) {
+                        throw new LispException("Value constructor " + constructorName + " takes exactly " +
+                                valueConstructorExpr.paramTypes.length + " parameters");
                     }
 
                     // Recursively parse the match pattern for each target expression
@@ -100,18 +100,18 @@ public class MatchForm implements Form {
                         patterns.add(parseMatchPattern(patternExpr));
                     }
 
-                    return new MatchTypeConstructor(constructorName, patterns);
+                    return new MatchValueConstructor(constructorName, patterns);
                 }
             }
 
-            // If it isn't a type constructor, treat it as a list and generate the necessary cons matchers
+            // If it isn't a value constructor, treat it as a list and generate the necessary cons matchers
             Match curr = parseMatchPattern(new SymbolExpr("Nil"));
 
             // Start from the end of the list because it is easier to build the list from the end
             for (int i=listExpr.size()-1; i >= 0; i--) {
                 // recursively parse each match pattern
                 Match itemMatch = parseMatchPattern(listExpr.getElement(i));
-                curr = new MatchTypeConstructor("Cons", Arrays.asList(itemMatch, curr));
+                curr = new MatchValueConstructor("Cons", Arrays.asList(itemMatch, curr));
             }
             return curr;
 
@@ -126,21 +126,21 @@ public class MatchForm implements Form {
         } else if (expr instanceof StringExpr) {
             return new MatchString(((StringExpr) expr).value);
         } else if (expr instanceof SymbolExpr) {
-            // We allow matching against a no-arg type constructor without extra parens
+            // We allow matching against a no-arg value constructor without extra parens
             // so (Nil (print "it is nil")) is easier than ((Nil) (print "it is nil"))
             String name = ((SymbolExpr) expr).value;
             AbstractTypeDecl abstractTypeDecl = SchemlRuntime.getTypeRegistry().findByConstructor(name);
 
             if (abstractTypeDecl != null) {
-                TypeConstructorExpr typeConstructorExpr = abstractTypeDecl.typeConstructors.get(name);
+                ValueConstructorExpr valueConstructorExpr = abstractTypeDecl.valueConstructors.get(name);
 
-                if (typeConstructorExpr.paramTypes.length > 0) {
-                    throw new LispException("Must use a list for type constructor "+name+
-                            " because it requires "+typeConstructorExpr.paramTypes.length+" arguments");
+                if (valueConstructorExpr.paramTypes.length > 0) {
+                    throw new LispException("Must use a list for value constructor "+name+
+                            " because it requires "+ valueConstructorExpr.paramTypes.length+" arguments");
                 }
                 List<Match> patterns = new ArrayList<>();
 
-                return new MatchTypeConstructor(name, patterns);
+                return new MatchValueConstructor(name, patterns);
             } else {
                 return new MatchVariable(name);
             }

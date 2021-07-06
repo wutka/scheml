@@ -33,12 +33,12 @@ public class TypeRegistry {
         typeMap.put(type.typeName, type);
     }
 
-    /** Finds the type that a type constructor is associated with. A type constructor can only be associated
+    /** Finds the type that a value constructor is associated with. A value constructor can only be associated
      * with a single type
      */
     public AbstractTypeDecl findByConstructor(String constructorName) {
         for (AbstractTypeDecl abstractType: typeMap.values()) {
-            if (abstractType.typeConstructors.containsKey(constructorName)) {
+            if (abstractType.valueConstructors.containsKey(constructorName)) {
                 return abstractType.copy();
             }
         }

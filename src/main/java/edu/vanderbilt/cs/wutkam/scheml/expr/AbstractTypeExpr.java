@@ -9,17 +9,17 @@ import edu.vanderbilt.cs.wutkam.scheml.type.builtin.CustomToString;
 
 import java.util.List;
 
-/** Represents an instance of an abstract type as created from a type constructor function */
+/** Represents an instance of an abstract type as created from a value constructor function */
 public class AbstractTypeExpr implements Expression {
 
     /** The name of the abstract type this is an instance of */
     public String typeName;
 
-    /** The name of the type constructor that constructed this instance */
+    /** The name of the value constructor that constructed this instance */
     public String constructorName;
 
-    /** The values passed to the type constructor when this instance was created. These values
-     * should already have been evaluated when the type constructor function was evaluated, so
+    /** The values passed to the value constructor when this instance was created. These values
+     * should already have been evaluated when the value constructor function was evaluated, so
      * there is no need to override the evaluate function in this class.
      */
     public List<Expression> values;
@@ -33,13 +33,13 @@ public class AbstractTypeExpr implements Expression {
     @Override
     public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
         AbstractTypeDecl typeDecl = SchemlRuntime.getTypeRegistry().lookup(typeName);
-        TypeConstructorExpr typeConstructor = typeDecl.typeConstructors.get(constructorName);
+        ValueConstructorExpr valueConstructor = typeDecl.valueConstructors.get(constructorName);
         // We unify with the values here to make sure the return type has concrete values
         // when necessary
-        for (int i=0; i < typeConstructor.paramTypes.length; i++) {
-            values.get(i).unify(typeConstructor.paramTypes[i], env);
+        for (int i=0; i < valueConstructor.paramTypes.length; i++) {
+            values.get(i).unify(valueConstructor.paramTypes[i], env);
         }
-        typeRef.unify(typeConstructor.returnType);
+        typeRef.unify(valueConstructor.returnType);
     }
 
     @Override

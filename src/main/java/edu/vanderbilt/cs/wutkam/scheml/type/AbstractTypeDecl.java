@@ -1,6 +1,6 @@
 package edu.vanderbilt.cs.wutkam.scheml.type;
 
-import edu.vanderbilt.cs.wutkam.scheml.expr.TypeConstructorExpr;
+import edu.vanderbilt.cs.wutkam.scheml.expr.ValueConstructorExpr;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.Map;
 
 /** The declaration of an abstract type. The main difference between this and AbstractType is that this
- * object also contains all the type constructors.
+ * object also contains all the value constructors.
  */
 public class AbstractTypeDecl {
     public String typeName;
     public List<TypeRef> parametricTypes;
-    public Map<String,TypeConstructorExpr> typeConstructors;
+    public Map<String, ValueConstructorExpr> valueConstructors;
 
     public AbstractTypeDecl(String typeName, List<TypeRef> parametricTypes) {
         this.typeName = typeName;
@@ -21,19 +21,19 @@ public class AbstractTypeDecl {
     }
 
     public AbstractTypeDecl(String typeName, List<TypeRef> parametricTypes,
-                            Map<String,TypeConstructorExpr> typeConstructors) {
+                            Map<String, ValueConstructorExpr> valueConstructors) {
         this.typeName = typeName;
         this.parametricTypes = parametricTypes;
-        this.typeConstructors = typeConstructors;
+        this.valueConstructors = valueConstructors;
     }
 
-    public void addTypeConstructors(Map<String,TypeConstructorExpr> typeConstructors) {
-        this.typeConstructors = typeConstructors;
+    public void addValueConstructors(Map<String, ValueConstructorExpr> valueConstructors) {
+        this.valueConstructors = valueConstructors;
     }
 
     public AbstractTypeDecl copy() {
         // Create a linkage map so that all the named parametric types will be linked with their usage
-        // in the various type constructors
+        // in the various value constructors
         Map<String,TypeRef> linkageMap = new HashMap<>();
         List<TypeRef> newParametricTypes = new ArrayList<>();
 
@@ -42,33 +42,33 @@ public class AbstractTypeDecl {
             newParametricTypes.add(ref.copy(linkageMap));
         }
 
-        if (typeConstructors != null) {
-            Map<String, TypeConstructorExpr> newTypeConstructors = new HashMap<>();
+        if (valueConstructors != null) {
+            Map<String, ValueConstructorExpr> newValueConstructors = new HashMap<>();
 
-            // Copy each type constructor
-            for (String key : typeConstructors.keySet()) {
-                TypeConstructorExpr typeConstructor = typeConstructors.get(key);
+            // Copy each value constructor
+            for (String key : valueConstructors.keySet()) {
+                ValueConstructorExpr valueConstructor = valueConstructors.get(key);
 
                 // Create copies of the parametric types in the constructor (the linkage map will make them
                 // refer to the same types as those from the abstract type itself
                 List<TypeRef> parametricTypes = new ArrayList<>();
-                for (TypeRef ref : typeConstructor.parametricTypes) {
+                for (TypeRef ref : valueConstructor.parametricTypes) {
                     parametricTypes.add(ref.copy(linkageMap));
                 }
 
-                // Create copies of the parameter types for the type constructor, again linking them
+                // Create copies of the parameter types for the value constructor, again linking them
                 // with the parametric types in the abstract type and the other constructors
                 List<TypeRef> paramTypes = new ArrayList<>();
-                for (int i = 0; i < typeConstructor.paramTypes.length; i++) {
-                    paramTypes.add(typeConstructor.paramTypes[i].copy(linkageMap));
+                for (int i = 0; i < valueConstructor.paramTypes.length; i++) {
+                    paramTypes.add(valueConstructor.paramTypes[i].copy(linkageMap));
                 }
 
                 // Add this constructor to the new constructor map
-                newTypeConstructors.put(key, new TypeConstructorExpr(typeConstructor.typeName,
-                        typeConstructor.name, parametricTypes, paramTypes));
+                newValueConstructors.put(key, new ValueConstructorExpr(valueConstructor.typeName,
+                        valueConstructor.name, parametricTypes, paramTypes));
             }
             // Return the new type decl
-            return new AbstractTypeDecl(typeName, newParametricTypes, newTypeConstructors);
+            return new AbstractTypeDecl(typeName, newParametricTypes, newValueConstructors);
         } else {
             // If we don't have the constructors yet, just return a copy of the decl without them
             return new AbstractTypeDecl(typeName, newParametricTypes);

@@ -4,7 +4,7 @@ import edu.vanderbilt.cs.wutkam.scheml.LispException;
 import edu.vanderbilt.cs.wutkam.scheml.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheml.expr.ListExpr;
 import edu.vanderbilt.cs.wutkam.scheml.expr.SymbolExpr;
-import edu.vanderbilt.cs.wutkam.scheml.expr.TypeConstructorExpr;
+import edu.vanderbilt.cs.wutkam.scheml.expr.ValueConstructorExpr;
 import edu.vanderbilt.cs.wutkam.scheml.expr.VoidExpr;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheml.type.*;
@@ -19,9 +19,9 @@ import java.util.*;
  *
  * The list of parametric types is only necessary if the type has parametric types. If it does use them,
  * then each parametric type must be listed in the list immediately after the type name. That is,
- * if the list after the type name has ('a 'b) but then a type constructor has (Thing 'c), it is an error.
+ * if the list after the type name has ('a 'b) but then a value constructor has (Thing 'c), it is an error.
  *
- * Type constructor names must begin with an upper-case letter
+ * Value constructor names must begin with an upper-case letter
  */
 public class TypeForm implements Form {
     @Override
@@ -32,7 +32,7 @@ public class TypeForm implements Form {
 
         List<String> parametricTypes = new ArrayList<>();
         String typeName;
-        List<TypeConstructorExpr> typeConstructors = new ArrayList<>();
+        List<ValueConstructorExpr> valueConstructors = new ArrayList<>();
 
         int nextPos = 1;
 
@@ -48,7 +48,7 @@ public class TypeForm implements Form {
         // Look at the expression just after the type name
         Expression nextExpr = aList.getElement(nextPos);
 
-        // If it is a list, it might be the list of parametric types, or it might be a type constructor
+        // If it is a list, it might be the list of parametric types, or it might be a value constructor
         if (nextExpr instanceof ListExpr) {
             boolean isParametric = false;
             for (Expression expr: ((ListExpr)nextExpr).elementsFrom(0)) {
@@ -67,7 +67,7 @@ public class TypeForm implements Form {
                         }
 
                         // Otherwise, if we immediately encounter a non-parametric symbol, this
-                        // must be a type constructor
+                        // must be a value constructor
                         break;
                     }
                 } else {
@@ -79,7 +79,7 @@ public class TypeForm implements Form {
                 }
             }
             // Only increment nextPos if this is a list of parametric values, so that either way, nextPos
-            // now points to where the type constructors start
+            // now points to where the value constructors start
             if (isParametric) nextPos++;
         }
 
@@ -98,36 +98,36 @@ public class TypeForm implements Form {
         abstractTypeDecl = new AbstractTypeDecl(typeName, parametricList);
         SchemlRuntime.getTypeRegistry().define(abstractTypeDecl);
 
-        // Process each type constructor
+        // Process each value constructor
         for (Expression expr: aList.elementsFrom(nextPos)) {
 
-            // A type constructor with no parameters can be specified with a symbol instead of a list
+            // A value constructor with no parameters can be specified with a symbol instead of a list
             if (expr instanceof SymbolExpr) {
 
                 SymbolExpr sym = (SymbolExpr) expr;
                 if (!Character.isUpperCase(sym.value.charAt(0))) {
-                    throw new LispException("Type constructors should start with an upper-case letter");
+                    throw new LispException("Value constructors should start with an upper-case letter");
                 }
 
-                // Create the type constructor with no parameters and define it in the top level
-                TypeConstructorExpr typeConstructor = new TypeConstructorExpr(abstractTypeDecl.typeName, sym.value,
+                // Create the value constructor with no parameters and define it in the top level
+                ValueConstructorExpr valueConstructor = new ValueConstructorExpr(abstractTypeDecl.typeName, sym.value,
                         abstractTypeDecl.parametricTypes, new ArrayList<>());
-                typeConstructors.add(typeConstructor);
-                SchemlRuntime.getTopLevel().define(sym.value, typeConstructor);
+                valueConstructors.add(valueConstructor);
+                SchemlRuntime.getTopLevel().define(sym.value, valueConstructor);
                 SchemlRuntime.getUnifyTopLevel().define(sym.value,
-                        new TypeRef(new FunctionType(typeConstructor)));
+                        new TypeRef(new FunctionType(valueConstructor)));
 
             } else if (expr instanceof ListExpr) {
                 ListExpr constructorExpr = (ListExpr) expr;
                 Expression nameExpr = constructorExpr.getElement(0);
 
                 if (!(nameExpr instanceof SymbolExpr)) {
-                    throw new LispException("Type constructor name should be a symbol");
+                    throw new LispException("Value constructor name should be a symbol");
                 }
 
                 SymbolExpr sym = (SymbolExpr) nameExpr;
                 if (!Character.isUpperCase(sym.value.charAt(0))) {
-                    throw new LispException("Type constructors should start with an upper-case letter");
+                    throw new LispException("Value constructors should start with an upper-case letter");
                 }
 
                 // Parse the type parameters for the constructor. These may contain references to this abstract type
@@ -137,26 +137,26 @@ public class TypeForm implements Form {
                     typeParams.add(fromExpression(paramExpr, parametricMap));
                 }
 
-                // Create the type constructor and add it to the top level
-                TypeConstructorExpr constructor = new TypeConstructorExpr(abstractTypeDecl.typeName, sym.value,
+                // Create the value constructor and add it to the top level
+                ValueConstructorExpr constructor = new ValueConstructorExpr(abstractTypeDecl.typeName, sym.value,
                         abstractTypeDecl.parametricTypes, typeParams);
-                typeConstructors.add(constructor);
+                valueConstructors.add(constructor);
                 SchemlRuntime.getTopLevel().define(sym.value, constructor);
                 SchemlRuntime.getUnifyTopLevel().define(sym.value,
                         new TypeRef(new FunctionType(constructor)));
             } else {
-                throw new LispException("Type constructor parameters must either be either symbols or lists");
+                throw new LispException("Value constructor parameters must either be either symbols or lists");
             }
         }
 
-        // Create a map of all the type constructors
-        Map<String,TypeConstructorExpr> typeConstructorMap = new HashMap<>();
-        for (TypeConstructorExpr typeConstructor: typeConstructors) {
-            typeConstructorMap.put(typeConstructor.name, typeConstructor);
+        // Create a map of all the value constructors
+        Map<String, ValueConstructorExpr> valueConstructorMap = new HashMap<>();
+        for (ValueConstructorExpr valueConstructor: valueConstructors) {
+            valueConstructorMap.put(valueConstructor.name, valueConstructor);
         }
 
-        // Add the type constructor map to the type declaration
-        abstractTypeDecl.addTypeConstructors(typeConstructorMap);
+        // Add the value constructor map to the type declaration
+        abstractTypeDecl.addValueConstructors(valueConstructorMap);
 
         // There's nothing for this form to return
         return new VoidExpr();
