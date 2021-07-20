@@ -125,6 +125,8 @@ public class Parser {
                         if (display) System.out.print(ch);
                         if ((ch == '\r') || (ch == '\n')) break;
                     }
+                    lineNum++;
+                    colNum = 0;
                 } else if (ch == '"') {
                     // A " indicates the beginning of a string
                     StringBuilder builder = new StringBuilder();
