@@ -182,6 +182,17 @@ Since Scheml is a functional language, functions are first-class data items.
 You can pass them around as parameters to other functions and apply them
 when you want. 
 
+### void
+Some functions such as `printf` return a void type. You may occasionally need to return a void type
+in an expression. Use an empty list `()` to represent void (which is different from nil). For example,
+the `EmptyNode` option in the `match` statement below doesn't need to do anything, but its return
+type must be the same as printf:
+```
+(match tree
+   (EmptyNode ())
+   ((TreeNode data _ _) (printf "tree node data is %s\n" data)))
+```
+
 ### symbol (not really a type)
 A symbol can be a function name or a variable name. Scheml is pretty lax in
 what characters are allowed in a symbol. A symbol can't start with a digit,
