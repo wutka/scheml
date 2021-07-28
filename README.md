@@ -184,12 +184,12 @@ when you want.
 
 ### void
 Some functions such as `printf` return a void type. You may occasionally need to return a void type
-in an expression. Use an empty list `()` to represent void (which is different from nil). For example,
+in an expression. Use the symbol `void` to represent void. For example,
 the `EmptyNode` option in the `match` statement below doesn't need to do anything, but its return
 type must be the same as printf:
 ```
 (match tree
-   (EmptyNode ())
+   (EmptyNode void)
    ((TreeNode data _ _) (printf "tree node data is %s\n" data)))
 ```
 

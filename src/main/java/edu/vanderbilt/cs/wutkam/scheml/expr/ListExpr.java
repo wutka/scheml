@@ -6,7 +6,6 @@ import edu.vanderbilt.cs.wutkam.scheml.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheml.type.FunctionType;
 import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheml.type.UnifyException;
-import edu.vanderbilt.cs.wutkam.scheml.type.VoidType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,7 +42,7 @@ public class ListExpr implements Expression {
 
     public Expression evaluate(Environment<Expression> env, boolean inTailPosition) throws LispException {
         if (elements.size() == 0) {
-            return new VoidExpr();
+            throw new LispException("Cannot evaluate an empty list");
         }
         Expression targetExpression = elements.get(0);
 
@@ -101,8 +100,7 @@ public class ListExpr implements Expression {
     @Override
     public void unify(TypeRef ref, Environment<TypeRef> env) throws LispException {
         if (elements.size() == 0) {
-            ref.unify(new TypeRef(VoidType.TYPE));
-            return;
+            throw new LispException("Cannot unify an empty list");
         }
 
         // Unify the target expression (the first expression)

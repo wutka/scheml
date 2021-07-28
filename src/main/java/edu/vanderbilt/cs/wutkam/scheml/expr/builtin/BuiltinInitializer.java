@@ -1,10 +1,12 @@
 package edu.vanderbilt.cs.wutkam.scheml.expr.builtin;
 
 import edu.vanderbilt.cs.wutkam.scheml.expr.Expression;
+import edu.vanderbilt.cs.wutkam.scheml.expr.VoidExpr;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.list.*;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheml.type.FunctionType;
 import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
+import edu.vanderbilt.cs.wutkam.scheml.type.VoidType;
 
 /** An initializer for all the built-in functions.
  */
@@ -111,8 +113,10 @@ public class BuiltinInitializer {
     public static void initializeBuiltins(Environment<Expression> exprEnv, Environment<TypeRef> typeEnv) {
         for (BuiltinFunctionExpr builtin: builtins) {
             exprEnv.define(builtin.name, builtin);
+            exprEnv.define("void", new VoidExpr());
             typeEnv.define(builtin.name, new TypeRef(new FunctionType(builtin.paramTypes.length, builtin.paramTypes,
                     builtin.returnType)));
+            typeEnv.define("void", new TypeRef(VoidType.TYPE));
         }
     }
 }
