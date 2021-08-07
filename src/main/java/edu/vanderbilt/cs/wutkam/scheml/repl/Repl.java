@@ -164,19 +164,13 @@ public class Repl {
                 }
                 SchemlRuntime.clearWarnings();
 
-                // Evaluate the expression
-                expr = expr.evaluate(exprEnvironment, false);
-
-                for (String warning: SchemlRuntime.getWarnings()) {
-                    System.out.println(warning);
-                }
-                SchemlRuntime.clearWarnings();
 
                 if (displayType) {
                     TypeRef resultType = new TypeRef();
                     // If we also are displaying the type of the result, get the type and print it
                     try {
                         expr.unify(resultType, typeEnvironment);
+                        expr = expr.evaluate(exprEnvironment, false);
                         System.out.print(expr);
                         System.out.print(" : ");
                         System.out.println(resultType.getType());
@@ -189,6 +183,13 @@ public class Repl {
                     SchemlRuntime.clearWarnings();
 
                 } else {
+                    // Evaluate the expression
+                    expr = expr.evaluate(exprEnvironment, false);
+
+                    for (String warning: SchemlRuntime.getWarnings()) {
+                        System.out.println(warning);
+                    }
+                    SchemlRuntime.clearWarnings();
                     // Don't bother printing a void result, which is returned by functions like print
                     if (!(expr instanceof VoidExpr) && displayExpressions) {
                         System.out.println(expr);

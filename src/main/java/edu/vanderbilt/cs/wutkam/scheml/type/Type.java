@@ -152,6 +152,8 @@ public abstract class Type {
             return new TypeRef(IntType.TYPE);
         } else if (parts[0].equals("string")) {
             return new TypeRef(StringType.TYPE);
+        } else if (parts[0].equals("symbol")) {
+            return new TypeRef(SymbolType.TYPE);
         } else if (parts[0].equals("void")) {
             return new TypeRef(VoidType.TYPE);
         }

@@ -28,6 +28,7 @@ public class FormExpander {
         specialForms.put("match", new MatchForm());
         specialForms.put("printf", new PrintfForm());
         specialForms.put("progn", new PrognForm());
+        specialForms.put("quote", new QuoteForm());
         specialForms.put("sprintf", new PrintfForm());
         specialForms.put(":=", new AssignForm());
         specialForms.put("type", new TypeForm());

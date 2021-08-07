@@ -175,6 +175,8 @@ public class TypeForm implements Form {
             return new TypeRef(IntType.TYPE);
         } else if (name.equals("string")) {
             return new TypeRef(StringType.TYPE);
+        } else if (name.equals("symbol")) {
+            return new TypeRef(SymbolType.TYPE);
         } else if (name.equals("void")) {
             return new TypeRef(VoidType.TYPE);
         } else if (name.startsWith("'")) {

@@ -17,6 +17,7 @@ public class Parser {
 
     // A stack of expressions for handling nested expressions
     protected Stack<List<Expression>> expressionStack = new Stack<>();
+    protected Stack<Boolean> quotedStack = new Stack<>();
 
     /** Parses a string and returns a list of all the expressions found in the string. If an expression
      * is incomplete, a LispException will be thrown. */
@@ -61,6 +62,20 @@ public class Parser {
         }
     }
 
+    protected ListExpr quoteExpression(Expression expr) {
+        List<Expression> qexpr = new ArrayList<>();
+        qexpr.add(new SymbolExpr("quote"));
+        qexpr.add(expr);
+        return new ListExpr(qexpr);
+    }
+
+    protected ListExpr unquoteExpression(Expression expr) {
+        List<Expression> qexpr = new ArrayList<>();
+        qexpr.add(new SymbolExpr("unquote"));
+        qexpr.add(expr);
+        return new ListExpr(qexpr);
+    }
+
     protected void parseImpl(Reader rdr, boolean promptForMore, String prompt, BufferedReader dataIn,
                              boolean display) throws LispException {
         PushbackReader pushback = new PushbackReader(rdr);
@@ -69,6 +84,7 @@ public class Parser {
 
         int lineNum = 1;
         int colNum = 0;
+        boolean quoting = false;
         try {
             for (;;) {
                 if ((ch = (char) pushback.read()) == (char) -1) {
@@ -97,18 +113,29 @@ public class Parser {
                 colNum++;
 
                 if (ch == '(') {
+                    boolean quoted = false;
+                    if (!quotedStack.isEmpty()) {
+                        quoted = quotedStack.peek();
+                    }
                     // A ( indicated the start of a subexpression
                     expressionStack.push(new ArrayList<>());
+                    quotedStack.push(quoted);
 
                 } else if (ch == ')') {
                     // A ) closes a subexpression, and if there is no current sub-expression, that's an error
                     if (expressionStack.isEmpty()) {
-                        throw new LispException("Got ) but there was no corresponding ( at line "+lineNum+" column "+colNum);
+                        throw new LispException("Got ) but there was no corresponding ( at line " + lineNum + " column " + colNum);
                     }
 
                     // We have completed the subexpression being parsed
                     List<Expression> expr = expressionStack.pop();
+                    boolean quoted = quotedStack.pop();
+
                     ListExpr listExpr = new ListExpr(expr);
+
+                    if (quoted) {
+                        listExpr = quoteExpression(listExpr);
+                    }
 
                     // If the expression stack is empty, we have completed a top-level expression, so add it
                     // to the items
@@ -119,7 +146,21 @@ public class Parser {
                         // current expression being parsed
                         expressionStack.peek().add(listExpr);
                     }
+                } else if (ch == '`') {
+                    if (quoting) {
+                        throw new LispException("Unexpected ` in quoted expression at line " + lineNum + " column "+ colNum);
+                    }
+                    quoting = true;
+                    char ch2 = (char) pushback.read();
+                    if (ch2 != '(') {
+                        throw new LispException("Got "+ch2+" after ` instead of ( at line " + lineNum + " column "+ colNum);
+                    }
+                    expressionStack.push(new ArrayList<>());
+                    quotedStack.push(true);
                 } else if (ch == ';') {
+                    if (quoting) {
+                        throw new LispException("Unexpected comment in quoted expression at line " + lineNum + " column "+ colNum);
+                    }
                     // A ; is a comment character, read until end of line
                     while (((ch = (char) pushback.read()) != (char) -1)) {
                         if (display) System.out.print(ch);
@@ -157,7 +198,6 @@ public class Parser {
                             // Any other characters just get appended to the string
                             builder.append(ch);
                         }
-
                     }
                     // If we got the EOF character while reading the string, see if we need to prompt
                     // for more input
@@ -182,7 +222,7 @@ public class Parser {
                             addExpression(parseNumber(pushback, true, ch2, display));
                             if (display) System.out.print(ch2);
                             continue;
-                        }  else {
+                        } else {
                             // If the first char was '-' but the second wasn't a digit, unread the second digit, so
                             // the '-' will end up as the first character in a symbol
                             pushback.unread(ch2);
@@ -239,6 +279,21 @@ public class Parser {
                     } else {
                         addExpression(new SymbolExpr(symbol));
                     }
+                } else if (ch == ',') {
+                    // Keep reading characters while they are valid symbol characters
+                    StringBuilder builder = new StringBuilder();
+
+                    while (((ch = (char) pushback.read()) != (char) -1) && (isSymbolChar(ch) || Character.isDigit(ch))) {
+                        if (display) System.out.print(ch);
+                        builder.append(ch);
+                    }
+
+                    // The last character wasn't a symbol char, so unread it
+                    pushback.unread(ch);
+
+                    // Turn the builder into a string, see if it is the nil constant
+                    String symbol = builder.toString();
+                    addExpression(unquoteExpression(new SymbolExpr(symbol)));
                 } else if (Character.isDigit(ch)) {
                     // If we get a digit, parse it as a number
                     addExpression(parseNumber(pushback, false, ch, display));
