@@ -107,7 +107,31 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
         return sexprMap;
     }
 
-    public static AbstractTypeExpr fromExpression(Expression expr, Environment env) throws LispException {
+    public static Expression toExpression(AbstractTypeExpr abstractExpr) throws LispException {
+        if (abstractExpr.constructorName.equals("SexprBool") ||
+            abstractExpr.constructorName.equals("SexprInt") ||
+            abstractExpr.constructorName.equals("SexprChar") ||
+            abstractExpr.constructorName.equals("SexprDouble") ||
+            abstractExpr.constructorName.equals("SexprString") ||
+            abstractExpr.constructorName.equals("SexprSymbol")) {
+            return abstractExpr.values.get(0);
+        } else if (abstractExpr.constructorName.equals("SexprList")) {
+            return toList((AbstractTypeExpr)abstractExpr.values.get(0));
+        } else {
+            throw new LispException("Unable to convert abstract type "+abstractExpr.constructorName+" to an expression");
+        }
+    }
+
+    public static ListExpr toList(AbstractTypeExpr abstractExpr) throws LispException {
+        List<Expression> exprList = new ArrayList<>();
+        while (abstractExpr.constructorName.equals("Cons")) {
+            exprList.add(abstractExpr.values.get(0));
+            abstractExpr = (AbstractTypeExpr) abstractExpr.values.get(1);
+        }
+        return new ListExpr(exprList);
+    }
+
+    public static AbstractTypeExpr fromExpression(Expression expr, Environment<Expression> env) throws LispException {
         if (expr instanceof BoolExpr) {
            return new AbstractTypeExpr(sexprTypeName, "SexprBool", Arrays.asList(expr));
         } else if (expr instanceof IntExpr) {
@@ -140,9 +164,40 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
         throw new LispException("Unable to convert expression "+expr+" to S-expression");
     }
 
-    public static AbstractTypeExpr fromList(ListExpr listExpr, Environment env) throws LispException {
+    public static AbstractTypeExpr fromList(ListExpr listExpr, Environment<Expression> env) throws LispException {
         AbstractTypeExpr curr = ConsTypeDecl.newNil();
         for (int i=listExpr.size()-1; i >= 0; i--) {
+            Expression expr = listExpr.getElement(i);
+            if (expr instanceof ListExpr) {
+                Expression first = ((ListExpr)expr).getElement(0);
+                if (first instanceof SymbolExpr) {
+                    String symbol = ((SymbolExpr)first).value;
+                    if (symbol.equals("unquote-splice")) {
+                        Expression unquoted = ((ListExpr)expr).getElement(1).evaluate(env, false);
+                        if (unquoted instanceof AbstractTypeExpr) {
+                            AbstractTypeExpr abstractType = (AbstractTypeExpr) unquoted;
+                            if (abstractType.constructorName.equals("Nil")) {
+                                continue;
+                            } else if (abstractType.constructorName.equals("Cons")) {
+                                Stack<Expression> spliceStack = new Stack<>();
+                                while (abstractType.constructorName.equals("Cons")) {
+                                    spliceStack.push(abstractType.values.get(0));
+                                    abstractType = (AbstractTypeExpr) abstractType.values.get(1);
+                                }
+                                while (!spliceStack.isEmpty()) {
+                                    curr = ConsTypeDecl.newCons(fromExpression(spliceStack.pop(), env), curr);
+                                }
+                                continue;
+                            } else {
+                                throw new LispException("Cannot splice "+abstractType.constructorName+
+                                        " expression into list (use , instead of ,@ ?)");
+                            }
+                        } else {
+                            throw new LispException("Cannot splice non-list into list (use , instead of ,@ ?)");
+                        }
+                    }
+                }
+            }
             curr = ConsTypeDecl.newCons(fromExpression(listExpr.getElement(i), env), curr);
         }
         return curr;

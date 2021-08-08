@@ -76,6 +76,13 @@ public class Parser {
         return new ListExpr(qexpr);
     }
 
+    protected ListExpr unquoteSpliceExpression(Expression expr) {
+        List<Expression> qexpr = new ArrayList<>();
+        qexpr.add(new SymbolExpr("unquote-splice"));
+        qexpr.add(expr);
+        return new ListExpr(qexpr);
+    }
+
     protected void parseImpl(Reader rdr, boolean promptForMore, String prompt, BufferedReader dataIn,
                              boolean display) throws LispException {
         PushbackReader pushback = new PushbackReader(rdr);
@@ -151,9 +158,22 @@ public class Parser {
                         throw new LispException("Unexpected ` in quoted expression at line " + lineNum + " column "+ colNum);
                     }
                     quoting = true;
-                    char ch2 = (char) pushback.read();
-                    if (ch2 != '(') {
-                        throw new LispException("Got "+ch2+" after ` instead of ( at line " + lineNum + " column "+ colNum);
+                    ch = (char) pushback.read();
+                    if (ch == (char) -1) {
+                        if (promptForMore) {
+                            System.out.print(prompt); System.out.flush();
+                            String line = dataIn.readLine();
+                            pushback = new PushbackReader(new StringReader(line));
+                            ch = (char) pushback.read();
+                            if (ch == (char) -1) {
+                                throw new LispException("Unexpected end of stream, possible missing end-\"");
+                            }
+                        } else {
+                            throw new LispException("Unexpected end of stream, possible missing end-\"");
+                        }
+                    }
+                    if (ch != '(') {
+                        throw new LispException("Got "+ch+" after ` instead of ( at line " + lineNum + " column "+ colNum);
                     }
                     expressionStack.push(new ArrayList<>());
                     quotedStack.push(true);
@@ -280,6 +300,28 @@ public class Parser {
                         addExpression(new SymbolExpr(symbol));
                     }
                 } else if (ch == ',') {
+                    boolean splice = false;
+                    ch = (char) pushback.read();
+                    if (ch == (char) -1) {
+                        if (promptForMore) {
+                            System.out.print(prompt); System.out.flush();
+                            String line = dataIn.readLine();
+                            pushback = new PushbackReader(new StringReader(line));
+                            ch = (char) pushback.read();
+                            if (ch == (char) -1) {
+                                throw new LispException("Unexpected end of stream, possible missing end-\"");
+                            }
+                        } else {
+                            throw new LispException("Unexpected end of stream, possible missing end-\"");
+                        }
+                    }
+                    if (ch == '@') {
+                        splice = true;
+                    } else {
+                        pushback.unread(ch);
+                    }
+
+
                     // Keep reading characters while they are valid symbol characters
                     StringBuilder builder = new StringBuilder();
 
@@ -293,7 +335,11 @@ public class Parser {
 
                     // Turn the builder into a string, see if it is the nil constant
                     String symbol = builder.toString();
-                    addExpression(unquoteExpression(new SymbolExpr(symbol)));
+                    if (splice) {
+                        addExpression(unquoteSpliceExpression(new SymbolExpr(symbol)));
+                    } else {
+                        addExpression(unquoteExpression(new SymbolExpr(symbol)));
+                    }
                 } else if (Character.isDigit(ch)) {
                     // If we get a digit, parse it as a number
                     addExpression(parseNumber(pushback, false, ch, display));

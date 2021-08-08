@@ -2,13 +2,16 @@ package edu.vanderbilt.cs.wutkam.scheml.runtime;
 
 import edu.vanderbilt.cs.wutkam.scheml.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.BuiltinInitializer;
+import edu.vanderbilt.cs.wutkam.scheml.forms.Macro;
 import edu.vanderbilt.cs.wutkam.scheml.parser.Parser;
 import edu.vanderbilt.cs.wutkam.scheml.repl.Repl;
 import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
 
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /** A holder for some of the symbol tables used by the runtime
  */
@@ -26,6 +29,8 @@ public class SchemlRuntime {
 
     protected static Profiler profiler = new Profiler();
 
+    protected static Map<String,Macro> macroTable = new HashMap<>();
+
     /** Initialize the builtin functions */
     static {
         BuiltinInitializer.initializeBuiltins(topLevelEnvironment, topLevelUnifyEnvironment);
@@ -34,6 +39,7 @@ public class SchemlRuntime {
     public static Environment<Expression> getTopLevel() { return topLevelEnvironment; }
     public static Environment<TypeRef> getUnifyTopLevel() { return topLevelUnifyEnvironment; }
     public static TypeRegistry getTypeRegistry() { return typeRegistry; }
+    public static Map<String,Macro> getMacroTable() { return macroTable; }
 
     public static void warn(String warning) {
         warnings.add(warning);
@@ -75,6 +81,7 @@ public class SchemlRuntime {
         topLevelEnvironment = new Environment<>();
         topLevelUnifyEnvironment = new Environment<>();
         typeRegistry = new TypeRegistry();
+        macroTable = new HashMap<>();
         warnings = new ArrayList<>();
         profiler = new Profiler();
         repl = new Repl();

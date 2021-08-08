@@ -4,6 +4,7 @@ import edu.vanderbilt.cs.wutkam.scheml.LispException;
 import edu.vanderbilt.cs.wutkam.scheml.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheml.expr.ListExpr;
 import edu.vanderbilt.cs.wutkam.scheml.expr.SymbolExpr;
+import edu.vanderbilt.cs.wutkam.scheml.runtime.SchemlRuntime;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +20,8 @@ public class FormExpander {
     // Define the special forms used in this language
     static {
         specialForms.put("define", new DefineForm());
+        specialForms.put("defmacro", new DefMacroForm());
+        specialForms.put("expand", new ExpandForm());
         specialForms.put("if", new IfForm());
         specialForms.put("lambda", new LambdaForm());
         specialForms.put("list", new ListForm());
@@ -52,6 +55,12 @@ public class FormExpander {
             Form expander = specialForms.get(sym.value);
             if (expander != null) {
                 return expander.expandForm(aList, isTopLevel);
+            }
+
+            Macro macro = SchemlRuntime.getMacroTable().get(sym.value);
+
+            if (macro != null) {
+                return macro.expand(aList.elementsFrom(1));
             }
         }
 
