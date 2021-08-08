@@ -107,6 +107,20 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
         return sexprMap;
     }
 
+    /*
+    @Override
+    public Object toJavaValue(AbstractTypeExpr abstractExpr) {
+        if (abstractExpr.constructorName.equals("SexprBool") ||
+            abstractExpr.constructorName.equals("SexprInt") ||
+            abstractExpr.constructorName.equals("SexprChar") ||
+            abstractExpr.constructorName.equals("SexprDouble") ||
+            abstractExpr.constructorName.equals("SexprString")) {
+            return abstractExpr.values.get(0).toJavaValue();
+        }
+        return abstractExpr;
+    }
+     */
+
     public static Expression toExpression(AbstractTypeExpr abstractExpr) throws LispException {
         if (abstractExpr.constructorName.equals("SexprBool") ||
             abstractExpr.constructorName.equals("SexprInt") ||

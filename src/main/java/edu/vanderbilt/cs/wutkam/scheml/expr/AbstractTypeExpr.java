@@ -5,6 +5,7 @@ import edu.vanderbilt.cs.wutkam.scheml.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheml.type.AbstractTypeDecl;
 import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
+import edu.vanderbilt.cs.wutkam.scheml.type.builtin.CustomToJavaValue;
 import edu.vanderbilt.cs.wutkam.scheml.type.builtin.CustomToString;
 
 import java.util.List;
@@ -57,6 +58,17 @@ public class AbstractTypeExpr implements Expression {
             if (!values.get(i).equals(other.values.get(i))) return false;
         }
         return true;
+    }
+
+    @Override
+    public Object toJavaValue() {
+        AbstractTypeDecl decl = SchemlRuntime.getTypeRegistry().lookup(this.typeName);
+
+        // If there is a custom toString provided for this type, use it
+        if (decl instanceof CustomToJavaValue) {
+            return ((CustomToJavaValue)decl).toJavaValue(this);
+        }
+        return this;
     }
 
     @Override
