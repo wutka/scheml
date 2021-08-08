@@ -113,25 +113,59 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
             abstractExpr.constructorName.equals("SexprChar") ||
             abstractExpr.constructorName.equals("SexprDouble") ||
             abstractExpr.constructorName.equals("SexprString") ||
-            abstractExpr.constructorName.equals("SexprSymbol")) {
+            abstractExpr.constructorName.equals("SexprSymbol") ||
+            abstractExpr.constructorName.equals("SexprQuotedSymbol")) {
             return abstractExpr.values.get(0);
         } else if (abstractExpr.constructorName.equals("SexprList")) {
-            return toList((AbstractTypeExpr)abstractExpr.values.get(0));
+            return toList((AbstractTypeExpr) abstractExpr.values.get(0));
+        } else if (abstractExpr.constructorName.equals("Nil")) {
+            return new ListExpr(new ArrayList<>());
+        } else if (abstractExpr.constructorName.equals("Cons")) {
+            List<Expression> elements = new ArrayList<>();
+            while (abstractExpr.constructorName.equals("Cons")) {
+                Expression value = abstractExpr.values.get(0);
+                if (isSexpr(value)) {
+                    elements.add(toExpression((AbstractTypeExpr) value));
+                } else if (ConsTypeDecl.isList(value)) {
+                    elements.add(toList((AbstractTypeExpr) value));
+                } else {
+                    elements.add(value);
+                }
+                abstractExpr = (AbstractTypeExpr) abstractExpr.values.get(1);
+            }
+            return new ListExpr(elements);
         } else {
             throw new LispException("Unable to convert abstract type "+abstractExpr.constructorName+" to an expression");
         }
     }
 
+    public static boolean isSexpr(Expression expr) {
+        if (!(expr instanceof AbstractTypeExpr)) return false;
+        AbstractTypeExpr abstractExpr = (AbstractTypeExpr) expr;
+        return abstractExpr.typeName.equals(sexprTypeName);
+    }
+
+    public static boolean isSexprList(Expression expr) {
+        if (!(expr instanceof AbstractTypeExpr)) return false;
+        AbstractTypeExpr abstractExpr = (AbstractTypeExpr) expr;
+        if (!abstractExpr.typeName.equals(ConsTypeDecl.consTypeName)) return false;
+        if (abstractExpr.constructorName.equals("Nil")) return true;
+        if (!(abstractExpr.values.get(0) instanceof AbstractTypeExpr)) return false;
+        return isSexpr(abstractExpr.values.get(0));
+    }
+
+
     public static ListExpr toList(AbstractTypeExpr abstractExpr) throws LispException {
         List<Expression> exprList = new ArrayList<>();
         while (abstractExpr.constructorName.equals("Cons")) {
-            exprList.add(abstractExpr.values.get(0));
+            exprList.add(toExpression((AbstractTypeExpr) abstractExpr.values.get(0)));
             abstractExpr = (AbstractTypeExpr) abstractExpr.values.get(1);
         }
         return new ListExpr(exprList);
     }
 
     public static AbstractTypeExpr fromExpression(Expression expr, Environment<Expression> env) throws LispException {
+        if (isSexpr(expr) || isSexprList(expr)) return (AbstractTypeExpr) expr;
         if (expr instanceof BoolExpr) {
            return new AbstractTypeExpr(sexprTypeName, "SexprBool", Arrays.asList(expr));
         } else if (expr instanceof IntExpr) {
@@ -143,8 +177,7 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
         } else if (expr instanceof StringExpr) {
             return new AbstractTypeExpr(sexprTypeName, "SexprString", Arrays.asList(expr));
         } else if (expr instanceof SymbolExpr) {
-            String value = ((SymbolExpr)expr).value;
-            return new AbstractTypeExpr(sexprTypeName, "SexprSymbol", Arrays.asList(new QuotedSymbol(value)));
+            return new AbstractTypeExpr(sexprTypeName, "SexprSymbol", Arrays.asList(expr));
         } else if (expr instanceof ListExpr) {
             ListExpr listExpr = (ListExpr) expr;
             if (listExpr.size() > 1) {
@@ -154,8 +187,8 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
                     if (symbol.equals("quote")) {
                         return fromList((ListExpr) listExpr.getElement(1), env);
                     } else if (symbol.equals("unquote")) {
-                        return new AbstractTypeExpr(sexprTypeName, "SexprUnquoteSymbol", Arrays.asList(
-                                fromExpression(listExpr.getElement(1).evaluate(env, false), env)));
+                        Expression unquoted = listExpr.getElement(1).evaluate(env, false);
+                        return fromExpression(unquoted, env);
                     }
                 }
             }

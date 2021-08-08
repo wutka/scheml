@@ -60,7 +60,10 @@ public class FormExpander {
             Macro macro = SchemlRuntime.getMacroTable().get(sym.value);
 
             if (macro != null) {
-                return macro.expand(aList.elementsFrom(1));
+                Expression expanded = macro.expand(aList.elementsFrom(1));
+                if (expanded instanceof ListExpr) {
+                    return expand((ListExpr) expanded, isTopLevel);
+                }
             }
         }
 

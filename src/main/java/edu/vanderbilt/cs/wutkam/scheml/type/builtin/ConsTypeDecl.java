@@ -125,6 +125,11 @@ public class ConsTypeDecl extends AbstractTypeDecl implements CustomToString {
         return consMap;
     }
 
+    public static boolean isList(Expression expr) {
+        if (!(expr instanceof AbstractTypeExpr)) return false;
+        return ((AbstractTypeExpr)expr).typeName.equals(consTypeName);
+    }
+
     public static AbstractTypeExpr newNil() {
         return new AbstractTypeExpr(consTypeName, "Nil", new ArrayList<>());
     }

@@ -66,6 +66,7 @@ public class Macro {
                }
             }
         }
+
         return lastResult;
     }
 }
