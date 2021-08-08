@@ -63,6 +63,8 @@ public class FormExpander {
                 Expression expanded = macro.expand(aList.elementsFrom(1));
                 if (expanded instanceof ListExpr) {
                     return expand((ListExpr) expanded, isTopLevel);
+                } else {
+                    return expanded;
                 }
             }
         }

@@ -63,6 +63,8 @@ public class Macro {
                            return SexprTypeDecl.toList(abstractType);
                        }
                    }
+               } else {
+                   return new ListExpr();
                }
             }
         }
