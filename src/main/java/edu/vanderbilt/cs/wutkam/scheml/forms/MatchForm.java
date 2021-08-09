@@ -8,14 +8,19 @@ import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchChar;
 import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchDouble;
 import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchInt;
 import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchString;
+import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchSymbol;
 import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchValueConstructor;
 import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchVariable;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheml.type.AbstractTypeDecl;
+import edu.vanderbilt.cs.wutkam.scheml.type.builtin.ConsTypeDecl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.Stack;
 
 /** Provides nested pattern matching. You can match against simple values or value constructors where each
  * target value of a value constructor can be a match expression, so they can nest as far down as necessary.
@@ -82,25 +87,34 @@ public class MatchForm implements Form {
 
             // See if the list starts with a symbol
             if (listExpr.size() >= 1 && (listExpr.getElement(0) instanceof SymbolExpr)) {
-                String constructorName = ((SymbolExpr)listExpr.getElement(0)).value;
-                AbstractTypeDecl abstractTypeDecl = SchemlRuntime.getTypeRegistry().findByConstructor(constructorName);
+                String symbol = ((SymbolExpr)listExpr.getElement(0)).value;
 
-                // If the symbol is the name of a value constructor, treat this list like a value constructor
-                if (abstractTypeDecl != null) {
-                    ValueConstructorExpr valueConstructorExpr = abstractTypeDecl.valueConstructors.get(constructorName);
+                if (symbol.equals("quote")) {
+                    return quotedToMatchPatterns((ListExpr) listExpr.getElement(1));
+                } else if (isSexprTypeName(symbol)) {
+                    return parseSexprMatchVariable(listExpr);
+                } else {
+                    AbstractTypeDecl abstractTypeDecl = SchemlRuntime.getTypeRegistry().
+                            findByConstructor(symbol);
 
-                    if (listExpr.size() - 1 != valueConstructorExpr.paramTypes.length) {
-                        throw new LispException("Value constructor " + constructorName + " takes exactly " +
-                                valueConstructorExpr.paramTypes.length + " parameters");
+                    // If the symbol is the name of a value constructor, treat this list like a value constructor
+                    if (abstractTypeDecl != null) {
+                        ValueConstructorExpr valueConstructorExpr = abstractTypeDecl.valueConstructors
+                                .get(symbol);
+
+                        if (listExpr.size() - 1 != valueConstructorExpr.paramTypes.length) {
+                            throw new LispException("Value constructor " + symbol + " takes exactly " +
+                                    valueConstructorExpr.paramTypes.length + " parameters");
+                        }
+
+                        // Recursively parse the match pattern for each target expression
+                        List<Match> patterns = new ArrayList<>();
+                        for (Expression patternExpr : listExpr.elementsFrom(1)) {
+                            patterns.add(parseMatchPattern(patternExpr));
+                        }
+
+                        return new MatchValueConstructor(symbol, patterns);
                     }
-
-                    // Recursively parse the match pattern for each target expression
-                    List<Match> patterns = new ArrayList<>();
-                    for (Expression patternExpr : listExpr.elementsFrom(1)) {
-                        patterns.add(parseMatchPattern(patternExpr));
-                    }
-
-                    return new MatchValueConstructor(constructorName, patterns);
                 }
             }
 
@@ -153,5 +167,99 @@ public class MatchForm implements Form {
         } else {
             throw new LispException("Invalid expression in match pattern: "+expr.toString());
         }
+    }
+
+    protected Match quotedToMatchPatterns(ListExpr list) throws LispException {
+        List<Match> matches = new ArrayList<>();
+
+        for (Expression expr: list.elementsFrom(0)) {
+            if (expr instanceof ListExpr) {
+                ListExpr exprList = (ListExpr) expr;
+                if (exprList.size() > 0) {
+                    Expression first = exprList.getElement(0);
+                    if (first instanceof SymbolExpr) {
+                        String symbol = ((SymbolExpr)first).value;
+                        if (symbol.equals("unquote")) {
+                            Expression unquoted = exprList.getElement(1);
+                            if (unquoted instanceof ListExpr) {
+                                matches.add(parseSexprMatchVariable((ListExpr) unquoted));
+                                continue;
+                            } else if (unquoted instanceof SymbolExpr) {
+                                matches.add(new MatchVariable(((SymbolExpr)unquoted).value));
+                                continue;
+                            }
+                        }
+                    }
+                }
+                matches.add(quotedToMatchPatterns(exprList));
+            } else if (expr instanceof BoolExpr) {
+                matches.add(new MatchValueConstructor("SexprBool",
+                        Arrays.asList(new MatchBool(((BoolExpr)expr).value))));
+            } else if (expr instanceof CharExpr) {
+                matches.add(new MatchValueConstructor("SexprChar",
+                        Arrays.asList(new MatchChar(((CharExpr)expr).value))));
+            } else if (expr instanceof IntExpr) {
+                matches.add(new MatchValueConstructor("SexprInt",
+                        Arrays.asList(new MatchInt(((IntExpr)expr).value))));
+            } else if (expr instanceof DoubleExpr) {
+                matches.add(new MatchValueConstructor("SexprDouble",
+                        Arrays.asList(new MatchDouble(((DoubleExpr)expr).value))));
+            } else if (expr instanceof StringExpr) {
+                matches.add(new MatchValueConstructor("SexprString",
+                        Arrays.asList(new MatchString(((StringExpr)expr).value))));
+            } else if (expr instanceof SymbolExpr) {
+                matches.add(new MatchValueConstructor("SexprSymbol",
+                        Arrays.asList(new MatchSymbol((SymbolExpr)expr))));
+            } else {
+                throw new LispException("Can't match expression "+expr+" in S-expression");
+            }
+        }
+        Match curr = new MatchValueConstructor("Nil", new ArrayList<>());
+        for (int i=matches.size()-1; i >= 0; i--) {
+            Match match = matches.get(i);
+            curr = new MatchValueConstructor("Cons", Arrays.asList(match, curr));
+        }
+        return new MatchValueConstructor("SexprList", Arrays.asList(curr));
+    }
+
+    protected Match parseSexprMatchVariable(ListExpr matchVariable) throws LispException {
+        if (matchVariable.size() != 2) {
+            throw new LispException("S-expression typed-match should contain a type and a variable");
+        }
+        Expression typeExpr = matchVariable.getElement(0);
+        if (!(typeExpr instanceof SymbolExpr)) {
+            throw new LispException("S-expression typed match type should be a symbol (bool, int, char, etc.)");
+        }
+        String typeStr = ((SymbolExpr)typeExpr).value;
+
+        Expression varExpr = matchVariable.getElement(1);
+        if (!(varExpr instanceof SymbolExpr)) {
+            throw new LispException("S-expression typed match variable name should be a symbol");
+        }
+        String varStr = ((SymbolExpr)varExpr).value;
+
+        if (typeStr.equals("bool")) {
+            return new MatchValueConstructor("SexprBool", Arrays.asList(new MatchVariable(varStr)));
+        } else if (typeStr.equals("char")) {
+            return new MatchValueConstructor("SexprChar", Arrays.asList(new MatchVariable(varStr)));
+        } else if (typeStr.equals("int")) {
+            return new MatchValueConstructor("SexprInt", Arrays.asList(new MatchVariable(varStr)));
+        } else if (typeStr.equals("double")) {
+            return new MatchValueConstructor("SexprDouble", Arrays.asList(new MatchVariable(varStr)));
+        } else if (typeStr.equals("string")) {
+            return new MatchValueConstructor("SexprString", Arrays.asList(new MatchVariable(varStr)));
+        } else if (typeStr.equals("symbol")) {
+            return new MatchValueConstructor("SexprSymbol", Arrays.asList(new MatchVariable(varStr)));
+        } else if (typeStr.equals("list")) {
+            return new MatchValueConstructor("SexprList", Arrays.asList(new MatchVariable(varStr)));
+        } else {
+            throw new LispException("Invalid S-expression type name "+typeStr);
+        }
+    }
+
+    protected static final Set<String> sexprTypeNames = new HashSet<>(
+            Arrays.asList("bool", "char", "int", "double", "string", "symbol", "list"));
+    protected boolean isSexprTypeName(String str) {
+        return sexprTypeNames.contains(str);
     }
 }

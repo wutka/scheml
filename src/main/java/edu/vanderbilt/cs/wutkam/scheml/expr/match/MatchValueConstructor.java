@@ -36,7 +36,8 @@ public class MatchValueConstructor implements Match {
 
         // Try to match the target patterns in the expression with the target patterns in this matcher
         for (int i=0; i < targetPatterns.size(); i++) {
-            if (!targetPatterns.get(i).matches(abstractTypeExpr.values.get(i))) return false;
+            boolean result = targetPatterns.get(i).matches(abstractTypeExpr.values.get(i));
+            if (!result) return false;
         }
         return true;
     }

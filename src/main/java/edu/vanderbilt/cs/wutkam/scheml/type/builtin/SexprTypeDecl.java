@@ -15,7 +15,7 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
     static TypeRef parametricType = new TypeRef();
 
     public SexprTypeDecl() {
-        super(sexprTypeName, Arrays.asList(new TypeRef()));
+        super(sexprTypeName, new ArrayList<>());
         this.addValueConstructors(createConstructorMap(this));
     }
 
@@ -247,6 +247,6 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
             }
             curr = ConsTypeDecl.newCons(fromExpression(listExpr.getElement(i), env), curr);
         }
-        return curr;
+        return new AbstractTypeExpr("sexpr", "SexprList", Arrays.asList(curr));
     }
 }

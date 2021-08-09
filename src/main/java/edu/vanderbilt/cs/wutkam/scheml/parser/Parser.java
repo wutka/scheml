@@ -95,7 +95,6 @@ public class Parser {
 
         int lineNum = 1;
         int colNum = 0;
-        boolean quoting = false;
         try {
             for (;;) {
                 if ((ch = (char) pushback.read()) == (char) -1) {
@@ -160,10 +159,6 @@ public class Parser {
                         expressionStack.peek().add(listExpr);
                     }
                 } else if (ch == '`') {
-                    if (quoting) {
-                        throw new LispException("Unexpected ` in quoted expression at line " + lineNum + " column "+ colNum);
-                    }
-                    quoting = true;
                     ch = (char) pushback.read();
                     if (ch == (char) -1) {
                         if (promptForMore) {
@@ -181,12 +176,10 @@ public class Parser {
                     if (ch != '(') {
                         throw new LispException("Got "+ch+" after ` instead of ( at line " + lineNum + " column "+ colNum);
                     }
+                    if (display) System.out.print(ch);
                     expressionStack.push(new ArrayList<>());
                     listTypeStack.push(QUOTED_LIST);
                 } else if (ch == ';') {
-                    if (quoting) {
-                        throw new LispException("Unexpected comment in quoted expression at line " + lineNum + " column "+ colNum);
-                    }
                     // A ; is a comment character, read until end of line
                     while (((ch = (char) pushback.read()) != (char) -1)) {
                         if (display) System.out.print(ch);
@@ -323,9 +316,11 @@ public class Parser {
                     }
                     if (ch == '@') {
                         splice = true;
+                        if (display) System.out.print(ch);
                     } else if (ch == '(') {
                         expressionStack.push(new ArrayList<>());
                         listTypeStack.push(COMMA_LIST);
+                        if (display) System.out.print(ch);
                         continue;
                     } else {
                         pushback.unread(ch);
