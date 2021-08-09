@@ -12,12 +12,16 @@ import java.util.Stack;
 /** Parses a stream and returns a list of expressions. The expressions should all be s-expressions.
  * The symbolChars array lists all the characters that can occur in a symbol in addition to letters and numbers */
 public class Parser {
+    protected static final int PLAIN_LIST = 0;
+    protected static final int QUOTED_LIST = 1;
+    protected static final int COMMA_LIST = 2;
+
     // The expressions parsed from the string or file
     public List<Expression> items = new ArrayList<>();
 
     // A stack of expressions for handling nested expressions
     protected Stack<List<Expression>> expressionStack = new Stack<>();
-    protected Stack<Boolean> quotedStack = new Stack<>();
+    protected Stack<Integer> listTypeStack = new Stack<>();
 
     /** Parses a string and returns a list of all the expressions found in the string. If an expression
      * is incomplete, a LispException will be thrown. */
@@ -120,13 +124,13 @@ public class Parser {
                 colNum++;
 
                 if (ch == '(') {
-                    boolean quoted = false;
-                    if (!quotedStack.isEmpty()) {
-                        quoted = quotedStack.peek();
+                    int quoteType = PLAIN_LIST;
+                    if (!listTypeStack.isEmpty()) {
+                        quoteType = listTypeStack.peek();
                     }
                     // A ( indicated the start of a subexpression
                     expressionStack.push(new ArrayList<>());
-                    quotedStack.push(quoted);
+                    listTypeStack.push(quoteType);
 
                 } else if (ch == ')') {
                     // A ) closes a subexpression, and if there is no current sub-expression, that's an error
@@ -136,12 +140,14 @@ public class Parser {
 
                     // We have completed the subexpression being parsed
                     List<Expression> expr = expressionStack.pop();
-                    boolean quoted = quotedStack.pop();
+                    int quoteType = listTypeStack.pop();
 
                     ListExpr listExpr = new ListExpr(expr);
 
-                    if (quoted) {
+                    if (quoteType == QUOTED_LIST) {
                         listExpr = quoteExpression(listExpr);
+                    } else if (quoteType == COMMA_LIST) {
+                        listExpr = unquoteExpression(listExpr);
                     }
 
                     // If the expression stack is empty, we have completed a top-level expression, so add it
@@ -176,7 +182,7 @@ public class Parser {
                         throw new LispException("Got "+ch+" after ` instead of ( at line " + lineNum + " column "+ colNum);
                     }
                     expressionStack.push(new ArrayList<>());
-                    quotedStack.push(true);
+                    listTypeStack.push(QUOTED_LIST);
                 } else if (ch == ';') {
                     if (quoting) {
                         throw new LispException("Unexpected comment in quoted expression at line " + lineNum + " column "+ colNum);
@@ -317,6 +323,10 @@ public class Parser {
                     }
                     if (ch == '@') {
                         splice = true;
+                    } else if (ch == '(') {
+                        expressionStack.push(new ArrayList<>());
+                        listTypeStack.push(COMMA_LIST);
+                        continue;
                     } else {
                         pushback.unread(ch);
                     }
