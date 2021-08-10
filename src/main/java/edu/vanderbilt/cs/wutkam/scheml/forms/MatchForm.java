@@ -208,8 +208,13 @@ public class MatchForm implements Form {
                 matches.add(new MatchValueConstructor("SexprString",
                         Arrays.asList(new MatchString(((StringExpr)expr).value))));
             } else if (expr instanceof SymbolExpr) {
-                matches.add(new MatchValueConstructor("SexprSymbol",
-                        Arrays.asList(new MatchSymbol((SymbolExpr)expr))));
+                String symbol = ((SymbolExpr)expr).value;
+                if (symbol.equals("_")) {
+                    matches.add(new MatchVariable(symbol));
+                } else {
+                    matches.add(new MatchValueConstructor("SexprSymbol",
+                            Arrays.asList(new MatchSymbol((SymbolExpr) expr))));
+                }
             } else {
                 throw new LispException("Can't match expression "+expr+" in S-expression");
             }

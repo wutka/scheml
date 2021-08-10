@@ -24,7 +24,6 @@ public class QuoteExpr implements Expression {
 
     @Override
     public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
-        typeRef.unify(new TypeRef(new AbstractType(ConsTypeDecl.consTypeName,
-                Arrays.asList(new TypeRef(new AbstractType(SexprTypeDecl.sexprTypeName, new ArrayList<>()))))));
+        typeRef.unify(new TypeRef(new AbstractType(SexprTypeDecl.sexprTypeName, new ArrayList<>())));
     }
 }

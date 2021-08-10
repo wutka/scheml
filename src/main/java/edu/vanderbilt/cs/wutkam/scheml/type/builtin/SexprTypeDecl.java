@@ -207,6 +207,8 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
                 }
             }
             return fromList(listExpr, env);
+        } else if (ConsTypeDecl.isList(expr)) {
+            return new AbstractTypeExpr(sexprTypeName, "SexprList", Arrays.asList(expr));
         }
         throw new LispException("Unable to convert expression "+expr+" to S-expression");
     }

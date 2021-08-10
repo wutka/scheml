@@ -77,15 +77,19 @@ of `car` and `cdr`. There are a couple of special forms that aren't in
 Scheme like `:=`, `type`, and `match` and in addition to the usual types,
 it also has abstract data types.
 
-The big difference between Scheml and Scheme boils down to the fact that
-in Scheml, lists cannot contain mixed data types. A list can't contain both
-an int and a string. This restriction really inhibits the usefulness of
-S-expressions in Scheml, since a Scheml program is not a valid expression
-in Scheml, where in Scheme that is true, and allows you to create macros or
-special syntactic constructs.
+In Scheml, lists cannot contain mixed types of data - a list of ints can't
+also contain some strings. One of the strengths of the Lisp family of languages
+is that code and data has the same representation, which makes it easy to write
+functions that transform code. This representation is referred to as an
+S-expression (Symbolic expression). The Lisp `macro` and Scheme `define-syntax`
+forms allow you to define functions that run at "compile time", and can take
+code snippets as parameters and then spit out transformed ones.
 
-Scheml doesn't expose symbols to the programmer, and doesn't have a notion
-of quoted values.
+Scheml has some support for S-expressions by defining a built in `sexpr` type
+with value constructors (explained below) to create S-expressions, a
+quote/unquote mechanism to define S-expressions and possibly include the values
+of variables, which is often needed in macros, and also special syntax for
+pattern matching. 
 
 Because Scheml supports partial function application, there are situations
 where you might use a `lambda` in Scheme that can be replaced with a
@@ -176,6 +180,62 @@ Can't unify int with string
 
 You can, on the other hand, have a list that contains items of the same Abstract Data Type
 but that have multiple constructors, like `(list (Empty) (TreeNode 123 (Empty) (Empty)))`
+
+### S-Expressions
+In order to support lists that appear to be of mixed types, Scheml has a built-in
+`sexpr` type that in Scheml's syntax would be defined as:
+```
+(type sexpr
+      (SexprBool bool)
+      (SexprInt int)
+      (SexprChar char)
+      (SexprDouble double)
+      (SexprString string)
+      (SexprSymbol symbol)
+      (SexprUnquoteSymbol symbol)
+      (SexprList (cons sexpr)))
+```
+
+Since Scheml uses a regular single-quote in symbol names, it adopts the backtick
+notation from Lisp to let you define S-expressions. For example, the following
+expression defines a SexprList with several different types of values:
+```
+`(foo "bar" 1 2.3 #t #\a (some sub list))
+```
+
+Like Lisp, Scheml's backtick S-expression notation allows you to insert
+variable values into a list. For example, the following code snippet defines
+a variable and then creates an S-expression that includes the value of that
+variable:
+```
+(define my-var "foobar")
+`(some data items ,my-var)
+```
+
+The _,symbol_ notation inserts the value of a variable into the list. If the
+variable refers to a list and you insert it this way, the list will be
+a sub-element. For example, this code snippet defines a variable that
+refers to a list and inserts it into an S-expression. Notice that the
+resulting S-expression contains the list as an element:
+```
+Scheml Repl
+>(define my-var (list 1 2 3))
+(1 2 3)
+>`(some data items and ,my-var too)
+(some data items and (1 2 3) too)
+>
+```
+
+If instead you wanted the list `(1 2 3)` inserted as elements in the list
+rather than as a sub-list, use `,@` instead of just `,`:
+```
+Scheml Repl
+>(define my-var (list 1 2 3))
+(1 2 3)
+>`(some data items and ,@my-var too)
+(some data items and 1 2 3 too)
+>
+```
 
 ### Functions
 Since Scheml is a functional language, functions are first-class data items.
@@ -448,6 +508,28 @@ way to match the list (1 2 3)
 (match (list 1 2 3)
   ((Cons 1 (Cons 2 (Cons 3 Nil))) (printf "It was (1 2 3)\n"))
   (_ (printf "It was something else\n")))
+```
+
+Scheml also provides a special syntax for matching against S-expressions.
+First, just as you usually use the _,symbol_ notation to insert an item into
+an S-expression, when matching you can use that notation to extract a value
+from the S-expression. For example:
+```
+(match `(foo bar baz)
+   (`(,f1 _ _) (printf "The first item was %s\n" f1)))
+```
+In this case, the ,f1 creates a match variable named f1, which when matching
+against the list `(foo bar baz)` would get the value `foo` (actually
+the value `SexprSymbol foo`).
+Without the comma, it would try to match the symbol `f1` against the
+first item in the list, which would fail since the first item is the symbol `foo`.
+
+You can also specify what type of variable an S-expression match variable
+should expect. For example, the variable f1 in the following case will
+only match against an int:
+```
+(match `(1 2 3)
+   (`(,(int f1) _ _) (printf "The first item was %d\n" f1)))
 ```
 
 ### (printf _format_ _args_)
