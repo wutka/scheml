@@ -2,8 +2,10 @@ package edu.vanderbilt.cs.wutkam.scheml.forms;
 
 import edu.vanderbilt.cs.wutkam.scheml.LispException;
 import edu.vanderbilt.cs.wutkam.scheml.expr.*;
+import edu.vanderbilt.cs.wutkam.scheml.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheml.type.AbstractTypeDecl;
+import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
 
 public class AssignForm implements Form {
     @Override

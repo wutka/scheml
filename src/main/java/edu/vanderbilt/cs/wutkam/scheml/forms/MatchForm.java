@@ -243,19 +243,19 @@ public class MatchForm implements Form {
         }
         String varStr = ((SymbolExpr)varExpr).value;
 
-        if (typeStr.equals("bool")) {
+        if (typeStr.equals("bool") || typeStr.equals("SexprBool")) {
             return new MatchValueConstructor("SexprBool", Arrays.asList(new MatchVariable(varStr)));
-        } else if (typeStr.equals("char")) {
+        } else if (typeStr.equals("char") || typeStr.equals("SexprChar")) {
             return new MatchValueConstructor("SexprChar", Arrays.asList(new MatchVariable(varStr)));
-        } else if (typeStr.equals("int")) {
+        } else if (typeStr.equals("int") || typeStr.equals("SexprInt")) {
             return new MatchValueConstructor("SexprInt", Arrays.asList(new MatchVariable(varStr)));
-        } else if (typeStr.equals("double")) {
+        } else if (typeStr.equals("double") || typeStr.equals("SexprDouble")) {
             return new MatchValueConstructor("SexprDouble", Arrays.asList(new MatchVariable(varStr)));
-        } else if (typeStr.equals("string")) {
+        } else if (typeStr.equals("string") || typeStr.equals("SexprString")) {
             return new MatchValueConstructor("SexprString", Arrays.asList(new MatchVariable(varStr)));
-        } else if (typeStr.equals("symbol")) {
+        } else if (typeStr.equals("symbol") || typeStr.equals("SexprSymbol")) {
             return new MatchValueConstructor("SexprSymbol", Arrays.asList(new MatchVariable(varStr)));
-        } else if (typeStr.equals("list")) {
+        } else if (typeStr.equals("list") || typeStr.equals("SexprList")) {
             return new MatchValueConstructor("SexprList", Arrays.asList(new MatchVariable(varStr)));
         } else {
             throw new LispException("Invalid S-expression type name "+typeStr);

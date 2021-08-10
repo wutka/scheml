@@ -3,6 +3,8 @@ package edu.vanderbilt.cs.wutkam.scheml.expr.builtin;
 import edu.vanderbilt.cs.wutkam.scheml.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheml.expr.VoidExpr;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.list.*;
+import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.sexpr.ListConvertible;
+import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.sexpr.SexprToList;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheml.type.FunctionType;
 import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
@@ -108,6 +110,9 @@ public class BuiltinInitializer {
         new Some("some"),
         new ReplaceNth("replace-nth"),
         new Filter("filter"),
+
+        new ListConvertible("list-convertible?"),
+        new SexprToList("sexpr->list"),
     };
 
     public static void initializeBuiltins(Environment<Expression> exprEnv, Environment<TypeRef> typeEnv) {
