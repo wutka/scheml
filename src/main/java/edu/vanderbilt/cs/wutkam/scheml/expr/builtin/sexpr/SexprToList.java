@@ -17,6 +17,7 @@ public class SexprToList extends BuiltinFunctionExpr {
     public SexprToList(String name) {
         super(name, "sexpr -> cons 'a");
     }
+
     @Override
     protected Expression executeBuiltin(Expression[] args) throws LispException {
         if (!SexprTypeDecl.isSexpr(args[0])) {
@@ -52,13 +53,8 @@ public class SexprToList extends BuiltinFunctionExpr {
         }
 
         curr = ConsTypeDecl.newNil();
-        TypeRef listType = null;
         while (!itemStack.isEmpty()) {
             Expression expr = itemStack.pop();
-            if (listType == null) {
-                listType = new TypeRef();
-                expr.unify(listType, new Environment<>());
-            }
             curr = ConsTypeDecl.newCons(expr, curr);
         }
         return curr;
