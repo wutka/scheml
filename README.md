@@ -345,11 +345,57 @@ as a macro like this:
    `(if ,test (progn ,@body void)
               void))
 ```
+The &rest is a signal to Scheml that you want any remaining macro
+arguments to be collected into a list, which will be assigned to the
+parameter following &rest. If you use &rest, it should always occur
+as the next-to-last item in the macro parameter list, followed only
+by the name of the parameter to get the collection of remaining
+parameters. If there are no additional parameters, the parameter
+bound to &rest will refer to an empty list.
+
 The `void` is there because both the true and false paths of the if statement
 must have the same type, and when is expected to return a void. In case
 the last statement in the `when` body does not have a type of void, the macro
-goes ahead and inserts void as the last statement in the body.
+goes ahead and inserts void as the last statement in the body. Even though
+there's very little overhead from the `void` keyword, maybe you'd like
+the macro to check to see if there is already a `void` there. You could
+do something like this:
+```
+(define (ends-with-void body)
+  (match body
+    ((SexprList lst) (equals? (head (reverse lst)) (SexprSymbol `void)))
+    (_ #f)))
 
+(defmacro my-when (test &rest body)
+    (let ((end-void (if (ends-with-void body) `() `(void))))
+      `(if ,test (progn ,@body ,@end-void) void)))
+```
+First the ends-with-void function returns true if the last item in
+the body is the void keyword. Notice it is a function and not a macro,
+macros can call functions. The `(head (reverse lst))` returns the
+last item in the list. Since the body is passed to the macro as an
+S-expression, the ends-with-void function uses pattern matching to
+extract the body as a list, and also needs to create a SexprSymbol
+using a quoted void symbol for comparison.
+
+The my-when macro then defines an end-void symbol that either refers
+to an empty list if `void` already appears in the macro body, or
+`(void)` if it does not. It then splices it into the end of the `progn`
+with `,@end-void`.
+
+Because of the way macro expansion works, you cannot make a recursive
+macro, but since a macro can call functions, if there is some recursive
+operation you need to perform, you can always define a function to do
+it and call that function from the macro.
+
+The backquote notation in the above macros makes it easier for you
+to enter literal code. Without it, the macro would have to return
+a nested set of S-expressions, like:
+```
+(SexprList (list (SexprSymbol `if) 
+  (SexprList (list (SexprSymbol `>) (SexprInt 6) (SexprInt 5)))
+  (SexprList (list (SexprSymbol `progn) ...
+```
 
 ### (if _test_ _true-expr_ _false-expr_)
 The `(if)` special form works like it does in other Lisp-like languages. It
