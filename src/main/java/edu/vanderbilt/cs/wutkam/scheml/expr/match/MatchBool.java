@@ -34,6 +34,11 @@ public class MatchBool implements Match {
     }
 
     @Override
+    public Expression toScheml() {
+        return new BoolExpr(value);
+    }
+
+    @Override
     public String toString() { return (new BoolExpr(value)).toString(); }
 
     @Override

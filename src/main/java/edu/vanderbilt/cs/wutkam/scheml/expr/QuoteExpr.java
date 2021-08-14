@@ -9,6 +9,7 @@ import edu.vanderbilt.cs.wutkam.scheml.type.builtin.SexprTypeDecl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class QuoteExpr implements Expression {
     ListExpr expr;
@@ -25,5 +26,13 @@ public class QuoteExpr implements Expression {
     @Override
     public void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException {
         typeRef.unify(new TypeRef(new AbstractType(SexprTypeDecl.sexprTypeName, new ArrayList<>())));
+    }
+
+    @Override
+    public Expression toScheml() {
+        List<Expression> scheml = new ArrayList<>();
+        scheml.add(new SymbolLiteralExpr("quote"));
+        scheml.add(expr.toScheml());
+        return new ListExpr(scheml);
     }
 }

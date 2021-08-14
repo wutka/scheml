@@ -9,7 +9,13 @@ import edu.vanderbilt.cs.wutkam.scheml.type.builtin.SexprTypeDecl;
 public class ExpandForm implements Form {
     @Override
     public Expression expandForm(ListExpr aList, boolean isTopLevel) throws LispException {
-        return SexprTypeDecl.fromExpression(FormExpander.expand(new ListExpr(aList.elementsFrom(1)), false),
-                new Environment<>());
+        Expression expanded = FormExpander.expand(new ListExpr(aList.elementsFrom(1)), false);
+        if (expanded instanceof ListExpr) {
+            ListExpr l = (ListExpr) expanded;
+            if (l.size() == 1) {
+                expanded = l.getElement(0);
+            }
+        }
+        return SexprTypeDecl.fromExpression(expanded.toScheml(), new Environment<>());
     }
 }

@@ -41,6 +41,11 @@ public class MatchVariable implements Match {
     }
 
     @Override
+    public Expression toScheml() {
+        return new SymbolExpr(name);
+    }
+
+    @Override
     public String toString() { return (new SymbolExpr(name)).toString(); }
 
     @Override

@@ -186,4 +186,9 @@ public class FunctionExpr implements Expression, Applicable {
             throw UnifyException.addCause("Can't unify function with "+typeRef.getType(), exc);
         }
     }
+
+    @Override
+    public Expression toScheml() {
+        return new SymbolLiteralExpr(name);
+    }
 }

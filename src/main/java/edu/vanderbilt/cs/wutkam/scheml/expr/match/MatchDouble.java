@@ -34,6 +34,11 @@ public class MatchDouble implements Match {
     }
 
     @Override
+    public Expression toScheml() {
+        return new DoubleExpr(value);
+    }
+
+    @Override
     public String toString() { return (new DoubleExpr(value)).toString(); }
 
     @Override

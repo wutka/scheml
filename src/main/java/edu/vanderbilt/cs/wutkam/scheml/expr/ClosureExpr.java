@@ -3,6 +3,7 @@ package edu.vanderbilt.cs.wutkam.scheml.expr;
 import edu.vanderbilt.cs.wutkam.scheml.LispException;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.Environment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /** A function declaration that captures its environment when it is evaluated and then returns a FunctionExpr
@@ -21,5 +22,20 @@ public class ClosureExpr extends FunctionExpr {
         this.closureEnv.copyCompressed(env);
 
         return new FunctionExpr(this);
+    }
+
+    @Override
+    public Expression toScheml() {
+        List<Expression> scheml = new ArrayList<>();
+        scheml.add(new SymbolLiteralExpr("lambda"));
+        List<Expression> params = new ArrayList<>();
+        for (SymbolExpr paramSym: parameterList) {
+            params.add(new SymbolLiteralExpr(paramSym.value));
+        }
+        scheml.add(new ListExpr(params));
+        for (Expression expr: targetExpressions) {
+            scheml.add(expr.toScheml());
+        }
+        return new ListExpr(scheml);
     }
 }

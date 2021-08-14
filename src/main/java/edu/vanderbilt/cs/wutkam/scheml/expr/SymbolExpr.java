@@ -54,6 +54,10 @@ public class SymbolExpr implements Expression {
     }
 
     @Override
+    public Expression toScheml() {
+        return new SymbolLiteralExpr(value);
+    }
+    @Override
     public String toString() {
         return value;
     }
@@ -61,9 +65,14 @@ public class SymbolExpr implements Expression {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        SymbolExpr that = (SymbolExpr) o;
-        return Objects.equals(value, that.value);
+        if (o == null) return false;
+        if (o instanceof SymbolExpr) {
+            return value.equals(((SymbolExpr)o).value);
+        } else if (o instanceof SymbolLiteralExpr) {
+            return value.equals(((SymbolLiteralExpr) o).value);
+        } else {
+            return false;
+        }
     }
 
     @Override

@@ -1,9 +1,7 @@
 package edu.vanderbilt.cs.wutkam.scheml.expr.match;
 
 import edu.vanderbilt.cs.wutkam.scheml.LispException;
-import edu.vanderbilt.cs.wutkam.scheml.expr.AbstractTypeExpr;
-import edu.vanderbilt.cs.wutkam.scheml.expr.Expression;
-import edu.vanderbilt.cs.wutkam.scheml.expr.ValueConstructorExpr;
+import edu.vanderbilt.cs.wutkam.scheml.expr.*;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheml.type.AbstractType;
@@ -11,6 +9,7 @@ import edu.vanderbilt.cs.wutkam.scheml.type.AbstractTypeDecl;
 import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheml.type.UnifyException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +90,16 @@ public class MatchValueConstructor implements Match {
         for (int i=0; i < paramTypes.length; i++) {
             targetPatterns.get(i).unify(paramTypes[i], env);
         }
+    }
+
+    @Override
+    public Expression toScheml() {
+        List<Expression> scheml = new ArrayList<>();
+        scheml.add(new SymbolLiteralExpr(constructorName));
+        for (Match match: targetPatterns) {
+            scheml.add(match.toScheml());
+        }
+        return new ListExpr(scheml);
     }
 
     @Override

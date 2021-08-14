@@ -6,6 +6,9 @@ import edu.vanderbilt.cs.wutkam.scheml.type.BooleanType;
 import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheml.type.UnifyException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /** Represents an if expression that has both a true option and false option which must be of
  * the same type, as well as a test that must be boolean.
  */
@@ -68,5 +71,15 @@ public class IfExpr implements Expression {
         builder.append(falseOption.toString());
         builder.append(")");
         return builder.toString();
+    }
+
+    @Override
+    public Expression toScheml() {
+        List<Expression> scheml = new ArrayList<>();
+        scheml.add(new SymbolLiteralExpr("if"));
+        scheml.add(test.toScheml());
+        scheml.add(trueOption.toScheml());
+        scheml.add(falseOption.toScheml());
+        return new ListExpr(scheml);
     }
 }

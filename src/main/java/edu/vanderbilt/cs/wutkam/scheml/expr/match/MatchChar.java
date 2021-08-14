@@ -34,6 +34,11 @@ public class MatchChar implements Match {
     }
 
     @Override
+    public Expression toScheml() {
+        return new CharExpr(value);
+    }
+
+    @Override
     public String toString() { return (new CharExpr(value)).toString(); }
 
     @Override

@@ -6,8 +6,10 @@ import edu.vanderbilt.cs.wutkam.scheml.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheml.type.AbstractTypeDecl;
 import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheml.type.builtin.CustomToJavaValue;
+import edu.vanderbilt.cs.wutkam.scheml.type.builtin.CustomToScheml;
 import edu.vanderbilt.cs.wutkam.scheml.type.builtin.CustomToString;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /** Represents an instance of an abstract type as created from a value constructor function */
@@ -38,8 +40,7 @@ public class AbstractTypeExpr implements Expression {
         // We unify with the values here to make sure the return type has concrete values
         // when necessary
         for (int i=0; i < valueConstructor.paramTypes.length; i++) {
-            values.get(i).unify(valueConstructor.paramTypes[i], env);
-        }
+            values.get(i).unify(valueConstructor.paramTypes[i], env); }
         typeRef.unify(valueConstructor.returnType);
     }
 
@@ -88,5 +89,21 @@ public class AbstractTypeExpr implements Expression {
         }
         builder.append(")");
         return builder.toString();
+    }
+
+    @Override
+    public Expression toScheml() {
+        AbstractTypeDecl decl = SchemlRuntime.getTypeRegistry().lookup(this.typeName);
+        // If there is a custom toString provided for this type, use it
+        if (decl instanceof CustomToScheml) {
+            return ((CustomToScheml)decl).customToScheml(this);
+        }
+
+        List<Expression> scheml = new ArrayList<>();
+        scheml.add(new SymbolLiteralExpr(constructorName));
+        for (Expression v: values) {
+            scheml.add(v.toScheml());
+        }
+        return new ListExpr(scheml);
     }
 }

@@ -8,6 +8,7 @@ import edu.vanderbilt.cs.wutkam.scheml.type.AbstractTypeDecl;
 import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheml.type.UnifyException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,11 +91,36 @@ public class LetExpr implements Expression {
         typeRef.unify(last);
     }
 
+    @Override
+    public Expression toScheml() {
+        List<Expression> scheml = new ArrayList<>();
+        switch (letType) {
+            case LET_FORM:
+                scheml.add(new SymbolLiteralExpr("let"));
+                break;
+            case LET_STAR_FORM:
+                scheml.add(new SymbolLiteralExpr("let*"));
+                break;
+            case LET_REC_FORM:
+                scheml.add(new SymbolLiteralExpr("letrec"));
+                break;
+        }
+        List<Expression> decls = new ArrayList<>();
+        for (Declaration decl: declarations) {
+            decls.add(decl.toScheml());
+        }
+        scheml.add(new ListExpr(decls));
+        for (Expression expr: body) {
+            scheml.add(expr.toScheml());
+        }
+        return new ListExpr(scheml);
+    }
+
     /** Represents a type of let declaration */
     public interface Declaration {
-
         void define(int letType, Environment<Expression> env, Environment<Expression> letEnv) throws LispException;
         void unify(int letType, Environment<TypeRef> env, Environment<TypeRef> letEnv) throws LispException;
+        Expression toScheml();
     }
 
     /** Represents a let declaration where an expression is bound to a single symbol */
@@ -138,6 +164,14 @@ public class LetExpr implements Expression {
                 throw UnifyException.addCause("Error unifying let expression "+name, exc);
             }
             letEnv.define(name, declTypeRef);
+        }
+
+        @Override
+        public Expression toScheml() {
+            List<Expression> scheml = new ArrayList<>();
+            scheml.add(new SymbolExpr(name));
+            scheml.add(value.toScheml());
+            return new ListExpr(scheml);
         }
     }
 
@@ -227,6 +261,20 @@ public class LetExpr implements Expression {
                     env.define(paramNames[i], paramTypes[i]);
                 }
             }
+        }
+
+        @Override
+        public Expression toScheml() {
+            List<Expression> scheml = new ArrayList<>();
+            List<Expression> matchList = new ArrayList<>();
+            matchList.add(new SymbolExpr(constructorName));
+            for (String param: paramNames) {
+                matchList.add(new SymbolExpr(param));
+            }
+            scheml.add(new ListExpr(matchList));
+            scheml.add(value.toScheml());
+
+            return new ListExpr(scheml);
         }
     }
 }

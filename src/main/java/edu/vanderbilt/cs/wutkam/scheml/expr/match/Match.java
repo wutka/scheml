@@ -18,4 +18,6 @@ public interface Match {
 
     /** Unifies this matcher with the specified type */
     void unify(TypeRef matchTargetType, Environment<TypeRef> env) throws LispException;
+
+    Expression toScheml();
 }

@@ -78,6 +78,23 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
         return expr.values.get(0).toString();
     }
 
+    public Expression customToScheml(AbstractTypeExpr abstractExpr) {
+        if (abstractExpr.constructorName.equals("SexprBool") ||
+                abstractExpr.constructorName.equals("SexprInt") ||
+                abstractExpr.constructorName.equals("SexprChar") ||
+                abstractExpr.constructorName.equals("SexprDouble") ||
+                abstractExpr.constructorName.equals("SexprString") ||
+                abstractExpr.constructorName.equals("SexprSymbol")) {
+            return abstractExpr.values.get(0).toScheml();
+        } else if (abstractExpr.constructorName.equals("SexprList")) {
+            List<Expression> scheml = new ArrayList<>();
+            scheml.add(new SymbolExpr("quote"));
+            scheml.add(abstractExpr.values.get(0).toScheml());
+            return new ListExpr(scheml);
+        }
+        return null;
+    }
+
     static ValueConstructorExpr[] constructors = new ValueConstructorExpr[] {
          new ValueConstructorExpr(sexprTypeName, "SexprBool", Arrays.asList(new TypeRef(BooleanType.TYPE))),
          new ValueConstructorExpr(sexprTypeName, "SexprInt", Arrays.asList(new TypeRef(IntType.TYPE))),
@@ -85,7 +102,6 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
          new ValueConstructorExpr(sexprTypeName, "SexprDouble", Arrays.asList(new TypeRef(DoubleType.TYPE))),
          new ValueConstructorExpr(sexprTypeName, "SexprString", Arrays.asList(new TypeRef(StringType.TYPE))),
          new ValueConstructorExpr(sexprTypeName, "SexprSymbol", Arrays.asList(new TypeRef(SymbolType.TYPE))),
-         new ValueConstructorExpr(sexprTypeName, "SexprUnquoteSymbol", Arrays.asList(new TypeRef(SymbolType.TYPE))),
         null,
     };
 
@@ -122,14 +138,23 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
      */
 
     public static Expression toExpression(AbstractTypeExpr abstractExpr) throws LispException {
+        return toExpression(abstractExpr, false);
+    }
+
+    public static Expression toExpression(AbstractTypeExpr abstractExpr, boolean quotedToRealSymbol)
+            throws LispException {
         if (abstractExpr.constructorName.equals("SexprBool") ||
             abstractExpr.constructorName.equals("SexprInt") ||
             abstractExpr.constructorName.equals("SexprChar") ||
             abstractExpr.constructorName.equals("SexprDouble") ||
-            abstractExpr.constructorName.equals("SexprString") ||
-            abstractExpr.constructorName.equals("SexprSymbol") ||
-            abstractExpr.constructorName.equals("SexprQuotedSymbol")) {
+            abstractExpr.constructorName.equals("SexprString")) {
             return abstractExpr.values.get(0);
+        } else if (abstractExpr.constructorName.equals("SexprSymbol")) {
+            if (quotedToRealSymbol) {
+                return new SymbolExpr(((SymbolLiteralExpr)abstractExpr.values.get(0)).value);
+            } else {
+                return abstractExpr.values.get(0);
+            }
         } else if (abstractExpr.constructorName.equals("SexprList")) {
             return toList((AbstractTypeExpr) abstractExpr.values.get(0));
         } else if (abstractExpr.constructorName.equals("Nil")) {
@@ -192,6 +217,9 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
             return new AbstractTypeExpr(sexprTypeName, "SexprString", Arrays.asList(expr));
         } else if (expr instanceof SymbolExpr) {
             return new AbstractTypeExpr(sexprTypeName, "SexprSymbol", Arrays.asList(expr));
+        } else if (expr instanceof SymbolLiteralExpr) {
+            return new AbstractTypeExpr(sexprTypeName, "SexprSymbol",
+                    Arrays.asList(expr));
         } else if (expr instanceof ListExpr) {
             ListExpr listExpr = (ListExpr) expr;
             if (listExpr.size() > 1) {
@@ -235,6 +263,17 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
                                 }
                                 while (!spliceStack.isEmpty()) {
                                     curr = ConsTypeDecl.newCons(fromExpression(spliceStack.pop(), env), curr);
+                                }
+                                continue;
+                            } else if (abstractType.constructorName.equals("SexprList")) {
+                                Stack<AbstractTypeExpr> spliceStack = new Stack<>();
+                                abstractType = (AbstractTypeExpr) abstractType.values.get(0);
+                                while (abstractType.constructorName.equals("Cons")) {
+                                    spliceStack.push((AbstractTypeExpr) abstractType.values.get(0));
+                                    abstractType = (AbstractTypeExpr) abstractType.values.get(1);
+                                }
+                                while (!spliceStack.isEmpty()) {
+                                    curr = ConsTypeDecl.newCons(spliceStack.pop(), curr);
                                 }
                                 continue;
                             } else {

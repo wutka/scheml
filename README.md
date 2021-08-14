@@ -192,7 +192,6 @@ In order to support lists that appear to be of mixed types, Scheml has a built-i
       (SexprDouble double)
       (SexprString string)
       (SexprSymbol symbol)
-      (SexprUnquoteSymbol symbol)
       (SexprList (cons sexpr)))
 ```
 
@@ -332,6 +331,25 @@ Example:
 ```
 (define (multiply-by-7 a) (* a 7))
 ```
+
+### (defmacro _macro-name_ (_args_) _body_)
+The `defmacro` form lets you define a macro, which is sort of a function that
+runs at "compile time". Since this is an interpreter, the notion of "compile time"
+is a little less defined. Basically, a macro runs at the time that special
+forms are being expanded in an expression. Macros are useful because they allow
+you to manipulate code before it is evaluated. For example, suppose the
+`when` form described below was not available, you could reproduce it
+as a macro like this:
+```
+(defmacro when (test &rest body)
+   `(if ,test (progn ,@body void)
+              void))
+```
+The `void` is there because both the true and false paths of the if statement
+must have the same type, and when is expected to return a void. In case
+the last statement in the `when` body does not have a type of void, the macro
+goes ahead and inserts void as the last statement in the body.
+
 
 ### (if _test_ _true-expr_ _false-expr_)
 The `(if)` special form works like it does in other Lisp-like languages. It

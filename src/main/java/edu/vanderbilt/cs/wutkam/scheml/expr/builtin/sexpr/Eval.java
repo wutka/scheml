@@ -30,7 +30,7 @@ public class Eval extends BuiltinFunctionExpr {
             return new PartialApplicationExpr(this, arguments);
         }
 
-        Expression expr = SexprTypeDecl.toExpression((AbstractTypeExpr) arguments.get(0));
+        Expression expr = SexprTypeDecl.toExpression((AbstractTypeExpr) arguments.get(0), true);
         if (expr instanceof ListExpr) {
             expr = FormExpander.expand((ListExpr) expr, false);
         }
