@@ -137,24 +137,15 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
     }
      */
 
-    public static Expression toExpression(AbstractTypeExpr abstractExpr) throws LispException {
-        return toExpression(abstractExpr, false);
-    }
-
-    public static Expression toExpression(AbstractTypeExpr abstractExpr, boolean quotedToRealSymbol)
+    public static Expression toExpression(AbstractTypeExpr abstractExpr)
             throws LispException {
         if (abstractExpr.constructorName.equals("SexprBool") ||
             abstractExpr.constructorName.equals("SexprInt") ||
             abstractExpr.constructorName.equals("SexprChar") ||
             abstractExpr.constructorName.equals("SexprDouble") ||
-            abstractExpr.constructorName.equals("SexprString")) {
+            abstractExpr.constructorName.equals("SexprString") ||
+            abstractExpr.constructorName.equals("SexprSymbol")) {
             return abstractExpr.values.get(0);
-        } else if (abstractExpr.constructorName.equals("SexprSymbol")) {
-            if (quotedToRealSymbol) {
-                return new SymbolExpr(((SymbolLiteralExpr)abstractExpr.values.get(0)).value);
-            } else {
-                return abstractExpr.values.get(0);
-            }
         } else if (abstractExpr.constructorName.equals("SexprList")) {
             return toList((AbstractTypeExpr) abstractExpr.values.get(0));
         } else if (abstractExpr.constructorName.equals("Nil")) {

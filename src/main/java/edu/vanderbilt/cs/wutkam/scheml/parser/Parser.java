@@ -8,6 +8,7 @@ import edu.vanderbilt.cs.wutkam.scheml.type.builtin.SexprTypeDecl;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
@@ -196,7 +197,8 @@ public class Parser {
                         // Turn the builder into a string, see if it is the nil constant
                         String symbol = builder.toString();
 
-                        addExpression(new SymbolLiteralExpr(symbol));
+                        addExpression(new AbstractTypeExpr(SexprTypeDecl.sexprTypeName, "SexprSymbol",
+                                Arrays.asList(new SymbolLiteralExpr(symbol))));
                     } else {
                         throw new LispException("Got "+ch+" after ` instead of ( at line " + lineNum + " column "+ colNum);
                     }

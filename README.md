@@ -236,6 +236,11 @@ Scheml Repl
 >
 ```
 
+Since you may occasionally need to create SexprSymbol instances,
+you can use the backtick followed directly by a symbol to create one:
+```
+`some-symbol
+```
 ### Functions
 Since Scheml is a functional language, functions are first-class data items.
 You can pass them around as parameters to other functions and apply them
@@ -363,7 +368,7 @@ do something like this:
 ```
 (define (ends-with-void body)
   (match body
-    ((SexprList lst) (equals? (head (reverse lst)) (SexprSymbol `void)))
+    ((SexprList lst) (equals? (head (reverse lst)) `void))
     (_ #f)))
 
 (defmacro my-when (test &rest body)
@@ -375,8 +380,8 @@ the body is the void keyword. Notice it is a function and not a macro,
 macros can call functions. The `(head (reverse lst))` returns the
 last item in the list. Since the body is passed to the macro as an
 S-expression, the ends-with-void function uses pattern matching to
-extract the body as a list, and also needs to create a SexprSymbol
-using a quoted void symbol for comparison.
+extract the body as a list, and then compares it with the SexprSymbol
+`void`, which can be created using a backtick.
 
 The my-when macro then defines an end-void symbol that either refers
 to an empty list if `void` already appears in the macro body, or

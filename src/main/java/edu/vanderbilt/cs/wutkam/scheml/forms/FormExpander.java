@@ -4,6 +4,7 @@ import edu.vanderbilt.cs.wutkam.scheml.LispException;
 import edu.vanderbilt.cs.wutkam.scheml.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheml.expr.ListExpr;
 import edu.vanderbilt.cs.wutkam.scheml.expr.SymbolExpr;
+import edu.vanderbilt.cs.wutkam.scheml.expr.SymbolLiteralExpr;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.SchemlRuntime;
 
 import java.util.ArrayList;
