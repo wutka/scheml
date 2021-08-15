@@ -3,9 +3,7 @@ package edu.vanderbilt.cs.wutkam.scheml.expr.builtin;
 import edu.vanderbilt.cs.wutkam.scheml.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheml.expr.VoidExpr;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.list.*;
-import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.sexpr.Eval;
-import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.sexpr.ListConvertible;
-import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.sexpr.SexprToList;
+import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.sexpr.*;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheml.type.FunctionType;
 import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
@@ -113,6 +111,20 @@ public class BuiltinInitializer {
         new Filter("filter"),
 
         new ListConvertible("list-convertible?"),
+        new ConvertSexprToList("convert-sexpr-list"),
+        new IsSexprBool("sexpr-bool?"),
+        new IsSexprChar("sexpr-char?"),
+        new IsSexprDouble("sexpr-double?"),
+        new IsSexprInt("sexpr-int?"),
+        new IsSexprString("sexpr-string?"),
+        new IsSexprSymbol("sexpr-symbol?"),
+        new IsSexprList("sexpr-list?"),
+        new SexprToBool("sexpr->bool"),
+        new SexprToChar("sexpr->char"),
+        new SexprToDouble("sexpr->double"),
+        new SexprToInt("sexpr->int"),
+        new SexprToString("sexpr->string"),
+        new SexprToSymbol("sexpr->symbol"),
         new SexprToList("sexpr->list"),
         new Eval("eval"),
     };

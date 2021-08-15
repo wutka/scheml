@@ -5,37 +5,54 @@ import edu.vanderbilt.cs.wutkam.scheml.expr.AbstractTypeExpr;
 import edu.vanderbilt.cs.wutkam.scheml.expr.BoolExpr;
 import edu.vanderbilt.cs.wutkam.scheml.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.BuiltinFunctionExpr;
+import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.FailException;
+import edu.vanderbilt.cs.wutkam.scheml.runtime.Environment;
+import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheml.type.builtin.ConsTypeDecl;
 import edu.vanderbilt.cs.wutkam.scheml.type.builtin.SexprTypeDecl;
 
-public class ListConvertible extends BuiltinFunctionExpr {
-    public ListConvertible(String name) {
-        super(name, "sexpr -> bool");
+import java.util.Stack;
+
+public class ConvertSexprToList extends BuiltinFunctionExpr {
+    public ConvertSexprToList(String name) {
+        super(name, "sexpr -> cons 'a");
     }
+
     @Override
     protected Expression executeBuiltin(Expression[] args) throws LispException {
         Expression sexprValue = ((AbstractTypeExpr)args[0]).values.get(0);
 
-        if (!(sexprValue instanceof AbstractTypeExpr)) return BoolExpr.FALSE;
-
+        if (!(sexprValue instanceof AbstractTypeExpr)) {
+            throw new FailException("S-expression is not a list");
+        }
 
         AbstractTypeExpr curr = (AbstractTypeExpr) sexprValue;
         if (!(curr.typeName.equals(ConsTypeDecl.consTypeName))) return BoolExpr.FALSE;
 
         String valueConstructor = null;
+        Stack<Expression> itemStack = new Stack<>();
+
         while (curr.constructorName.equals("Cons")) {
             Expression currExpr = curr.values.get(0);
-            if (!SexprTypeDecl.isSexpr(currExpr)) return BoolExpr.FALSE;
+            AbstractTypeExpr abstractTypeExpr = (AbstractTypeExpr) currExpr;
 
             if (valueConstructor == null) {
                 valueConstructor = ((AbstractTypeExpr)currExpr).constructorName;
+                itemStack.push(abstractTypeExpr.values.get(0));
             } else {
                 if (!valueConstructor.equals(((AbstractTypeExpr)curr.values.get(0)).constructorName)) {
-                    return BoolExpr.FALSE;
+                    throw new FailException("S-expression list contains mixed types");
                 }
+                itemStack.push(abstractTypeExpr.values.get(0));
             }
             curr = (AbstractTypeExpr) curr.values.get(1);
         }
-        return BoolExpr.TRUE;
+
+        curr = ConsTypeDecl.newNil();
+        while (!itemStack.isEmpty()) {
+            Expression expr = itemStack.pop();
+            curr = ConsTypeDecl.newCons(expr, curr);
+        }
+        return curr;
     }
 }
