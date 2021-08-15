@@ -9,7 +9,7 @@ the features that it has that make it different from vanilla Scheme:
 * Partial function application (and no variadic functions that aren't special forms)
 * Tail-call optimization (this is actually expected of a Scheme or ML, but it's good
   to know it is available)
-* S-expressions and macros
+* S-expressions and macros (also part of any Scheme, but requires extra work here because of strict typing)
 
 ## Design
 Because of its length, I have moved the design description to
