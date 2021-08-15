@@ -24,6 +24,7 @@ public class ListToArray extends BuiltinFunctionExpr {
 
         while (curr.constructorName.equals("Cons")) {
             values.add(curr.values.get(0));
+            curr = (AbstractTypeExpr) curr.values.get(1);
         }
         return new ArrayExpr(new ListExpr(values));
     }
