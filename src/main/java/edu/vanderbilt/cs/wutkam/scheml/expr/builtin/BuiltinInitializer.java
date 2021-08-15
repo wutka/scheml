@@ -2,7 +2,10 @@ package edu.vanderbilt.cs.wutkam.scheml.expr.builtin;
 
 import edu.vanderbilt.cs.wutkam.scheml.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheml.expr.VoidExpr;
+import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.array.*;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.list.*;
+import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.ref.Ref;
+import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.ref.SetRef;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.sexpr.*;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheml.type.FunctionType;
@@ -126,6 +129,18 @@ public class BuiltinInitializer {
         new SexprToString("sexpr->string"),
         new SexprToSymbol("sexpr->symbol"),
         new SexprToList("sexpr->list"),
+
+        new Ref("!"),
+        new SetRef("<-"),
+
+        new ArrayFold("array-fold"),
+        new ArrayLen("array-len"),
+        new ArrayMap("array-map"),
+        new ArrayRef("@"),
+        new ArrayToList("array->list"),
+        new ListToArray("list->array"),
+        new MakeArrayWithDefault("make-array-with-default"),
+        new MakeArrayWithFunction("make-array-with-function"),
     };
 
     public static void initializeBuiltins(Environment<Expression> exprEnv, Environment<TypeRef> typeEnv) {

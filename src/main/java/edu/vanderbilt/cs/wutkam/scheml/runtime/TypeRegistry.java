@@ -2,6 +2,7 @@ package edu.vanderbilt.cs.wutkam.scheml.runtime;
 
 import edu.vanderbilt.cs.wutkam.scheml.type.AbstractTypeDecl;
 import edu.vanderbilt.cs.wutkam.scheml.type.builtin.ConsTypeDecl;
+import edu.vanderbilt.cs.wutkam.scheml.type.builtin.RefTypeDecl;
 import edu.vanderbilt.cs.wutkam.scheml.type.builtin.SexprTypeDecl;
 
 import java.util.HashMap;
@@ -20,6 +21,7 @@ public class TypeRegistry {
     protected void initializeBuiltinTypes(Map<String, AbstractTypeDecl> typeMap) {
         typeMap.put("cons", new ConsTypeDecl());
         typeMap.put("sexpr", new SexprTypeDecl());
+        typeMap.put("ref", new RefTypeDecl());
     }
     /** Locates an abstract type and returns null if it doesn't exist. If it does exist, a copy of it is
      * returned so that any changes to its type refs will not affect the copy in the global environment

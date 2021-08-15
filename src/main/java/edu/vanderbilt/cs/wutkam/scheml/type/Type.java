@@ -156,6 +156,8 @@ public abstract class Type {
             return new TypeRef(SymbolType.TYPE);
         } else if (parts[0].equals("void")) {
             return new TypeRef(VoidType.TYPE);
+        } else if (parts[0].equals("array")) {
+            return new TypeRef(new ArrayType(parseSymbolName(parts[1], symbolNameMap)));
         }
 
         // If we get this far, the symbol must be an abstract type declaration, so look it up

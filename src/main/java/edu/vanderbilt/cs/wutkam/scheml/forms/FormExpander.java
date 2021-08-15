@@ -30,6 +30,7 @@ public class FormExpander {
         specialForms.put("let", new LetForm());
         specialForms.put("let*", new LetForm());
         specialForms.put("letrec", new LetForm());
+        specialForms.put("make-array", new MakeArrayForm());
         specialForms.put("match", new MatchForm());
         specialForms.put("printf", new PrintfForm());
         specialForms.put("progn", new PrognForm());
