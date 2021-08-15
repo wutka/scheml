@@ -433,6 +433,8 @@ As mentioned above, the `list` special form creates a list from any number of it
 It just creates an expression that evaluates to the abstract type
 `(Cons item1 (Cons item2 (Cons item3 ... (Cons item-last Nil) ...)))`
 
+### (macro macro-name (arg1, arg2, ... &rest rest-args))
+
 ### (match _expr_ (_pattern_ _expr) ...)
 The `(match)` form allows you to deconstruct each case in an abstract type, but because
 it also allows simple types in the match, it can act like a `case` or `switch` statement
@@ -531,6 +533,33 @@ only match against an int:
 (match `(1 2 3)
    (`(,(int f1) _ _) (printf "The first item was %d\n" f1)))
 ```
+
+The shorthand names for the various S-expression types are:
+`bool, char, int, double, string, symbol, list`.
+
+Bear in mind when you match on `list` that while the value assigned to the variable
+is a normal list (Cons), each of its data items are still S-expression values. If
+you do:
+```
+(match `(1 2 3)
+  ((list l) ...))
+```
+The variable `l` will refer to a list of sexpr, not a list of numbers.
+
+You can also use the S-expression constructors with the `,()` form, such as
+`,(SexprInt f1)`.
+
+When matching against an S-expression value that might be something other than
+a list, you can use either the shorthand names for the types, or the value
+constructor in the match:
+```
+(match some-sexpr-val
+   ((bool b) (printf "It was a bool\n"))
+   ((SexprInt i) (printf "It was an int\n"))
+   ((string s) (printf "It was a string\n"))
+   ((SexprList l) (printf "It was a list\n")))
+```
+
 
 ### (printf _format_ _args_)
 You have probably been noticing all the `printf` calls in the various examples and might
