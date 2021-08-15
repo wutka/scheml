@@ -56,8 +56,21 @@ public class ParserTest {
         assertThrows(LispException.class,
                 () -> Parser.parse("(1 2", false));
         assertThrows(LispException.class,
-                () -> Parser.parse(",foo", false));
-        assertThrows(LispException.class,
                 () -> Parser.parse(")", false));
+    }
+
+    @Test
+    public void testSexprs() throws LispException {
+        parseAndCheckValue("`(1 2 3)",
+                new ListExpr(Arrays.asList(new SymbolExpr("quote"),
+                        new ListExpr(
+                                Arrays.asList(new IntExpr(1),
+                                    new IntExpr(2),
+                                    new IntExpr(3))))));
+        parseAndCheckValue("`(foo ,bar ,@baz)",
+            new ListExpr(Arrays.asList(new SymbolExpr("quote"),
+                new ListExpr(Arrays.asList(new SymbolExpr("foo"),
+                    new ListExpr(Arrays.asList(new SymbolExpr("unquote"), new SymbolExpr("bar"))),
+                    new ListExpr(Arrays.asList(new SymbolExpr("unquote-splice"), new SymbolExpr("baz"))))))));
     }
 }
