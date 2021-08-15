@@ -4,5 +4,5 @@ package edu.vanderbilt.cs.wutkam.scheml.type;
 public class SymbolType extends Type {
     public static Type TYPE = new SymbolType();
 
-    public String toSignatureString(TypeSymbolGenerator symGen) { return "string"; }
+    public String toSignatureString(TypeSymbolGenerator symGen) { return "symbol"; }
 }

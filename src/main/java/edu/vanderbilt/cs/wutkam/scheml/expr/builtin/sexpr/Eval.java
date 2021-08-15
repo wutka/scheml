@@ -1,15 +1,13 @@
 package edu.vanderbilt.cs.wutkam.scheml.expr.builtin.sexpr;
 
 import edu.vanderbilt.cs.wutkam.scheml.LispException;
-import edu.vanderbilt.cs.wutkam.scheml.expr.AbstractTypeExpr;
-import edu.vanderbilt.cs.wutkam.scheml.expr.Expression;
-import edu.vanderbilt.cs.wutkam.scheml.expr.ListExpr;
-import edu.vanderbilt.cs.wutkam.scheml.expr.PartialApplicationExpr;
+import edu.vanderbilt.cs.wutkam.scheml.expr.*;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.BuiltinFunctionExpr;
 import edu.vanderbilt.cs.wutkam.scheml.forms.FormExpander;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheml.type.builtin.SexprTypeDecl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Eval extends BuiltinFunctionExpr {
@@ -30,11 +28,12 @@ public class Eval extends BuiltinFunctionExpr {
             return new PartialApplicationExpr(this, arguments);
         }
 
-        Expression expr = SexprTypeDecl.toExpression((AbstractTypeExpr) arguments.get(0));
+        Expression expr = unliteralizeSymbols(SexprTypeDecl.toExpression((AbstractTypeExpr) arguments.get(0)));
+
         if (expr instanceof ListExpr) {
             expr = FormExpander.expand((ListExpr) expr, false);
         }
-        return SexprTypeDecl.fromExpression(expr.evaluate(env, false), env);
+        return SexprTypeDecl.fromExpression(expr.evaluate(env, false).toScheml(), env);
     }
 
     @Override
@@ -42,5 +41,19 @@ public class Eval extends BuiltinFunctionExpr {
         // Since this class overrides apply and doesn't actually call this method
         // it is safe to just return null
         return null;
+    }
+
+    Expression unliteralizeSymbols(Expression expr) {
+        if (expr instanceof SymbolLiteralExpr) {
+            return new SymbolExpr(((SymbolLiteralExpr)expr).value);
+        } else if (expr instanceof ListExpr) {
+            List<Expression> exprs = new ArrayList<>();
+            for (Expression e: ((ListExpr)expr).elementsFrom(0)) {
+                exprs.add(unliteralizeSymbols(e));
+            }
+            return new ListExpr(exprs);
+        } else {
+            return expr;
+        }
     }
 }

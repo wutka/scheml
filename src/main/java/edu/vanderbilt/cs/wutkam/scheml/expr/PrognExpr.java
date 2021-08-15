@@ -5,6 +5,7 @@ import edu.vanderbilt.cs.wutkam.scheml.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheml.type.UnifyException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /** Represents a block of statements
@@ -45,5 +46,15 @@ public class PrognExpr implements Expression {
         }
         // Unify the return type with the requested type
         typeRef.unify(returnType);
+    }
+
+    @Override
+    public Expression toScheml() {
+        List<Expression> scheml = new ArrayList<>();
+        scheml.add(new SymbolLiteralExpr("progn"));
+        for (Expression expr: body) {
+            scheml.add(expr.toScheml());
+        }
+        return new ListExpr(scheml);
     }
 }

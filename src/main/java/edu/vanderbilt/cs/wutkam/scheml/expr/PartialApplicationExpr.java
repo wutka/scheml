@@ -112,6 +112,16 @@ public class PartialApplicationExpr implements Expression, Applicable {
     }
 
     @Override
+    public Expression toScheml() {
+        List<Expression> scheml = new ArrayList<>();
+        scheml.add(new SymbolLiteralExpr(targetFunc.name));
+        for (Expression arg: partialArgs) {
+            scheml.add(arg.toScheml());
+        }
+        return new ListExpr(scheml);
+    }
+
+    @Override
     public Expression apply(List<Expression> arguments, Environment<Expression> env)
         throws LispException {
         List<Expression> newArgs = new ArrayList<>();

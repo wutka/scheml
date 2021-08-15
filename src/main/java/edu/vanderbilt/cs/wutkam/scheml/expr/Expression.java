@@ -14,5 +14,9 @@ public interface Expression {
 
     void unify(TypeRef typeRef, Environment<TypeRef> env) throws LispException;
 
+    default Expression toScheml() {
+        return this;
+    };
+
     default Object toJavaValue() { return this; }
 }

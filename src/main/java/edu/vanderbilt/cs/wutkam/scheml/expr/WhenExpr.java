@@ -7,6 +7,7 @@ import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheml.type.UnifyException;
 import edu.vanderbilt.cs.wutkam.scheml.type.VoidType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /** Represents a when expression that has only a true option. Since there is no false
@@ -71,6 +72,18 @@ public class WhenExpr implements Expression {
         }
     }
 
+    @Override
+    public Expression toScheml() {
+        List<Expression> scheml = new ArrayList<>();
+        scheml.add(new SymbolLiteralExpr("when"));
+        scheml.add(test.toScheml());
+        for (Expression expr: trueOption) {
+            scheml.add(expr.toScheml());
+        }
+        return new ListExpr(scheml);
+    }
+
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("(when ");

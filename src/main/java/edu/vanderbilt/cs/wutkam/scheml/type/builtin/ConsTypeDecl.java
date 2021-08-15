@@ -2,6 +2,7 @@ package edu.vanderbilt.cs.wutkam.scheml.type.builtin;
 
 import edu.vanderbilt.cs.wutkam.scheml.expr.AbstractTypeExpr;
 import edu.vanderbilt.cs.wutkam.scheml.expr.Expression;
+import edu.vanderbilt.cs.wutkam.scheml.expr.ListExpr;
 import edu.vanderbilt.cs.wutkam.scheml.expr.ValueConstructorExpr;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheml.type.AbstractType;
@@ -19,7 +20,7 @@ import java.util.Map;
  * including some utility methods for creating Cons and Nil instances and a
  * custom toString that renders a Cons structure as a simple list
  */
-public class ConsTypeDecl extends AbstractTypeDecl implements CustomToString {
+public class ConsTypeDecl extends AbstractTypeDecl implements CustomToString, CustomToScheml {
     public static String consTypeName = "cons";
     static TypeRef parametricType = new TypeRef();
 
@@ -99,6 +100,15 @@ public class ConsTypeDecl extends AbstractTypeDecl implements CustomToString {
         }
         builder.append(')');
         return builder.toString();
+    }
+
+    public Expression customToScheml(AbstractTypeExpr expr) {
+        List<Expression> scheml = new ArrayList<>();
+        while (expr.constructorName.equals("Cons")) {
+            scheml.add(expr.values.get(0).toScheml());
+            expr = (AbstractTypeExpr) expr.values.get(1);
+        }
+        return new ListExpr(scheml);
     }
 
     protected static Map<String, ValueConstructorExpr> createConstructorMap(ConsTypeDecl decl) {

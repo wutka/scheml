@@ -21,6 +21,11 @@ public class VoidExpr implements Expression {
     }
 
     @Override
+    public Expression toScheml() {
+        return new SymbolLiteralExpr("void");
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         return o != null && getClass() == o.getClass();

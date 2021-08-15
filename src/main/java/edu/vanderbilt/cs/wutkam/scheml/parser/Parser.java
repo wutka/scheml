@@ -2,10 +2,13 @@ package edu.vanderbilt.cs.wutkam.scheml.parser;
 
 import edu.vanderbilt.cs.wutkam.scheml.LispException;
 import edu.vanderbilt.cs.wutkam.scheml.expr.*;
+import edu.vanderbilt.cs.wutkam.scheml.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheml.type.builtin.ConsTypeDecl;
+import edu.vanderbilt.cs.wutkam.scheml.type.builtin.SexprTypeDecl;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
@@ -173,12 +176,32 @@ public class Parser {
                             throw new LispException("Unexpected end of stream, possible missing end-\"");
                         }
                     }
-                    if (ch != '(') {
+                    if (ch == '(') {
+                        if (display) System.out.print(ch);
+                        expressionStack.push(new ArrayList<>());
+                        listTypeStack.push(QUOTED_LIST);
+                    } else if (isSymbolChar(ch)) {
+                        if (display) System.out.print(ch);
+                        // Keep reading characters while they are valid symbol characters
+                        StringBuilder builder = new StringBuilder();
+                        builder.append(ch);
+
+                        while (((ch = (char) pushback.read()) != (char) -1) && (isSymbolChar(ch) || Character.isDigit(ch))) {
+                            if (display) System.out.print(ch);
+                            builder.append(ch);
+                        }
+
+                        // The last character wasn't a symbol char, so unread it
+                        pushback.unread(ch);
+
+                        // Turn the builder into a string, see if it is the nil constant
+                        String symbol = builder.toString();
+
+                        addExpression(new AbstractTypeExpr(SexprTypeDecl.sexprTypeName, "SexprSymbol",
+                                Arrays.asList(new SymbolLiteralExpr(symbol))));
+                    } else {
                         throw new LispException("Got "+ch+" after ` instead of ( at line " + lineNum + " column "+ colNum);
                     }
-                    if (display) System.out.print(ch);
-                    expressionStack.push(new ArrayList<>());
-                    listTypeStack.push(QUOTED_LIST);
                 } else if (ch == ';') {
                     // A ; is a comment character, read until end of line
                     while (((ch = (char) pushback.read()) != (char) -1)) {

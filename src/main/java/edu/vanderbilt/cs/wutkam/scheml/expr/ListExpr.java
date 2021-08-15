@@ -167,6 +167,15 @@ public class ListExpr implements Expression {
     }
 
     @Override
+    public Expression toScheml() {
+        List<Expression> scheml = new ArrayList<>();
+        for (Expression expr: elements) {
+            scheml.add(expr.toScheml());
+        }
+        return new ListExpr(scheml);
+    }
+
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append('(');

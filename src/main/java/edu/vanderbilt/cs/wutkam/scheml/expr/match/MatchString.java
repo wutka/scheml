@@ -4,6 +4,8 @@ import edu.vanderbilt.cs.wutkam.scheml.LispException;
 import edu.vanderbilt.cs.wutkam.scheml.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheml.expr.StringExpr;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.Environment;
+import edu.vanderbilt.cs.wutkam.scheml.type.IntType;
+import edu.vanderbilt.cs.wutkam.scheml.type.StringType;
 import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
 
 import java.util.Objects;
@@ -32,7 +34,12 @@ public class MatchString implements Match {
 
     @Override
     public void unify(TypeRef matchTargetType, Environment<TypeRef> env) throws LispException {
+        matchTargetType.unify(new TypeRef(StringType.TYPE));
+    }
 
+    @Override
+    public Expression toScheml() {
+        return new StringExpr(value);
     }
 
     @Override

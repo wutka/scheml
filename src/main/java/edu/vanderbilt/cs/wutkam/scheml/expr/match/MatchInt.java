@@ -34,6 +34,11 @@ public class MatchInt implements Match {
     }
 
     @Override
+    public Expression toScheml() {
+        return new IntExpr(value);
+    }
+
+    @Override
     public String toString() { return (new IntExpr(value)).toString(); }
 
     @Override

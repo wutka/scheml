@@ -52,7 +52,17 @@ public class MatchExpr implements Expression {
             patternAndTarget.pattern.unify(matchExpressionType, matchEnv);
             patternAndTarget.targetExpression.unify(typeRef, matchEnv);
         }
+    }
 
+    @Override
+    public Expression toScheml() {
+        List<Expression> scheml = new ArrayList<>();
+        scheml.add(new SymbolLiteralExpr("match"));
+        scheml.add(matchExpression.toScheml());
+        for (MatchPatternAndTarget patternAndTarget: matchPatterns) {
+            scheml.add(patternAndTarget.toScheml());
+        }
+        return new ListExpr(scheml);
     }
 
     public void checkExhaustiveness() {
@@ -72,6 +82,13 @@ public class MatchExpr implements Expression {
         public MatchPatternAndTarget(Match pattern, Expression targetExpression) {
             this.pattern = pattern;
             this.targetExpression = targetExpression;
+        }
+
+        public Expression toScheml() {
+            List<Expression> scheml = new ArrayList<>();
+            scheml.add(pattern.toScheml());
+            scheml.add(targetExpression.toScheml());
+            return new ListExpr(scheml);
         }
     }
 }

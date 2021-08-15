@@ -96,6 +96,16 @@ public class PrintfExpr implements Expression {
         }
     }
 
+    @Override
+    public Expression toScheml() {
+        List<Expression> scheml = new ArrayList<>();
+        scheml.add(new SymbolLiteralExpr(returnString ? "sprintf" : "printf"));
+        scheml.add(new StringExpr(formatString));
+        for (Expression param: parameters) {
+            scheml.add(param.toScheml());
+        }
+        return new ListExpr(scheml);
+    }
     // Define a regex to match the java formatter format string, ignoring the date formats
     static final String formatRegex = "%(?<argPos>[<0-9]+[$])?(?<argLastPos><)?(?<flags>[-#+ 0,(]*)(?<width>[0-9]+)?(?<precision>[.][0-9]+)?(?<conversion>.)";
     static final Pattern formatPattern = Pattern.compile(formatRegex);
