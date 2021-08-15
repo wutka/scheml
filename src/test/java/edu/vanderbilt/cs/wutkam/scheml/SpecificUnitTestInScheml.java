@@ -39,7 +39,7 @@ public class SpecificUnitTestInScheml {
 
         // Load all the files and add their tests to the dynamic test list
         for (File testFile: testFiles) {
-            if (testFile.getName().equals("defmacro-test.scm")) {
+            if (testFile.getName().equals("ref-test.scm")) {
                 tests.addAll(loadTestFile(testFile));
             }
         }

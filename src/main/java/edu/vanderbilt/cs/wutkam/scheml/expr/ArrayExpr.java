@@ -59,4 +59,15 @@ public class ArrayExpr implements Expression {
         builder.append(')');
         return builder.toString();
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof ArrayExpr)) return false;
+        ArrayExpr otherArray = (ArrayExpr) other;
+        if (values.length != otherArray.values.length) return false;
+        for (int i=0; i < values.length; i++) {
+            if (!values[i].equals(otherArray.values[i])) return false;
+        }
+        return true;
+    }
 }
