@@ -13,6 +13,9 @@ import java.util.List;
 public class DefMacroForm implements Form {
     @Override
     public Expression expandForm(ListExpr aList, boolean isTopLevel) throws LispException {
+        if (!isTopLevel) {
+            throw new LispException("defmacro is only allowed at the top level "+aList);
+        }
         if (!(aList.getElement(1) instanceof SymbolExpr)) {
             throw new LispException("Macro name "+aList.getElement(1)+" must be a symbol");
         }
@@ -47,7 +50,7 @@ public class DefMacroForm implements Form {
 
         for (Expression bodyExpr: aList.elementsFrom(3)) {
             if (bodyExpr instanceof ListExpr) {
-                body.add(FormExpander.expand((ListExpr) bodyExpr, false));
+                body.add(FormExpander.expand((ListExpr) bodyExpr, true));
             } else {
                 body.add(bodyExpr);
             }

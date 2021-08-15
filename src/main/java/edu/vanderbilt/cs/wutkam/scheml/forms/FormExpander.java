@@ -22,6 +22,7 @@ public class FormExpander {
     static {
         specialForms.put("define", new DefineForm());
         specialForms.put("defmacro", new DefMacroForm());
+        specialForms.put("eval", new EvalForm());
         specialForms.put("expand", new ExpandForm());
         specialForms.put("if", new IfForm());
         specialForms.put("lambda", new LambdaForm());

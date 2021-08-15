@@ -126,7 +126,6 @@ public class BuiltinInitializer {
         new SexprToString("sexpr->string"),
         new SexprToSymbol("sexpr->symbol"),
         new SexprToList("sexpr->list"),
-        new Eval("eval"),
     };
 
     public static void initializeBuiltins(Environment<Expression> exprEnv, Environment<TypeRef> typeEnv) {

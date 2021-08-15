@@ -77,7 +77,7 @@ public class UnitTestsInScheml {
             }
             SymbolExpr sym = (SymbolExpr) listExpr.getElement(0);
 
-            if (sym.value.equals("define") || sym.value.equals("type")) {
+            if (sym.value.equals("define") || sym.value.equals("type") || sym.value.equals("defmacro")) {
                 // If this is a new definition, add it to the definitions list
                 currDefinitions.add(listExpr);
                 continue;

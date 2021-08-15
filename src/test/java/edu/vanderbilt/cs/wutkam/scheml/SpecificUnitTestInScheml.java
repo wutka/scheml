@@ -39,7 +39,7 @@ public class SpecificUnitTestInScheml {
 
         // Load all the files and add their tests to the dynamic test list
         for (File testFile: testFiles) {
-            if (testFile.getName().equals("sexpr-builtins-test.scm")) {
+            if (testFile.getName().equals("defmacro-test.scm")) {
                 tests.addAll(loadTestFile(testFile));
             }
         }
@@ -78,7 +78,7 @@ public class SpecificUnitTestInScheml {
             }
             SymbolExpr sym = (SymbolExpr) listExpr.getElement(0);
 
-            if (sym.value.equals("define") || sym.value.equals("type")) {
+            if (sym.value.equals("define") || sym.value.equals("type") || sym.value.equals("defmacro")) {
                 // If this is a new definition, add it to the definitions list
                 currDefinitions.add(listExpr);
                 continue;
