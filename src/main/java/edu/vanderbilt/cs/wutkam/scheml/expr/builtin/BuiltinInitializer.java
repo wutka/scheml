@@ -134,9 +134,10 @@ public class BuiltinInitializer {
         new SetRef("<-"),
 
         new ArrayFold("array-fold"),
-        new ArrayLen("array-len"),
+        new ArrayLen("array-length"),
         new ArrayMap("array-map"),
         new ArrayRef("@"),
+        new ArraySet("@<-"),
         new ArrayToList("array->list"),
         new ListToArray("list->array"),
         new MakeArrayWithDefault("make-array-with-default"),
