@@ -3,6 +3,7 @@
   (assert-equals (make-array-with-default 5 #\a) (make-array #\a #\a #\a #\a #\a) "make-array-with-default")
   (assert-equals (make-array-with-function 10 id) (list->array (range 0 9)) "make-array-with-function")
   (assert-equals (list->array (array->list (list->array (range 1 10)))) (make-array 1 2 3 4 5 6 7 8 9 10) "list->array array->list"))
+  (assert-equals (array-length (make-array 1 2 3 4 5)) 5 "array-length of 5-element array should be 5")
 
 (test array-map-test
   (assert-equals (array-map (+ 5) (make-array 1 2 3 4 5)) (make-array 6 7 8 9 10) "array-map (+ 5)")

@@ -242,6 +242,88 @@ you can use the backtick followed directly by a symbol to create one:
 ```
 `some-symbol
 ```
+
+### References
+Scheml supports references, which are boxes that can hold data values and
+can be changed. This is the only way to have mutable data in Scheml.
+References are implemented as an abstract type named `ref` with a
+single value constructor `Ref`. You can use the `!` function to
+retrieve the value stored in a reference, and `<-` to store a
+new value in the reference. Any given reference can only hold a
+specific type of data, so you can't store a string in a reference
+of type `ref int`. Here is an example of creating a reference
+and modifying it:
+```shell
+
+>(define example-ref (Ref 5))
+(Ref 5)
+>(! example-ref)
+5
+>(<- example-ref 999)
+(Ref 999)
+>(! example-ref)
+999
+```
+
+### Arrays
+An array is very similar to a list, except that its value can be
+accessed directly without iterating through the list. That is, to
+get the 100th item in an array, you can just reference the 100th
+item, while the `nth` function for a list starts at the 0th element
+and traverses the list until it gets to the 100th. There are several
+ways to create an array. One is to use `make-array`, in which the
+array values are given as the parameters to `make-array` (similar to
+the `list` function):
+```
+(make-array 1 3 5 7 9)
+```
+
+You can also create an array with a specific size and a default value.
+The following call creates an array with 10 items, each of which is
+the string "foo".
+```
+(make-array-with-default 10 "foo")
+```
+
+You can create an array with a specific function and a function that
+generates a value. The function is passed the array index (numbered from 0).
+For example, to make an array of 10 values containing the squares
+of the indices you could do this:
+```
+(make-array-with-function 10 (lambda (i) (* i i)))
+```
+
+To reference an array value, use the `@` function, giving the array
+and the index:
+```
+>(define my-array (make-array 1 3 5 7 9))
+(make-array 1 3 5 7 9)
+>(@ my-array 2)
+5
+```
+
+You can also set array values with the `@<-`, but this does not actually mutate
+the array value. Instead, it creates a new array with the one
+element changed:
+```
+>(define arr1 (make-array-with-default 10 "hello"))
+(make-array "hello" "hello" "hello" "hello" "hello" "hello" "hello" "hello" "hello" "hello")
+>(define arr2 (@<- arr1 3 "goodbye"))
+(make-array "hello" "hello" "hello" "goodbye" "hello" "hello" "hello" "hello" "hello" "hello")
+>arr2
+(make-array "hello" "hello" "hello" "goodbye" "hello" "hello" "hello" "hello" "hello" "hello")
+>arr1
+(make-array "hello" "hello" "hello" "hello" "hello" "hello" "hello" "hello" "hello" "hello")
+>
+```
+In the above example you can see that the array referenced by arr1
+still has its original value, while arr2 shows the updated value.
+
+Note that the way arrays are printed is as an invocation of the `(make-array)`
+function. Ideally they would use a notation like `#(1 2 3)` or `[1 2 3]`
+but that raises some additional syntax questions with regard to
+S-expressions, so for now it uses the `make-array` notation.
+
 ### Functions
 Since Scheml is a functional language, functions are first-class data items.
 You can pass them around as parameters to other functions and apply them
@@ -977,6 +1059,149 @@ Reverses the given list.
 The `range` function takes two arguments, a beginning and end, and returns a
 list of numbers from the first argument to the last argument **inclusive**. That
 is, (range 1 5) returns the list (1 2 3 4 5).
+
+### S-expressions
+```
+(sexpr-bool? s)
+(sexpr-char? s)
+(sexpr-double? s)
+(sexpr-int? s)
+(sexpr-list? s)
+(sexpr-string? s)
+(sexpr-symbol? s)
+```
+
+The `sexpr-xxx?` functions test whether a given sexpr expression contains
+a partcular type. Each of these functions could be defined with a match
+expression, for example:
+```
+>(define (my-sexpr-bool? sb)
+   (match sb
+    ((SexprBool _) #t)
+    (_ #f)))
+(function my-sexpr-bool?)
+>(my-sexpr-bool? (SexprBool #f))
+#t
+>(my-sexpr-bool? (SexprInt 5))
+#f
+>
+```
+
+```
+(sexpr->bool s)
+(sexpr->char s)
+(sexpr->double s)
+(sexpr->int s)
+(sexpr->list s)
+(sexpr->string s)
+(sexpr->symbol s)
+```
+
+The `sexpr->xxx` functions convert a given sexpr into the specified
+type, but will throw an exception if the given value isn't of
+the correct type:
+```
+(sexpr->int (SexprInt 5))
+5
+>(sexpr->int (SexprChar #\a))
+Fail: S-expression is not a SexprInt
+```
+
+As with the tests, you could implement these functions using a match,
+like this:
+```
+>(define (my-sexpr->int s)
+  (match s
+   ((SexprInt i) i)
+   (_ (fail "Cannot convert S-expression to int"))))
+(function my-sexpr->int)
+>(my-sexpr->int (SexprInt 5))
+5
+>(my-sexpr->int (SexprChar #\a))
+Fail: Cannot convert S-expression to int
+```
+
+```
+(list-convertible? s)
+(convert-sexpr-list s)
+```
+The `list-convertible?` function returns true if an SexprList contains
+all the same type of value. If an S-expression is list-convertible then
+you can use convert-sexpr-list to convert it into a list of whatever
+element type it contains. For example:
+```
+>(list-convertible? `(1 2 3 4 5))
+#t
+>(list-convertible? `(1 2 foo #t "bar"))
+#f
+>(convert-sexpr-list `(1 2 3 4 5))
+(1 2 3 4 5)
+>:t (convert-sexpr-list `(1 2 3 4 5))
+(1 2 3 4 5) : cons 'a
+>(convert-sexpr-list `(1 2 foo #t "bar"))
+Fail: S-expression list contains mixed types
+```
+
+### Arrays
+`(make-array item0 item1 item2 ... itemn)`
+
+Creates an array of the given items
+
+`(make-array-with-default size default-value)`
+
+Creates an array with the given size where each item is the default-value.
+
+`(make-array-with-function size func)`
+
+Creates an array with the given size, using the provided function
+to initialize the elements. The function is passed the index of the
+element it is to create.
+
+`(array-length arr)`
+
+Returns the length of the array.
+
+`(@ arr index)`
+
+Retrieves the value at the specified index of the array. It throws
+a FailException if the index is negative or >= the size.
+
+`(@<- arr index new-value)`
+
+Creates a copy of the specified array with the value at the specified
+index containing the new value (this does not update the array in-place).
+
+```
+(array->list arr)
+(list->array lst)
+```
+
+Converts between arrays and lists.
+
+```
+(array-map fn arr)
+(array-fold fn init arr)
+```
+
+The array equivalents of the map and fold functions for lists.
+
+Arrays are immutable, the function to set a value makes a copy of
+the original array with the updated value changed. It is possible
+to make the equivalent of a mutable array by making an array of
+references. For example:
+```
+>(define mutarray (make-array-with-function 10 (lambda (x) (Ref 0))))
+(make-array (Ref 0) (Ref 0) (Ref 0) (Ref 0) (Ref 0) (Ref 0) (Ref 0) (Ref 0) (Ref 0) (Ref 0))
+>(<- (@ mutarray 1) 999)
+(Ref 999)
+>(<- (@ mutarray 3) 123)
+(Ref 123)
+>(<- (@ mutarray 5) 42)
+(Ref 42)
+>mutarray
+(make-array (Ref 0) (Ref 999) (Ref 0) (Ref 123) (Ref 0) (Ref 42) (Ref 0) (Ref 0) (Ref 0) (Ref 0))
+```
+
 
 ### `print`
 ```
