@@ -127,9 +127,9 @@ public class Parser {
 
                 if (ch == '(') {
                     int quoteType = PLAIN_LIST;
-                    if (!listTypeStack.isEmpty()) {
-                        quoteType = listTypeStack.peek();
-                    }
+//                    if (!listTypeStack.isEmpty()) {
+//                        quoteType = listTypeStack.peek();
+//                    }
                     // A ( indicated the start of a subexpression
                     expressionStack.push(new ArrayList<>());
                     listTypeStack.push(quoteType);
