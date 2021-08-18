@@ -129,6 +129,7 @@ public class BuiltinInitializer {
         new SexprToString("sexpr->string"),
         new SexprToSymbol("sexpr->symbol"),
         new SexprToList("sexpr->list"),
+        new Gensym("gensym"),
 
         new Ref("!"),
         new SetRef("<-"),

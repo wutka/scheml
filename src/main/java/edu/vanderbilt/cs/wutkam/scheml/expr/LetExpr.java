@@ -169,7 +169,7 @@ public class LetExpr implements Expression {
         @Override
         public Expression toScheml() {
             List<Expression> scheml = new ArrayList<>();
-            scheml.add(new SymbolExpr(name));
+            scheml.add(new SymbolLiteralExpr(name));
             scheml.add(value.toScheml());
             return new ListExpr(scheml);
         }

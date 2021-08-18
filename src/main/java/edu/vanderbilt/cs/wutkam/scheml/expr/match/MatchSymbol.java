@@ -4,6 +4,7 @@ import edu.vanderbilt.cs.wutkam.scheml.LispException;
 import edu.vanderbilt.cs.wutkam.scheml.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheml.expr.StringExpr;
 import edu.vanderbilt.cs.wutkam.scheml.expr.SymbolExpr;
+import edu.vanderbilt.cs.wutkam.scheml.expr.SymbolLiteralExpr;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
 
@@ -38,7 +39,7 @@ public class MatchSymbol implements Match {
 
     @Override
     public Expression toScheml() {
-        return value;
+        return new SymbolLiteralExpr(value.value);
     }
 
     @Override
