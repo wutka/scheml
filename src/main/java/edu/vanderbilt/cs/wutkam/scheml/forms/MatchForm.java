@@ -90,7 +90,12 @@ public class MatchForm implements Form {
                 String symbol = ((SymbolExpr)listExpr.getElement(0)).value;
 
                 if (symbol.equals("quote")) {
-                    return quotedToMatchPatterns((ListExpr) listExpr.getElement(1));
+                    if (listExpr.getElement(1) instanceof ListExpr) {
+                        return quotedToMatchPatterns((ListExpr) listExpr.getElement(1));
+                    } else if (listExpr.getElement(1) instanceof SymbolExpr) {
+                        String varStr = ((SymbolExpr) listExpr.getElement(1)).value;
+                        return new MatchValueConstructor("SexprSymbol", Arrays.asList(new MatchVariable(varStr)));
+                    }
                 } else if (isSexprTypeName(symbol)) {
                     return parseSexprMatchVariable(listExpr);
                 } else {
@@ -119,10 +124,20 @@ public class MatchForm implements Form {
             }
 
             // If it isn't a value constructor, treat it as a list and generate the necessary cons matchers
-            Match curr = parseMatchPattern(new SymbolExpr("Nil"));
+            Match curr;
+            int start;
+
+            if (listExpr.size() < 2 || !(listExpr.getElement(listExpr.size()-2) instanceof SymbolExpr) ||
+                !((SymbolExpr)listExpr.getElement(listExpr.size()-2)).value.equals("&rest")) {
+                curr = parseMatchPattern(new SymbolExpr("Nil"));
+                start = listExpr.size()-1;
+            } else {
+                curr = parseMatchPattern(listExpr.getElement(listExpr.size()-1));
+                start = listExpr.size()-3;
+            }
 
             // Start from the end of the list because it is easier to build the list from the end
-            for (int i=listExpr.size()-1; i >= 0; i--) {
+            for (int i=start; i >= 0; i--) {
                 // recursively parse each match pattern
                 Match itemMatch = parseMatchPattern(listExpr.getElement(i));
                 curr = new MatchValueConstructor("Cons", Arrays.asList(itemMatch, curr));
@@ -162,6 +177,10 @@ public class MatchForm implements Form {
             AbstractTypeExpr abstractTypeExpr = (AbstractTypeExpr) expr;
             if (abstractTypeExpr.constructorName.equals("Nil")) {
                 return parseMatchPattern(new SymbolExpr("Nil"));
+            } else if (abstractTypeExpr.constructorName.equals("SexprSymbol")) {
+                SymbolLiteralExpr litSym = (SymbolLiteralExpr)abstractTypeExpr.values.get(0);
+                SymbolExpr sym = new SymbolExpr(litSym.value);
+                return new MatchValueConstructor("SexprSymbol", Arrays.asList(new MatchSymbol(sym)));
             }
             throw new LispException("Invalid expression in match pattern: "+ expr);
         } else {
@@ -171,8 +190,10 @@ public class MatchForm implements Form {
 
     protected Match quotedToMatchPatterns(ListExpr list) throws LispException {
         List<Match> matches = new ArrayList<>();
+        boolean lastIsSplice = false;
 
-        for (Expression expr: list.elementsFrom(0)) {
+        for (int i=0; i < list.size(); i++) {
+            Expression expr = list.getElement(i);
             if (expr instanceof ListExpr) {
                 ListExpr exprList = (ListExpr) expr;
                 if (exprList.size() > 0) {
@@ -186,6 +207,18 @@ public class MatchForm implements Form {
                                 continue;
                             } else if (unquoted instanceof SymbolExpr) {
                                 matches.add(new MatchVariable(((SymbolExpr)unquoted).value));
+                                continue;
+                            }
+                        } else if (symbol.equals("unquote-splice")) {
+                            Expression unquoted = exprList.getElement(1);
+                            if (unquoted instanceof ListExpr) {
+                                throw new LispException("Cannot match ,@ followed by a list");
+                            } else if (unquoted instanceof SymbolExpr) {
+                                if (i < list.size() - 1) {
+                                    throw new LispException("Can only match ,@ as the last item in a list");
+                                }
+                                matches.add(new MatchVariable(((SymbolExpr)unquoted).value));
+                                lastIsSplice = true;
                                 continue;
                             }
                         }
@@ -219,8 +252,18 @@ public class MatchForm implements Form {
                 throw new LispException("Can't match expression "+expr+" in S-expression");
             }
         }
-        Match curr = new MatchValueConstructor("Nil", new ArrayList<>());
-        for (int i=matches.size()-1; i >= 0; i--) {
+
+        Match curr;
+        int start;
+
+        if (!lastIsSplice) {
+            curr = new MatchValueConstructor("Nil", new ArrayList<>());
+            start = matches.size() - 1;
+        } else {
+            curr = matches.get(matches.size()-1);
+            start = matches.size() - 2;
+        }
+        for (int i=start; i >= 0; i--) {
             Match match = matches.get(i);
             curr = new MatchValueConstructor("Cons", Arrays.asList(match, curr));
         }

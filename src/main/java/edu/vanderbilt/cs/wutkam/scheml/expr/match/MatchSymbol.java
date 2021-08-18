@@ -20,7 +20,7 @@ public class MatchSymbol implements Match {
 
     @Override
     public boolean matches(Expression expression) {
-        return ((SymbolExpr)expression).equals(value);
+        return (expression).equals(value);
     }
 
     @Override

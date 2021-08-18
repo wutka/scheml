@@ -1,5 +1,6 @@
 package edu.vanderbilt.cs.wutkam.scheml.expr.match;
 
+import edu.vanderbilt.cs.wutkam.scheml.expr.SymbolExpr;
 import edu.vanderbilt.cs.wutkam.scheml.expr.ValueConstructorExpr;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheml.type.AbstractTypeDecl;
@@ -186,7 +187,7 @@ public class ExhaustivenessChecker {
                 return null;
             } else if ((matchType instanceof MatchBool) || (matchType instanceof MatchChar) ||
                        (matchType instanceof MatchDouble) || (matchType instanceof MatchInt) ||
-                       (matchType instanceof MatchString)) {
+                       (matchType instanceof MatchString) || (matchType instanceof MatchSymbol)) {
 
                 // q is a wildcard, being matched against a simple type. Other than bool, which in other languages
                 // is implemented as a constructed type, we assume that the match expression does not completely
@@ -425,6 +426,25 @@ public class ExhaustivenessChecker {
             // In the unlikely case that all the tryStrings are matched, just append an A
             // to the highest string value
             return new MatchString(strings.get(strings.size()-1)+"A");
+        } else if (matchType instanceof MatchSymbol) {
+            // Turn the list of MatchString values into a list of strings
+            List<String> strings = values.stream().filter(m -> m instanceof MatchSymbol).
+                    map(ms -> ((MatchSymbol) ms).value.value).collect(Collectors.toList());
+
+            // Sort the values
+            Collections.sort(strings);
+
+            // If there are no strings, return the first of the pre-configured tryStrings
+            if (strings.size() == 0) return new MatchSymbol(new SymbolExpr(tryStrings[0]));
+
+            // Otherwise, see if there are any tryStrings that aren't in the list of values
+            for (int i=0; i < tryStrings.length; i++) {
+                if (!(strings.contains(tryStrings[i]))) return new MatchSymbol(new SymbolExpr(tryStrings[i]));
+            }
+
+            // In the unlikely case that all the tryStrings are matched, just append an A
+            // to the highest string value
+            return new MatchSymbol(new SymbolExpr(strings.get(strings.size()-1)+"A"));
         }
         return null;
 
