@@ -652,9 +652,31 @@ also allows you to use the more familiar list notation:
    ((1 2 3) (printf "it was (1 2 3)"))
    (_ (printf "it was something else")))
 ```
-If you are matching against a list, just know that if you don't include _ as an option,
-you will get a warning about the match being incomplete because lists can essentially be
-any length, so no matter how long your match is, it will always fall one short.
+
+Sometimes you need to match against the rest of the list without
+knowing how long the list is. For that, you can use `&rest var` at the
+end of the match list, which will cause the `var` variable to
+be bound to the rest of the list, whether that is an empty list or
+100 elements. For example:
+```
+>(match (list 1 2 3)
+   (nil (printf "empty list\n"))
+   ((a &rest foo) (printf "list with head %s and tail %s\n" a foo)))
+list with head 1 and tail (2 3)
+>
+```
+
+The `&rest` keyword is the only way using the list notation to avoid
+an non-exhaustive pattern warning. Note, however, that you can make
+use of the Cons constructor to achieve the same result. For example,
+here is a version of the above match using Cons instead of the list pattern:
+```
+>(match (list 1 2 3)
+   (nil (printf "empty list\n"))
+   ((Cons a foo) (printf "list with head %s and tail %s\n" a foo)))
+list with head 1 and tail (2 3)
+>
+```
 
 Finally, when deconstructing an abstract type, the match pattern can include nested patterns. Here's another
 way to match the list (1 2 3)
@@ -700,6 +722,18 @@ The variable `l` will refer to a list of sexpr, not a list of numbers.
 
 You can also use the S-expression constructors with the `,()` form, such as
 `,(SexprInt f1)`.
+
+Instead of using the `&rest` keyword in an S-expression match, you can
+use the `,@` notation. Normally you use `,@` to splice a value into
+a list, when used in a matching pattern, it is just the reverse, it
+takes the rest of the list and binds it with the value. For example:
+```
+>(match `(foo bar (1 2 3) baz quux)
+   (`(,f ,b ,@z) (printf "f=%s  b=%s  z=%s\n" f b z)))
+Pattern match is not exhaustive, an unmatched pattern is (SexprDouble _)
+f=foo  b=bar  z=((1 2 3) baz quux)
+>
+```
 
 When matching against an S-expression value that might be something other than
 a list, you can use either the shorthand names for the types, or the value
@@ -1141,6 +1175,12 @@ element type it contains. For example:
 >(convert-sexpr-list `(1 2 foo #t "bar"))
 Fail: S-expression list contains mixed types
 ```
+
+### `(gensym)`
+Sometimes when creating a macro you need to generate a symbol that
+doesn't clash with other symbols. The `(gensym)` function will
+return a unique symbol (as long as you make sure your identifiers
+don't start with $$$GEN$$$).
 
 ### Arrays
 `(make-array item0 item1 item2 ... itemn)`
