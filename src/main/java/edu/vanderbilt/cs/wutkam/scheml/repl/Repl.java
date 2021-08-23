@@ -3,12 +3,15 @@ package edu.vanderbilt.cs.wutkam.scheml.repl;
 import edu.vanderbilt.cs.wutkam.scheml.LispException;
 import edu.vanderbilt.cs.wutkam.scheml.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheml.expr.ListExpr;
+import edu.vanderbilt.cs.wutkam.scheml.expr.ValueConstructorExpr;
 import edu.vanderbilt.cs.wutkam.scheml.expr.VoidExpr;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.FailException;
 import edu.vanderbilt.cs.wutkam.scheml.forms.FormExpander;
 import edu.vanderbilt.cs.wutkam.scheml.parser.Parser;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.SchemlRuntime;
+import edu.vanderbilt.cs.wutkam.scheml.type.AbstractType;
+import edu.vanderbilt.cs.wutkam.scheml.type.AbstractTypeDecl;
 import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheml.type.UnifyException;
 
@@ -107,6 +110,52 @@ public class Repl {
                     // A :t means display the type of the expression, parse the rest
                     exprs = Parser.parse(line.substring(3), false);
                     displayType = true;
+                } else if (line.startsWith(":adt")) {
+                    if (line.equals(":adt?")) {
+                        String[] typeNames = SchemlRuntime.getTypeRegistry().getTypeNames();
+                        for (String typeName: typeNames) {
+                            System.out.print(typeName);
+                            System.out.print(" ");
+                        }
+                        System.out.println();
+                        continue;
+                    } else if (line.startsWith(":adt ")) {
+                        String typeName = line.substring(5);
+                        AbstractTypeDecl decl = SchemlRuntime.getTypeRegistry().lookup(typeName);
+                        if (decl == null) {
+                            System.out.println("Unknown type name "+typeName);
+                            continue;
+                        }
+                        System.out.print("(type "+decl.typeName+" (");
+                        boolean first = true;
+                        for (TypeRef typeRef: decl.parametricTypes) {
+                            if (!first) System.out.print(" ");
+                            first = false;
+                            System.out.print(typeRef.getType());
+                        }
+                        System.out.println(")");
+                        first = true;
+                        for (ValueConstructorExpr valueConstructor: decl.valueConstructors.values()) {
+                            if (!first) System.out.println();
+                            first = false;
+                            System.out.print("  (");
+                            System.out.print(valueConstructor.name);
+                            for (TypeRef typeRef: valueConstructor.paramTypes) {
+                                System.out.print(" ");
+                                if (typeRef.getType() instanceof AbstractType) {
+                                    System.out.print("("+typeRef.getType()+")");
+                                } else {
+                                    System.out.print(typeRef.getType());
+                                }
+                            }
+                            System.out.print(")");
+                        }
+                        System.out.println(")");
+                        continue;
+                    } else {
+                        System.out.println(":adt format is either :adt? or :adt typeName");
+                        continue;
+                    }
                 } else {
                     // Otherwise just parse the line, but if the line is incomplete (as when pasting code
                     // into the repl), let the parser prompt for more data, but right now just make the

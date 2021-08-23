@@ -5,6 +5,7 @@ import edu.vanderbilt.cs.wutkam.scheml.type.builtin.ConsTypeDecl;
 import edu.vanderbilt.cs.wutkam.scheml.type.builtin.RefTypeDecl;
 import edu.vanderbilt.cs.wutkam.scheml.type.builtin.SexprTypeDecl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,5 +48,10 @@ public class TypeRegistry {
             }
         }
         return null;
+    }
+
+    public String[] getTypeNames() {
+        ArrayList<String> typeNames = new ArrayList<>(typeMap.keySet());
+        return typeNames.toArray(new String[typeNames.size()]);
     }
 }

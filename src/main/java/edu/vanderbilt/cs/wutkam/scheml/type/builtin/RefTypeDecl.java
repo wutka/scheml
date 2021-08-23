@@ -82,10 +82,10 @@ public class RefTypeDecl extends AbstractTypeDecl implements CustomToScheml {
     }
 
     protected static Map<String, ValueConstructorExpr> createConstructorMap(RefTypeDecl decl) {
-        ValueConstructorExpr refConstructor = new ValueConstructorExpr(refTypeName, "Ref",
-                Arrays.asList(parametricType), new ArrayList<>());
-
         TypeRef refTargetType = new TypeRef();
+        ValueConstructorExpr refConstructor = new ValueConstructorExpr(refTypeName, "Ref",
+                Arrays.asList(parametricType), Arrays.asList(parametricType));
+
         TypeRef abstractTypeRef = new TypeRef(new AbstractType("ref", Arrays.asList(refTargetType)));
 
         Map<String, ValueConstructorExpr> refMap = new HashMap<>();
