@@ -1,5 +1,11 @@
 package edu.vanderbilt.cs.wutkam.scheml.type;
 
+import edu.vanderbilt.cs.wutkam.scheml.expr.AbstractTypeExpr;
+import edu.vanderbilt.cs.wutkam.scheml.expr.StringExpr;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /** An empty type is one whose type is unknown, but which has a unique identifier so that two
  * instances of EmptyType with the same unique identifier should ultimately have the same type
  * whenever it is discovered what that type should be
@@ -29,5 +35,11 @@ public class EmptyType extends Type {
         if (!(otherObj instanceof EmptyType)) return false;
         EmptyType other = (EmptyType) otherObj;
         return id.equals(other.id);
+    }
+
+    @Override
+    public AbstractTypeExpr toTypeADT(TypeSymbolGenerator gen) {
+        return new AbstractTypeExpr("type-val", "AnyType",
+                Arrays.asList(new StringExpr(gen.generateSymbol(id))));
     }
 }

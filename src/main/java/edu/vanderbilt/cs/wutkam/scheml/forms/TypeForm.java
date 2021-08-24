@@ -43,6 +43,11 @@ public class TypeForm implements Form {
             throw new LispException("Type name must be a symbol");
         }
 
+        Expression maybeParametric = aList.getElement(nextPos);
+        if ((maybeParametric instanceof ListExpr) &&
+                ((ListExpr)maybeParametric).size() == 0) {
+            nextPos++;
+        }
         AbstractTypeDecl abstractTypeDecl;
 
         // Look at the expression just after the type name

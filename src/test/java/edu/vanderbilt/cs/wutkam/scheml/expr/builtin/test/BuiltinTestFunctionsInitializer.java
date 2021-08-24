@@ -14,7 +14,6 @@ public class BuiltinTestFunctionsInitializer {
         new AssertFalse("assert-false"),
         new AssertWarning("assert-warning"),
         new AssertNoWarning("assert-no-warning"),
-        new TypeOf("type-of"),
     };
 
 

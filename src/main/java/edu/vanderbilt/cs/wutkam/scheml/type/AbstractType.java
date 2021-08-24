@@ -1,8 +1,12 @@
 package edu.vanderbilt.cs.wutkam.scheml.type;
 
 import edu.vanderbilt.cs.wutkam.scheml.LispException;
+import edu.vanderbilt.cs.wutkam.scheml.expr.AbstractTypeExpr;
+import edu.vanderbilt.cs.wutkam.scheml.expr.StringExpr;
+import edu.vanderbilt.cs.wutkam.scheml.type.builtin.ConsTypeDecl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -79,4 +83,16 @@ public class AbstractType extends Type {
         }
         return builder.toString();
     }
+
+    @Override
+    public AbstractTypeExpr toTypeADT(TypeSymbolGenerator gen) {
+        AbstractTypeExpr curr = ConsTypeDecl.newNil();
+        for (int i=typeParameters.size()-1; i >= 0; i--) {
+            TypeRef typeParam = typeParameters.get(i);
+            curr = ConsTypeDecl.newCons(typeParam.getType().toTypeADT(gen), curr);
+        }
+        return new AbstractTypeExpr("type-val", "AbstractType",
+                Arrays.asList(new StringExpr(typeName), curr));
+    }
+
 }

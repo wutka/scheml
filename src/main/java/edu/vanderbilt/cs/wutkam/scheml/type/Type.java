@@ -1,6 +1,7 @@
 package edu.vanderbilt.cs.wutkam.scheml.type;
 
 import edu.vanderbilt.cs.wutkam.scheml.LispException;
+import edu.vanderbilt.cs.wutkam.scheml.expr.AbstractTypeExpr;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.SchemlRuntime;
 
 import java.io.PushbackReader;
@@ -31,6 +32,8 @@ public abstract class Type {
 
     public abstract String toSignatureString(TypeSymbolGenerator gen);
 
+    public abstract AbstractTypeExpr toTypeADT(TypeSymbolGenerator gen);
+
     public static Type parseTypeSignature(String signature) throws LispException {
         return parseTypeSignature(signature, new HashMap<>());
     }
@@ -57,7 +60,9 @@ public abstract class Type {
                     }
                     // a - must be followed by >  (i.e. -> )
                     if (ch2 != '>') {
-                        throw new LispException("Expected > after - in signature "+signature);
+                        currSymbol.append(ch);
+                        pushback.unread(ch2);
+                        continue;
                     }
 
                     // Once we hit a -> we are done parsing the symbol we were parsing,

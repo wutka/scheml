@@ -81,6 +81,8 @@ public class BuiltinInitializer {
         new ListToString("list->string"),
         new StringToList("string->list"),
         new Equals("equals?"),
+        new TypeOf("type-of"),
+
         new Cons("cons"),
         new ToList("->list"),
         new Range("range"),
@@ -130,6 +132,8 @@ public class BuiltinInitializer {
         new SexprToSymbol("sexpr->symbol"),
         new SexprToList("sexpr->list"),
         new Gensym("gensym"),
+        new ParseFile("parse-file"),
+        new ParseString("parse-string"),
 
         new Ref("!"),
         new SetRef("<-"),

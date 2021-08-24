@@ -64,14 +64,14 @@ public class Macro {
         if (lastResult instanceof AbstractTypeExpr) {
             AbstractTypeExpr abstractType = (AbstractTypeExpr) lastResult;
             if (abstractType.typeName.equals(SexprTypeDecl.sexprTypeName)) {
-                return SexprTypeDecl.toExpression(abstractType);
+                return SexprTypeDecl.toExpression(abstractType, true);
             } else if (abstractType.typeName.equals(ConsTypeDecl.consTypeName)) {
                if (abstractType.constructorName.equals("Cons"))  {
                    Expression first = abstractType.values.get(0);
                    if (first instanceof AbstractTypeExpr) {
                        AbstractTypeExpr contained = (AbstractTypeExpr) first;
                        if (contained.typeName.equals(SexprTypeDecl.sexprTypeName)) {
-                           return SexprTypeDecl.toList(abstractType);
+                           return SexprTypeDecl.toList(abstractType, true);
                        }
                    }
                } else {

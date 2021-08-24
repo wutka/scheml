@@ -33,6 +33,7 @@ public class SchemlRuntime {
 
     /** Initialize the builtin functions */
     static {
+        typeRegistry.initializeBuiltinTypes();
         BuiltinInitializer.initializeBuiltins(topLevelEnvironment, topLevelUnifyEnvironment);
     }
 
@@ -81,6 +82,7 @@ public class SchemlRuntime {
         topLevelEnvironment = new Environment<>();
         topLevelUnifyEnvironment = new Environment<>();
         typeRegistry = new TypeRegistry();
+        typeRegistry.initializeBuiltinTypes();
         macroTable = new HashMap<>();
         warnings = new ArrayList<>();
         profiler = new Profiler();

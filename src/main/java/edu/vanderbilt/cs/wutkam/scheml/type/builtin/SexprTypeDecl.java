@@ -73,7 +73,7 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
         }
     }
 
-    /** Renders this abstract type as a simple list */
+    /** Renders this abstract type as a simple value */
     public String customToString(AbstractTypeExpr expr) {
         return expr.values.get(0).toString();
     }
@@ -137,17 +137,23 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
     }
      */
 
-    public static Expression toExpression(AbstractTypeExpr abstractExpr)
+    public static Expression toExpression(AbstractTypeExpr abstractExpr, boolean deliteralizeSymbols)
             throws LispException {
         if (abstractExpr.constructorName.equals("SexprBool") ||
-            abstractExpr.constructorName.equals("SexprInt") ||
-            abstractExpr.constructorName.equals("SexprChar") ||
-            abstractExpr.constructorName.equals("SexprDouble") ||
-            abstractExpr.constructorName.equals("SexprString") ||
-            abstractExpr.constructorName.equals("SexprSymbol")) {
+                abstractExpr.constructorName.equals("SexprInt") ||
+                abstractExpr.constructorName.equals("SexprChar") ||
+                abstractExpr.constructorName.equals("SexprDouble") ||
+                abstractExpr.constructorName.equals("SexprString")) {
             return abstractExpr.values.get(0);
+        } else if (abstractExpr.constructorName.equals("SexprSymbol")) {
+            Expression contained = abstractExpr.values.get(0);
+            if (contained instanceof SymbolLiteralExpr) {
+                return new SymbolExpr(((SymbolLiteralExpr)contained).value);
+            } else {
+                return contained;
+            }
         } else if (abstractExpr.constructorName.equals("SexprList")) {
-            return toList((AbstractTypeExpr) abstractExpr.values.get(0));
+            return toList((AbstractTypeExpr) abstractExpr.values.get(0), deliteralizeSymbols);
         } else if (abstractExpr.constructorName.equals("Nil")) {
             return new ListExpr(new ArrayList<>());
         } else if (abstractExpr.constructorName.equals("Cons")) {
@@ -155,9 +161,9 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
             while (abstractExpr.constructorName.equals("Cons")) {
                 Expression value = abstractExpr.values.get(0);
                 if (isSexpr(value)) {
-                    elements.add(toExpression((AbstractTypeExpr) value));
+                    elements.add(toExpression((AbstractTypeExpr) value, deliteralizeSymbols));
                 } else if (ConsTypeDecl.isList(value)) {
-                    elements.add(toList((AbstractTypeExpr) value));
+                    elements.add(toList((AbstractTypeExpr) value, deliteralizeSymbols));
                 } else {
                     elements.add(value);
                 }
@@ -185,10 +191,12 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
     }
 
 
-    public static ListExpr toList(AbstractTypeExpr abstractExpr) throws LispException {
+    public static ListExpr toList(AbstractTypeExpr abstractExpr, boolean deliteralizeSymbols)
+            throws LispException {
         List<Expression> exprList = new ArrayList<>();
         while (abstractExpr.constructorName.equals("Cons")) {
-            exprList.add(toExpression((AbstractTypeExpr) abstractExpr.values.get(0)));
+            exprList.add(toExpression((AbstractTypeExpr) abstractExpr.values.get(0),
+                    deliteralizeSymbols));
             abstractExpr = (AbstractTypeExpr) abstractExpr.values.get(1);
         }
         return new ListExpr(exprList);
@@ -207,7 +215,8 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
         } else if (expr instanceof StringExpr) {
             return new AbstractTypeExpr(sexprTypeName, "SexprString", Arrays.asList(expr));
         } else if (expr instanceof SymbolExpr) {
-            return new AbstractTypeExpr(sexprTypeName, "SexprSymbol", Arrays.asList(expr));
+            return new AbstractTypeExpr(sexprTypeName, "SexprSymbol",
+                    Arrays.asList(new SymbolLiteralExpr(((SymbolExpr)expr).value)));
         } else if (expr instanceof SymbolLiteralExpr) {
             return new AbstractTypeExpr(sexprTypeName, "SexprSymbol",
                     Arrays.asList(expr));

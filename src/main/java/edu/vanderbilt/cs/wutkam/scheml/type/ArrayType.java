@@ -1,8 +1,10 @@
 package edu.vanderbilt.cs.wutkam.scheml.type;
 
 import edu.vanderbilt.cs.wutkam.scheml.LispException;
+import edu.vanderbilt.cs.wutkam.scheml.expr.AbstractTypeExpr;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +36,12 @@ public class ArrayType extends Type {
             throw UnifyException.addCause("Unable to unify " + this + " with " +
                     other + " because type parameters don't match", exc);
         }
+    }
+
+    @Override
+    public AbstractTypeExpr toTypeADT(TypeSymbolGenerator gen) {
+        return new AbstractTypeExpr("type-val", "ArrayType",
+                Arrays.asList(typeParameter.getType().toTypeADT(gen)));
     }
 
     @Override

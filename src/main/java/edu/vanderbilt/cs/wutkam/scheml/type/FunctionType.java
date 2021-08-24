@@ -1,8 +1,12 @@
 package edu.vanderbilt.cs.wutkam.scheml.type;
 
 import edu.vanderbilt.cs.wutkam.scheml.LispException;
+import edu.vanderbilt.cs.wutkam.scheml.expr.AbstractTypeExpr;
 import edu.vanderbilt.cs.wutkam.scheml.expr.FunctionExpr;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /** Hold the type of a function, which consists of an arity, the types of each parameter and a return type */
@@ -101,5 +105,30 @@ public class FunctionType extends Type {
         }
 
         return builder.toString();
+    }
+
+    @Override
+    public AbstractTypeExpr toTypeADT(TypeSymbolGenerator gen) {
+        if (paramTypes.length == 0) {
+            return new AbstractTypeExpr("type-val", "FunctionType",
+                    Arrays.asList(VoidType.TYPE.toTypeADT(gen),
+                            returnType.getType().toTypeADT(gen)));
+        } else {
+            List<AbstractTypeExpr> types = new ArrayList<>();
+            for (int i=0; i < paramTypes.length; i++) {
+                types.add(paramTypes[i].getType().toTypeADT(gen));
+            }
+            AbstractTypeExpr returnTypeVal = returnType.getType().toTypeADT(gen);
+
+            AbstractTypeExpr curr =
+                    new AbstractTypeExpr("type-val", "FunctionType",
+                     Arrays.asList(types.get(types.size()-1), returnTypeVal));
+
+            for (int i=paramTypes.length-2; i >= 0; i--) {
+                curr = new AbstractTypeExpr("type-val", "FunctionType",
+                        Arrays.asList(types.get(i), curr));
+            }
+            return curr;
+        }
     }
 }
