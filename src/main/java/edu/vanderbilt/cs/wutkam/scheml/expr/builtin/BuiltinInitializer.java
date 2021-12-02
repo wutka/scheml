@@ -7,6 +7,7 @@ import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.list.*;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.ref.Ref;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.ref.SetRef;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.sexpr.*;
+import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.string.SplitWithLimit;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.Environment;
 import edu.vanderbilt.cs.wutkam.scheml.type.FunctionType;
 import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
@@ -75,8 +76,12 @@ public class BuiltinInitializer {
         new BuiltinBinaryFunctionExpr<>("<<", "int -> int -> int", (Long a, Long b) -> a << b),
         new BuiltinBinaryFunctionExpr<>(">>", "int -> int -> int", (Long a, Long b) -> a >> b),
 
-        new BuiltinUnaryFunctionExpr<>("->string", "'a -> string", (Object a) -> a.toString()),
+        new BuiltinUnaryFunctionExpr<>("->string", "'a -> string", Object::toString),
         new BuiltinUnaryFunctionExpr<>("id", "'a -> 'a", (Object a) -> a),
+        new BuiltinUnaryFunctionExpr<>("string->int", "string -> int",
+                (String a) -> Long.parseLong(a)),
+        new BuiltinUnaryFunctionExpr<>("string->double", "string -> double", (String a) ->
+                Double.parseDouble(a)),
 
         new ListToString("list->string"),
         new StringToList("string->list"),
@@ -147,6 +152,9 @@ public class BuiltinInitializer {
         new ListToArray("list->array"),
         new MakeArrayWithDefault("make-array-with-default"),
         new MakeArrayWithFunction("make-array-with-function"),
+
+        new Split("split"),
+        new SplitWithLimit("split-with-limit"),
     };
 
     public static void initializeBuiltins(Environment<Expression> exprEnv, Environment<TypeRef> typeEnv) {
