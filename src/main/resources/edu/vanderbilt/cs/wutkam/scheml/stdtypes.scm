@@ -6,3 +6,4 @@
   (AnyType string))
 
 (type pair ('a 'b) (Pair 'a 'b))
+(type option ('a) Nothing (Just 'a))

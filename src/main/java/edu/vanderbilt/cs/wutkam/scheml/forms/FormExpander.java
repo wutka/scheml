@@ -37,6 +37,7 @@ public class FormExpander {
         specialForms.put("printf", new PrintfForm());
         specialForms.put("progn", new PrognForm());
         specialForms.put("quote", new QuoteForm());
+        specialForms.put("regex-bind", new RegexBindForm());
         specialForms.put("sprintf", new PrintfForm());
         specialForms.put(":=", new AssignForm());
         specialForms.put("type", new TypeForm());
