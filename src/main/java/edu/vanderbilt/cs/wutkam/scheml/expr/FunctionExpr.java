@@ -48,7 +48,12 @@ public class FunctionExpr implements Expression, Applicable {
             throw new RuntimeException("Signature "+signature+" is not a function");
         }
         FunctionType functionType = (FunctionType) type;
-        this.arity = functionType.arity;
+        int funcArity = functionType.arity;
+        if ((functionType.paramTypes.length == 1) &&
+                (functionType.paramTypes[0].getType().equals(VoidType.TYPE))) {
+            funcArity = 0;
+        }
+        this.arity = funcArity;
         this.parameterList = null;
         this.targetExpressions = null;
         this.paramTypes = functionType.paramTypes;
