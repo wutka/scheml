@@ -241,11 +241,7 @@ public abstract class Type {
                 else if (ch == '(') {
                     TypeSignatureExpr subExpr = parseSignature(pushback, signature, symbolNameMap);
 
-                    if (funcSignature != null) {
-                        funcSignature.signatures.add(subExpr);
-                    } else {
-                        currExprList.add(subExpr);
-                    }
+                    currExprList.add(subExpr);
                 } else if (ch == ')') {
                     if (currSymbol.length() > 0) {
                         if (funcSignature != null) {
@@ -277,19 +273,16 @@ public abstract class Type {
             }
             if (currSymbol.length() > 0) {
                 currExprList.add(new SignatureSymbol(currSymbol.toString().trim()));
-                SignatureExprList exprList = new SignatureExprList(currExprList);
-                if (funcSignature != null) {
-                    funcSignature.signatures.add(exprList);
-                    return funcSignature;
-                } else {
-                    return exprList;
-                }
             }
 
+            SignatureExprList sigList = new SignatureExprList(currExprList);
+
             if (funcSignature != null) {
+                if (sigList.exprs.size() > 0) {
+                    funcSignature.signatures.add(sigList);
+                }
                 return funcSignature;
             } else if (currExprList.size() > 0) {
-                SignatureExprList sigList = new SignatureExprList(currExprList);
                 return sigList;
             } else {
                 throw new LispException("Empty symbol list in signature: "+signature);
