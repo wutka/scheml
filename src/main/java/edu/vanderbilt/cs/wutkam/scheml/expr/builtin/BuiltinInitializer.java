@@ -109,6 +109,7 @@ public class BuiltinInitializer {
         new Length("length"),
         new Nth("nth"),
         new Map("map"),
+        new ParallelMap("pmap"),
         new MapOptional("map-optional"),
         new Reverse("reverse"),
         new Append("append"),

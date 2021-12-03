@@ -18,10 +18,10 @@ public class ClosureExpr extends FunctionExpr {
     @Override
     public Expression evaluate(Environment<Expression> env, boolean inTailPosition) throws LispException {
         // Make sure the closure only captures the environment in which it is first evaluated
-        this.closureEnv = new Environment<>();
-        this.closureEnv.copyCompressed(env);
+        Environment<Expression> closureEnv = new Environment<>();
+        closureEnv.copyCompressed(env);
 
-        return new FunctionExpr(this);
+        return new FunctionExpr(this, closureEnv);
     }
 
     @Override

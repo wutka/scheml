@@ -430,3 +430,13 @@
     (:= results (map solve-sudoku-line lines))
     ;;; Write the results to another file
     (write-lines out-filename (map sudoku->line results))))
+
+(define (solve-sudoku-file-parallel filename out-filename)
+  (progn
+    ;;; Read the incoming list of sudokus
+    (:= lines (read-lines filename))
+    (when *sudoku-display* (printf "%c[2J" (int->char 27)))
+    ;;; Run the solver on each one
+    (:= results (pmap solve-sudoku-line lines))
+    ;;; Write the results to another file
+    (write-lines out-filename (map sudoku->line results))))

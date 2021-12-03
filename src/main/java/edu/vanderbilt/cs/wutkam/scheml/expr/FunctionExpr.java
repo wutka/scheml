@@ -79,6 +79,16 @@ public class FunctionExpr implements Expression, Applicable {
         this.closureEnv = other.closureEnv;
     }
 
+    public FunctionExpr(FunctionExpr other, Environment<Expression> closureEnv) {
+        this.name = other.name;
+        this.arity = other.arity;
+        this.parameterList = other.parameterList;
+        this.targetExpressions = other.targetExpressions;
+        this.paramTypes = other.paramTypes;
+        this.returnType = other.returnType;
+        this.closureEnv = closureEnv;
+    }
+
     @Override
     public String toString() {
         if (name == null) {
