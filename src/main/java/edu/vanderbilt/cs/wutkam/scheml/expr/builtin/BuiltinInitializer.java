@@ -18,7 +18,6 @@ import edu.vanderbilt.cs.wutkam.scheml.type.VoidType;
  */
 public class BuiltinInitializer {
     protected static BuiltinFunctionExpr[] builtins = new BuiltinFunctionExpr[] {
-            new DictMap("dict-map"),
         new BuiltinBinaryFunctionExpr<>("+", "int -> int -> int", (Long a, Long b) -> a+b),
         new BuiltinBinaryFunctionExpr<>("-", "int -> int -> int", (Long a, Long b) -> a-b),
         new BuiltinBinaryFunctionExpr<>("*", "int -> int -> int", (Long a, Long b) -> a*b),
@@ -165,6 +164,9 @@ public class BuiltinInitializer {
         new DictLen("dict-len"),
         new DictLookup("dict-lookup"),
         new DictLookup("lookup"),
+        new DictHasKey("dict-has-key?"),
+        new DictHasKey("has-key?"),
+        new DictMap("dict-map"),
         new DictToList("dict->list"),
         new ListToDict("list->dict"),
 

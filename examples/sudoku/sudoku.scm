@@ -244,7 +244,7 @@
                    (progn
                       (when *sudoku-display*
                         (printf "%c[H" (int->char 27))
-                        (print-sudoku sud))
+                        (print-sudoku curr-sud))
                       curr-sud)
                    (let* ((orig-sq (nth n sud))
                           (reduced-sq (reduce-square curr-sud orig-sq n)))
