@@ -4,3 +4,5 @@
   (FunctionType type-val type-val)
   (ArrayType type-val)
   (AnyType string))
+
+(type pair ('a 'b) (Pair 'a 'b))

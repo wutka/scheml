@@ -9,7 +9,7 @@ import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.BuiltinFunctionExpr;
 
 import java.util.Arrays;
 
-/** Maps a function over an arroy and returns a new array */
+/** Maps a function over an array and returns a new array */
 public class ArrayMap extends BuiltinFunctionExpr {
     public ArrayMap(String name) {
         super(name, "('a -> 'b) -> array 'a -> array 'b");

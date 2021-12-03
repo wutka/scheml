@@ -3,6 +3,7 @@ package edu.vanderbilt.cs.wutkam.scheml.expr.builtin;
 import edu.vanderbilt.cs.wutkam.scheml.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheml.expr.VoidExpr;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.array.*;
+import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.dict.*;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.list.*;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.ref.Ref;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.ref.SetRef;
@@ -17,6 +18,7 @@ import edu.vanderbilt.cs.wutkam.scheml.type.VoidType;
  */
 public class BuiltinInitializer {
     protected static BuiltinFunctionExpr[] builtins = new BuiltinFunctionExpr[] {
+            new DictMap("dict-map"),
         new BuiltinBinaryFunctionExpr<>("+", "int -> int -> int", (Long a, Long b) -> a+b),
         new BuiltinBinaryFunctionExpr<>("-", "int -> int -> int", (Long a, Long b) -> a-b),
         new BuiltinBinaryFunctionExpr<>("*", "int -> int -> int", (Long a, Long b) -> a*b),
@@ -120,6 +122,8 @@ public class BuiltinInitializer {
         new ReplaceNth("replace-nth"),
         new Filter("filter"),
 
+        new Fst("fst"),
+        new Snd("snd"),
         new ListConvertible("list-convertible?"),
         new ConvertSexprToList("convert-sexpr-list"),
         new IsSexprBool("sexpr-bool?"),
@@ -152,6 +156,17 @@ public class BuiltinInitializer {
         new ListToArray("list->array"),
         new MakeArrayWithDefault("make-array-with-default"),
         new MakeArrayWithFunction("make-array-with-function"),
+
+        new DictFold("dict-fold"),
+        new DictFoldKeys("dict-fold-keys"),
+        new DictFoldValues("dict-fold-values"),
+        new DictKeysToList("dict-keys"),
+        new DictValuesToList("dict-values"),
+        new DictLen("dict-len"),
+        new DictLookup("dict-lookup"),
+        new DictLookup("lookup"),
+        new DictToList("dict->list"),
+        new ListToDict("list->dict"),
 
         new Split("split"),
         new SplitWithLimit("split-with-limit"),

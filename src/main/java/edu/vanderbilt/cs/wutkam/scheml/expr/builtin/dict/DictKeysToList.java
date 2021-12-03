@@ -1,24 +1,27 @@
-package edu.vanderbilt.cs.wutkam.scheml.expr.builtin.array;
+package edu.vanderbilt.cs.wutkam.scheml.expr.builtin.dict;
 
 import edu.vanderbilt.cs.wutkam.scheml.LispException;
 import edu.vanderbilt.cs.wutkam.scheml.expr.AbstractTypeExpr;
-import edu.vanderbilt.cs.wutkam.scheml.expr.ArrayExpr;
+import edu.vanderbilt.cs.wutkam.scheml.expr.DictExpr;
 import edu.vanderbilt.cs.wutkam.scheml.expr.Expression;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.BuiltinFunctionExpr;
 import edu.vanderbilt.cs.wutkam.scheml.type.builtin.ConsTypeDecl;
 
-/** Converts an array to a list */
-public class ArrayToList extends BuiltinFunctionExpr {
-    public ArrayToList(String name) {
-        super(name, "array 'a -> cons 'a");
+import java.util.Arrays;
+import java.util.Map;
+
+/** Converts a dict to a list of keys */
+public class DictKeysToList extends BuiltinFunctionExpr {
+    public DictKeysToList(String name) {
+        super(name, "dict 'a 'b -> cons 'a");
     }
 
     @Override
     public Expression executeBuiltin(Expression[] args) throws LispException {
-        ArrayExpr arr = (ArrayExpr) args[0];
+        DictExpr dict = (DictExpr) args[0];
         AbstractTypeExpr curr = ConsTypeDecl.newNil();
-        for (int i=arr.values.length-1; i >= 0; i--) {
-            curr = ConsTypeDecl.newCons(arr.values[i], curr);
+        for (Expression key: dict.dict.keySet()) {
+             curr = ConsTypeDecl.newCons(key, curr);
         }
         return curr;
     }
