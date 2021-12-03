@@ -47,12 +47,16 @@ public class RegexBindExpr implements Expression {
             StringExpr groupValueExpr = new StringExpr(groupValue);
             RegexBindVariable var = vars.get(i);
             if (var.processingFunc != null) {
-                Applicable f = (Applicable) var.processingFunc;
+                Applicable f = (Applicable) var.processingFunc.evaluate(env, false);
                 List<Expression> args = Arrays.asList(groupValueExpr);
                 Expression fResult = f.apply(args, env);
-                bindEnv.define(var.name, fResult);
+                if (!(var.name.equals("_"))) {
+                    bindEnv.define(var.name, fResult);
+                }
             } else {
-                bindEnv.define(var.name, groupValueExpr);
+                if (!(var.name.equals("_"))) {
+                    bindEnv.define(var.name, groupValueExpr);
+                }
             }
         }
 
@@ -88,10 +92,14 @@ public class RegexBindExpr implements Expression {
                     throw UnifyException.addCause(
                             "regex-bind processing function must take a string and return an expression", exc);
                 }
-                env.define(v.name, funcType.returnType);
+                if (!v.name.equals("_")) {
+                    env.define(v.name, funcType.returnType);
+                }
             } else {
-                TypeRef varType = new TypeRef(StringType.TYPE);
-                env.define(v.name, varType);
+                if (!v.name.equals("_")) {
+                    TypeRef varType = new TypeRef(StringType.TYPE);
+                    env.define(v.name, varType);
+                }
             }
         }
 
