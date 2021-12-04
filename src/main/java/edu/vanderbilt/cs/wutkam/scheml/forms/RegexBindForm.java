@@ -90,19 +90,23 @@ public class RegexBindForm implements Form {
         boolean escaped = false;
         int openCount = 0;
         int closeCount = 0;
+        boolean inBracket = false;
 
         for (int i=0; i < regex.length(); i++) {
             char ch = regex.charAt(i);
             if (ch == '\\') {
                 escaped = true;
                 continue;
-            } else if ((ch == '(') && !escaped) {
+            } else if ((ch == '(') && !escaped && !inBracket) {
                 openCount++;
-            } else if ((ch == ')') && !escaped) {
+            } else if ((ch == ')') && !escaped && !inBracket) {
                 closeCount++;
-            } else {
-                escaped = false;
+            } else if ((ch == '[') && !escaped) {
+                inBracket = true;
+            } else if ((ch == ']') && !escaped && inBracket) {
+                inBracket = false;
             }
+            escaped = false;
         }
 
         if (openCount != closeCount) {
