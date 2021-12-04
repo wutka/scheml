@@ -84,6 +84,7 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
                 abstractExpr.constructorName.equals("SexprChar") ||
                 abstractExpr.constructorName.equals("SexprDouble") ||
                 abstractExpr.constructorName.equals("SexprString") ||
+                abstractExpr.constructorName.equals("SexprBignum") ||
                 abstractExpr.constructorName.equals("SexprSymbol")) {
             return abstractExpr.values.get(0).toScheml();
         } else if (abstractExpr.constructorName.equals("SexprList")) {
@@ -100,6 +101,7 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
          new ValueConstructorExpr(sexprTypeName, "SexprInt", Arrays.asList(new TypeRef(IntType.TYPE))),
          new ValueConstructorExpr(sexprTypeName, "SexprChar", Arrays.asList(new TypeRef(CharType.TYPE))),
          new ValueConstructorExpr(sexprTypeName, "SexprDouble", Arrays.asList(new TypeRef(DoubleType.TYPE))),
+         new ValueConstructorExpr(sexprTypeName, "SexprBignum", Arrays.asList(new TypeRef(BignumType.TYPE))),
          new ValueConstructorExpr(sexprTypeName, "SexprString", Arrays.asList(new TypeRef(StringType.TYPE))),
          new ValueConstructorExpr(sexprTypeName, "SexprSymbol", Arrays.asList(new TypeRef(SymbolType.TYPE))),
         null,
@@ -123,26 +125,13 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
         return sexprMap;
     }
 
-    /*
-    @Override
-    public Object toJavaValue(AbstractTypeExpr abstractExpr) {
-        if (abstractExpr.constructorName.equals("SexprBool") ||
-            abstractExpr.constructorName.equals("SexprInt") ||
-            abstractExpr.constructorName.equals("SexprChar") ||
-            abstractExpr.constructorName.equals("SexprDouble") ||
-            abstractExpr.constructorName.equals("SexprString")) {
-            return abstractExpr.values.get(0).toJavaValue();
-        }
-        return abstractExpr;
-    }
-     */
-
     public static Expression toExpression(AbstractTypeExpr abstractExpr, boolean deliteralizeSymbols)
             throws LispException {
         if (abstractExpr.constructorName.equals("SexprBool") ||
                 abstractExpr.constructorName.equals("SexprInt") ||
                 abstractExpr.constructorName.equals("SexprChar") ||
                 abstractExpr.constructorName.equals("SexprDouble") ||
+                abstractExpr.constructorName.equals("SexprBignum") ||
                 abstractExpr.constructorName.equals("SexprString")) {
             return abstractExpr.values.get(0);
         } else if (abstractExpr.constructorName.equals("SexprSymbol")) {
@@ -214,6 +203,8 @@ public class SexprTypeDecl extends AbstractTypeDecl implements CustomToString {
             return new AbstractTypeExpr(sexprTypeName, "SexprDouble", Arrays.asList(expr));
         } else if (expr instanceof StringExpr) {
             return new AbstractTypeExpr(sexprTypeName, "SexprString", Arrays.asList(expr));
+        } else if (expr instanceof BignumExpr) {
+            return new AbstractTypeExpr(sexprTypeName, "SexprBignum", Arrays.asList(expr));
         } else if (expr instanceof SymbolExpr) {
             return new AbstractTypeExpr(sexprTypeName, "SexprSymbol",
                     Arrays.asList(new SymbolLiteralExpr(((SymbolExpr)expr).value)));

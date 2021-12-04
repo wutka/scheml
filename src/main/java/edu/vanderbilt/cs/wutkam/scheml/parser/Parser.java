@@ -7,6 +7,7 @@ import edu.vanderbilt.cs.wutkam.scheml.type.builtin.ConsTypeDecl;
 import edu.vanderbilt.cs.wutkam.scheml.type.builtin.SexprTypeDecl;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -92,7 +93,7 @@ public class Parser {
 
     protected void parseImpl(Reader rdr, boolean promptForMore, String prompt, BufferedReader dataIn,
                              boolean display) throws LispException {
-        PushbackReader pushback = new PushbackReader(rdr);
+        PushbackReader pushback = new PushbackReader(rdr, 10);
 
         char ch;
 
@@ -297,6 +298,54 @@ public class Parser {
                             // #f is the constant for false
                             addExpression(new BoolExpr(false));
                             continue;
+                        } else if (ch2 == 'b') {
+                            StringBuilder builder = new StringBuilder();
+                            boolean gotNumber = false;
+                            while (((ch = (char) pushback.read()) != (char) -1)) {
+                                if (!Character.isDigit(ch)) {
+                                    if (builder.length() == 0) {
+                                        pushback.unread('b');
+                                        pushback.unread('#');
+                                        break;
+                                    }
+                                    addExpression(new BignumExpr(new BigInteger(builder.toString())));
+                                    pushback.unread(ch);
+                                    gotNumber = true;
+                                    break;
+                                } else {
+                                    builder.append(ch);
+                                }
+                            }
+                            if ((ch == (char) -1) && (builder.length() > 0)) {
+                                addExpression(new BignumExpr(new BigInteger(builder.toString())));
+                                continue;
+                            }
+
+                            if (gotNumber) continue;
+                        } else if (ch2 == 'x') {
+                            boolean gotNumber = false;
+                            StringBuilder builder = new StringBuilder();
+                            while (((ch = (char) pushback.read()) != (char) -1)) {
+                                if (!Character.isDigit(ch) && !((ch >= 'a') && (ch <= 'f')) &&
+                                        !((ch >= 'A') && (ch <= 'F'))) {
+                                    if (builder.length() == 0) {
+                                        pushback.unread('x');
+                                        pushback.unread('#');
+                                        break;
+                                    }
+                                    addExpression(new BignumExpr(new BigInteger(builder.toString(), 16)));
+                                    pushback.unread(ch);
+                                    gotNumber = true;
+                                    break;
+                                } else {
+                                    builder.append(ch);
+                                }
+                            }
+                            if ((ch == (char) -1) && (builder.length() > 0)) {
+                                addExpression(new BignumExpr(new BigInteger(builder.toString(), 16)));
+                                continue;
+                            }
+                            if (gotNumber) continue;
                         } else {
                             // Otherwise unread the character and let it be handled by the symbol reader below
                             pushback.unread(ch2);

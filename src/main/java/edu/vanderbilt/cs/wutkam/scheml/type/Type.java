@@ -81,6 +81,11 @@ public abstract class Type {
                         throw new LispException("Unexpected symbol after " + symbol + " in " + signature);
                     }
                     return new TypeRef(IntType.TYPE);
+                } else if (symbol.equals("bignum")) {
+                    if (parts.length > 1) {
+                        throw new LispException("Unexpected symbol after " + symbol + " in " + signature);
+                    }
+                    return new TypeRef(BignumType.TYPE);
                 } else if (symbol.equals("string")) {
                     if (parts.length > 1) {
                         throw new LispException("Unexpected symbol after " + symbol + " in " + signature);
@@ -166,6 +171,8 @@ public abstract class Type {
                 return new TypeRef(DoubleType.TYPE);
             } else if (symbol.equals("int")) {
                 return new TypeRef(IntType.TYPE);
+            } else if (symbol.equals("bignum")) {
+                return new TypeRef(BignumType.TYPE);
             } else if (symbol.equals("string")) {
                 return new TypeRef(StringType.TYPE);
             } else if (symbol.equals("symbol")) {

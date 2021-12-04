@@ -14,6 +14,8 @@ import edu.vanderbilt.cs.wutkam.scheml.type.FunctionType;
 import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheml.type.VoidType;
 
+import java.math.BigInteger;
+
 /** An initializer for all the built-in functions.
  */
 public class BuiltinInitializer {
@@ -40,6 +42,16 @@ public class BuiltinInitializer {
         new BuiltinBinaryFunctionExpr<Double,Double,Double>("min.", "double -> double -> double", Math::min),
         new BuiltinBinaryFunctionExpr<Double,Double,Double>("max.", "double -> double -> double", Math::max),
 
+        new BuiltinBinaryFunctionExpr<>("+b", "bignum -> bignum -> bignum", BigInteger::add),
+        new BuiltinBinaryFunctionExpr<>("-b", "bignum -> bignum -> bignum", BigInteger::subtract),
+        new BuiltinBinaryFunctionExpr<>("*b", "bignum -> bignum -> bignum", BigInteger::multiply),
+        new BuiltinBinaryFunctionExpr<>("/b", "bignum -> bignum -> bignum", BigInteger::divide),
+        new BuiltinBinaryFunctionExpr<>("%b", "bignum -> bignum -> bignum", BigInteger::mod),
+        new BuiltinBinaryFunctionExpr<>("divb", "bignum -> bignum -> bignum", BigInteger::divide),
+        new BuiltinBinaryFunctionExpr<>("modb", "bignum -> bignum -> bignum", BigInteger::mod),
+        new BuiltinBinaryFunctionExpr<>("minb", "bignum -> bignum -> bignum", BigInteger::min),
+        new BuiltinBinaryFunctionExpr<>("maxb", "bignum -> bignum -> bignum", BigInteger::max),
+
         // Only numeric comparisons are supported right now
         new BuiltinBinaryFunctionExpr<>("=", "int -> int -> bool", (Long a, Long b) -> a.equals(b)),
         new BuiltinBinaryFunctionExpr<>("!=", "int -> int -> bool", (Long a, Long b) -> !a.equals(b)),
@@ -56,11 +68,24 @@ public class BuiltinInitializer {
         new BuiltinBinaryFunctionExpr<>(">.", "double -> double -> bool", (Double a, Double b) -> a > b),
         new BuiltinBinaryFunctionExpr<>(">=.", "double -> double -> bool", (Double a, Double b) -> a >= b),
 
+        new BuiltinBinaryFunctionExpr<>("=b", "bignum -> bignum -> bignum", BigInteger::equals),
+        new BuiltinBinaryFunctionExpr<>("!=b", "bignum -> bignum -> bignum", (BigInteger a, BigInteger b) -> !a.equals(b)),
+        new BuiltinBinaryFunctionExpr<>("<b", "bignum -> bignum -> bignum", (BigInteger a, BigInteger b) -> a.compareTo(b) < 0),
+        new BuiltinBinaryFunctionExpr<>("<=b", "bignum -> bignum -> bignum", (BigInteger a, BigInteger b) -> a.compareTo(b) <= 0),
+        new BuiltinBinaryFunctionExpr<>(">b", "bignum -> bignum -> bignum", (BigInteger a, BigInteger b) -> a.compareTo(b) > 0),
+        new BuiltinBinaryFunctionExpr<>(">=b", "bignum -> bignum -> bignum", (BigInteger a, BigInteger b) -> a.compareTo(b) >= 0),
+
         new BuiltinUnaryFunctionExpr<>("neg", "int -> int", (Long a) -> -a),
         new BuiltinUnaryFunctionExpr<>("neg.", "double -> double", (Double a) -> -a),
 
         new BuiltinUnaryFunctionExpr<>("int->double", "int->double", (Long a) -> (double) a),
         new BuiltinUnaryFunctionExpr<>("double->int", "double->int", (Double a) -> a.longValue()),
+        new BuiltinUnaryFunctionExpr<>("int->bignum", "int->bignum", (Long a) -> new BigInteger(a.toString())),
+        new BuiltinUnaryFunctionExpr<>("bignum->int", "bignum->int", BigInteger::longValue),
+        new BuiltinUnaryFunctionExpr<>("string->bignum", "string->bignum", (String a) -> new BigInteger(a)),
+        new BuiltinUnaryFunctionExpr<>("bignum->string", "bignum->string", (BigInteger a) -> a.toString()),
+        new BuiltinUnaryFunctionExpr<>("hexstring->bignum", "string->bignum", (String a) -> new BigInteger(a, 16)),
+        new BuiltinUnaryFunctionExpr<>("bignum->hexstring", "bignum->string", (BigInteger a) -> a.toString(16)),
 
         new BuiltinUnaryFunctionExpr<>("int->char", "int->char", (Long a) -> (char) a.intValue()),
         new BuiltinUnaryFunctionExpr<>("char->int", "char->int", (Character a) -> (long) a),

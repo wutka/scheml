@@ -5,6 +5,7 @@ import edu.vanderbilt.cs.wutkam.scheml.expr.ValueConstructorExpr;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheml.type.AbstractTypeDecl;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -187,7 +188,8 @@ public class ExhaustivenessChecker {
                 return null;
             } else if ((matchType instanceof MatchBool) || (matchType instanceof MatchChar) ||
                        (matchType instanceof MatchDouble) || (matchType instanceof MatchInt) ||
-                       (matchType instanceof MatchString) || (matchType instanceof MatchSymbol)) {
+                       (matchType instanceof MatchString) || (matchType instanceof MatchSymbol) ||
+                       (matchType instanceof MatchBignum)) {
 
                 // q is a wildcard, being matched against a simple type. Other than bool, which in other languages
                 // is implemented as a constructed type, we assume that the match expression does not completely
@@ -407,6 +409,32 @@ public class ExhaustivenessChecker {
             }
             // Otherwise return the highest value + 1
             return new MatchInt(i1 + 1);
+        } else if (matchType instanceof MatchBignum) {
+            // Turn the set of MatchBignum values into a list of BigIntegers
+            List<BigInteger> bignums = values.stream().filter(m -> m instanceof MatchBignum).
+                    map(mi -> ((MatchBignum) mi).value).collect(Collectors.toList());
+
+            // Sort the values
+            Collections.sort(bignums);
+
+            // If there are no values, return 0
+            if (bignums.size() == 0) return new MatchBignum(BigInteger.ZERO);
+
+            // If there is one value, return the value plus 1
+            if (bignums.size() == 1) return new MatchBignum(bignums.get(0).add(BigInteger.ONE));
+
+            // Otherwise loop through the values looking for a gap between consecutive
+            // values and return 1+the lower value
+            BigInteger i1 = bignums.get(0);
+            for (int i = 1; i < bignums.size(); i++) {
+                BigInteger i2 = bignums.get(i);
+                if (i2.subtract(i1).compareTo(BigInteger.ONE) > 0) {
+                    return new MatchBignum(i1.add(BigInteger.ONE));
+                }
+                i1 = i2;
+            }
+            // Otherwise return the highest value + 1
+            return new MatchBignum(i1.add(BigInteger.ONE));
         } else if (matchType instanceof MatchString) {
             // Turn the list of MatchString values into a list of strings
             List<String> strings = values.stream().filter(m -> m instanceof MatchString).

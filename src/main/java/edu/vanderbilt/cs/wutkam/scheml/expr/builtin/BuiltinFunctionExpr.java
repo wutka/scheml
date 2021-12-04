@@ -7,6 +7,7 @@ import edu.vanderbilt.cs.wutkam.scheml.type.FunctionType;
 import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheml.type.UnifyException;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /** A base type for built-in functions that evaluates all its argument expressions and then
@@ -66,6 +67,8 @@ public abstract class BuiltinFunctionExpr extends FunctionExpr {
             return new IntExpr((Long) obj);
         } else if (obj instanceof String) {
             return new StringExpr((String) obj);
+        } else if (obj instanceof BigInteger) {
+            return new BignumExpr((BigInteger) obj);
         }
         return (Expression) obj;
     }

@@ -2,15 +2,7 @@ package edu.vanderbilt.cs.wutkam.scheml.forms;
 
 import edu.vanderbilt.cs.wutkam.scheml.LispException;
 import edu.vanderbilt.cs.wutkam.scheml.expr.*;
-import edu.vanderbilt.cs.wutkam.scheml.expr.match.Match;
-import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchBool;
-import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchChar;
-import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchDouble;
-import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchInt;
-import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchString;
-import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchSymbol;
-import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchValueConstructor;
-import edu.vanderbilt.cs.wutkam.scheml.expr.match.MatchVariable;
+import edu.vanderbilt.cs.wutkam.scheml.expr.match.*;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.SchemlRuntime;
 import edu.vanderbilt.cs.wutkam.scheml.type.AbstractTypeDecl;
 import edu.vanderbilt.cs.wutkam.scheml.type.builtin.ConsTypeDecl;
@@ -154,6 +146,8 @@ public class MatchForm implements Form {
             return new MatchInt(((IntExpr) expr).value);
         } else if (expr instanceof StringExpr) {
             return new MatchString(((StringExpr) expr).value);
+        } else if (expr instanceof BignumExpr) {
+            return new MatchBignum(((BignumExpr) expr).value);
         } else if (expr instanceof SymbolExpr) {
             // We allow matching against a no-arg value constructor without extra parens
             // so (Nil (print "it is nil")) is easier than ((Nil) (print "it is nil"))
@@ -240,6 +234,9 @@ public class MatchForm implements Form {
             } else if (expr instanceof StringExpr) {
                 matches.add(new MatchValueConstructor("SexprString",
                         Arrays.asList(new MatchString(((StringExpr)expr).value))));
+            } else if (expr instanceof BignumExpr) {
+                matches.add(new MatchValueConstructor("SexprBignum",
+                        Arrays.asList(new MatchBignum(((BignumExpr)expr).value))));
             } else if (expr instanceof SymbolExpr) {
                 String symbol = ((SymbolExpr)expr).value;
                 if (symbol.equals("_")) {
@@ -296,6 +293,8 @@ public class MatchForm implements Form {
             return new MatchValueConstructor("SexprDouble", Arrays.asList(new MatchVariable(varStr)));
         } else if (typeStr.equals("string") || typeStr.equals("SexprString")) {
             return new MatchValueConstructor("SexprString", Arrays.asList(new MatchVariable(varStr)));
+        } else if (typeStr.equals("bignum") || typeStr.equals("SexprBignum")) {
+            return new MatchValueConstructor("SexprBignum", Arrays.asList(new MatchVariable(varStr)));
         } else if (typeStr.equals("symbol") || typeStr.equals("SexprSymbol")) {
             return new MatchValueConstructor("SexprSymbol", Arrays.asList(new MatchVariable(varStr)));
         } else if (typeStr.equals("list") || typeStr.equals("SexprList")) {
@@ -306,7 +305,7 @@ public class MatchForm implements Form {
     }
 
     protected static final Set<String> sexprTypeNames = new HashSet<>(
-            Arrays.asList("bool", "char", "int", "double", "string", "symbol", "list"));
+            Arrays.asList("bool", "char", "int", "double", "string", "bignum", "symbol", "list"));
     protected boolean isSexprTypeName(String str) {
         return sexprTypeNames.contains(str);
     }
