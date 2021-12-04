@@ -1032,10 +1032,10 @@ as a list of type `'b`.
 ```
 (fold f start-val lista)
 ```
-Given a two-parameter function from types `'a` and `'b` to type`'b`, a start value of type `'b` and
+Given a two-parameter function from types `'b` and `'a` to type`'b`, a start value of type `'b` and
 a list of type `'a`, `fold` applies the function to each element of the
 list and the result of the previous application (using the start value
-as the second argument when invoking the function the first time). When
+as the first argument when invoking the function the first time). When
 all the items have been processed, it returns the last function result.
 
 For example, to sum the numbers from 1 to 10: `(fold + 0 (range 1 10))`

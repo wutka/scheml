@@ -117,7 +117,7 @@
 ;;; by summing 1<<n for each value n in the set. The sum should be 1022, which
 ;;; corresponds to the binary 1111111110 (bit 0 is 0, and bits 1-9 are set).
 (define (set-correct? vals)
-  (= (fold (lambda (val n) 
+  (= (fold (lambda (n val) 
              (match val
                     ((Fixed v) (+ (<< 1 v) n))
                     ((Unfixed _) 0)))
@@ -145,7 +145,7 @@
 
 ;;; If other-square is fixed and sq is unfixed, remove other-square's value
 ;;; from sq's list of available squares
-(define (remove-from-available other-square sq)
+(define (remove-from-available sq other-square)
   (match sq
          ((Fixed _) sq)
          ((Unfixed available)

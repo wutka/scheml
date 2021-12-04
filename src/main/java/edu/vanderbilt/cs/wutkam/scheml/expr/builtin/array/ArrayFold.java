@@ -10,7 +10,7 @@ import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.BuiltinFunctionExpr;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Given a function from a -> b -> b, and an array of a, and a starter param of type b,
+/** Given a function from b -> a -> b, and an array of a, and a starter param of type b,
  * apply the function to each element of the array, using the result from the previous
  * application as the second parameter to the function. When the array has been processed,
  * return the last result from the function.
@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class ArrayFold extends BuiltinFunctionExpr {
     public ArrayFold(String name) {
-        super(name, "('a -> 'b -> 'b) -> 'b -> array 'a -> 'b");
+        super(name, "('b -> 'a -> 'b) -> 'b -> array 'a -> 'b");
     }
 
     @Override
@@ -39,8 +39,8 @@ public class ArrayFold extends BuiltinFunctionExpr {
         ArrayExpr arr = (ArrayExpr) args[2];
         for (int i=0; i < arr.values.length; i++) {
             List<Expression> argList = new ArrayList<>();
-            argList.add(arr.values[i]);
             argList.add(result);
+            argList.add(arr.values[i]);
             result = applyLoop(f, argList);
         }
 

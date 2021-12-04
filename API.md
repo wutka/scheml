@@ -19,7 +19,7 @@
 | (remove elem l)    | 'a -> cons 'a -> cons 'a                  | removes first occurrence of elem in l           |
 | (take n l)         | int -> cons 'a -> cons 'a                 | returns list of first n elements in l           |
 | (drop n l)         | int -> cons 'a -> cons 'a                 | returns list l without first n elements         |
-| fold f elem l      | ('a -> 'b -> 'b) -> 'b -> cons 'a -> b
+| fold f elem l      | ('b -> 'a -> 'b) -> 'b -> cons 'a -> b    | fold func f over list                           |
 
 
 ### int
