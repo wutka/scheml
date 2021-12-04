@@ -108,6 +108,10 @@ public class BuiltinInitializer {
                 (String a) -> Long.parseLong(a)),
         new BuiltinUnaryFunctionExpr<>("string->double", "string -> double", (String a) ->
                 Double.parseDouble(a)),
+        new BuiltinUnaryFunctionExpr<>("string-length", "string -> int", String::length),
+        new BuiltinUnaryFunctionExpr<>("string-trim", "string -> string", String::trim),
+        new BuiltinBinaryFunctionExpr<>("string-append", "string -> string -> string", (String a, String b) -> a + b),
+        new BuiltinTernaryFunctionExpr<>("string-replace", "string -> string -> string -> string", String::replaceAll),
 
         new ListToString("list->string"),
         new StringToList("string->list"),

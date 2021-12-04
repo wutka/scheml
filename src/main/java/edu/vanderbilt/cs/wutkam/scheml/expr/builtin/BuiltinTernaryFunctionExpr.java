@@ -20,6 +20,6 @@ public class BuiltinTernaryFunctionExpr<A,B,C, D> extends BuiltinFunctionExpr {
 
     @Override
     public Expression executeBuiltin(Expression[] args) throws LispException {
-        return fromJavaValue(implFunc.apply((A) args[0], (B) args[1], (C) args[2]));
+        return fromJavaValue(implFunc.apply((A) args[0].toJavaValue(), (B) args[1].toJavaValue(), (C) args[2].toJavaValue()));
     }
 }
