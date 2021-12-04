@@ -301,11 +301,25 @@ public class Parser {
                         } else if (ch2 == 'b') {
                             StringBuilder builder = new StringBuilder();
                             boolean gotNumber = false;
+                            boolean isFirst = true;
+
                             while (((ch = (char) pushback.read()) != (char) -1)) {
-                                if (!Character.isDigit(ch)) {
-                                    if (builder.length() == 0) {
+                                if (ch == '-') {
+                                    if (!isFirst) {
+                                        pushback.unread(ch);
                                         pushback.unread('b');
-                                        pushback.unread('#');
+                                        ch = '#';
+                                        break;
+                                    } else {
+                                        builder.append(ch);
+                                    }
+                                } else if (!Character.isDigit(ch)) {
+
+                                    if ((builder.length() == 0) || ((builder.length() == 1) && (builder.charAt(0) == '-'))) {
+                                        pushback.unread(ch);
+                                        if (builder.length() == 1) pushback.unread('-');
+                                        pushback.unread('b');
+                                        ch = '#';
                                         break;
                                     }
                                     addExpression(new BignumExpr(new BigInteger(builder.toString())));
@@ -315,6 +329,7 @@ public class Parser {
                                 } else {
                                     builder.append(ch);
                                 }
+                                isFirst = false;
                             }
                             if ((ch == (char) -1) && (builder.length() > 0)) {
                                 addExpression(new BignumExpr(new BigInteger(builder.toString())));
@@ -324,13 +339,27 @@ public class Parser {
                             if (gotNumber) continue;
                         } else if (ch2 == 'x') {
                             boolean gotNumber = false;
+                            boolean isFirst = true;
+
                             StringBuilder builder = new StringBuilder();
                             while (((ch = (char) pushback.read()) != (char) -1)) {
-                                if (!Character.isDigit(ch) && !((ch >= 'a') && (ch <= 'f')) &&
-                                        !((ch >= 'A') && (ch <= 'F'))) {
-                                    if (builder.length() == 0) {
+                                if (ch == '-') {
+                                    if (!isFirst) {
+                                        pushback.unread(ch);
                                         pushback.unread('x');
-                                        pushback.unread('#');
+                                        ch = '#';
+
+                                        break;
+                                    } else {
+                                        builder.append(ch);
+                                    }
+                                } else if (!Character.isDigit(ch) && !((ch >= 'a') && (ch <= 'f')) &&
+                                        !((ch >= 'A') && (ch <= 'F'))) {
+                                    if ((builder.length() == 0) || ((builder.length() == 1) && (builder.charAt(0) == '-'))) {
+                                        pushback.unread(ch);
+                                        if (builder.length() == 1) pushback.unread('-');
+                                        pushback.unread('x');
+                                        ch = '#';
                                         break;
                                     }
                                     addExpression(new BignumExpr(new BigInteger(builder.toString(), 16)));
@@ -340,6 +369,7 @@ public class Parser {
                                 } else {
                                     builder.append(ch);
                                 }
+                                isFirst = false;
                             }
                             if ((ch == (char) -1) && (builder.length() > 0)) {
                                 addExpression(new BignumExpr(new BigInteger(builder.toString(), 16)));
