@@ -77,6 +77,7 @@ public class BuiltinInitializer {
 
         new BuiltinUnaryFunctionExpr<>("neg", "int -> int", (Long a) -> -a),
         new BuiltinUnaryFunctionExpr<>("neg.", "double -> double", (Double a) -> -a),
+        new BuiltinUnaryFunctionExpr<>("negb", "bignum -> bignum", BigInteger::negate),
 
         new BuiltinUnaryFunctionExpr<>("int->double", "int->double", (Long a) -> (double) a),
         new BuiltinUnaryFunctionExpr<>("double->int", "double->int", (Double a) -> a.longValue()),
