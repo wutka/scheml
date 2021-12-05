@@ -1,7 +1,6 @@
 package edu.vanderbilt.cs.wutkam.scheml.expr.builtin;
 
-import edu.vanderbilt.cs.wutkam.scheml.expr.Expression;
-import edu.vanderbilt.cs.wutkam.scheml.expr.VoidExpr;
+import edu.vanderbilt.cs.wutkam.scheml.expr.*;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.array.*;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.dict.*;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.list.*;
@@ -15,6 +14,8 @@ import edu.vanderbilt.cs.wutkam.scheml.type.TypeRef;
 import edu.vanderbilt.cs.wutkam.scheml.type.VoidType;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /** An initializer for all the built-in functions.
  */
@@ -107,8 +108,14 @@ public class BuiltinInitializer {
         new BuiltinUnaryFunctionExpr<>("id", "'a -> 'a", (Object a) -> a),
         new BuiltinUnaryFunctionExpr<>("string->int", "string -> int",
                 (String a) -> Long.parseLong(a)),
+        new BuiltinUnaryFunctionExpr<String,Expression>("string->option-int", "string -> option int",
+                (String a) -> { try { return new AbstractTypeExpr("option", "Just", Arrays.asList(new IntExpr(Long.parseLong(a)))); }
+                                catch (Exception exc) { return new AbstractTypeExpr("option", "Nothing", new ArrayList<>()); }}),
         new BuiltinUnaryFunctionExpr<>("string->double", "string -> double", (String a) ->
                 Double.parseDouble(a)),
+        new BuiltinUnaryFunctionExpr<String,Expression>("string->option-double", "string -> option double",
+                (String a) -> { try { return new AbstractTypeExpr("option", "Just", Arrays.asList(new DoubleExpr(Double.parseDouble(a)))); }
+                catch (Exception exc) { return new AbstractTypeExpr("option", "Nothing", new ArrayList<>()); }}),
         new BuiltinUnaryFunctionExpr<>("string-length", "string -> int", String::length),
         new BuiltinUnaryFunctionExpr<>("string-trim", "string -> string", String::trim),
         new BuiltinBinaryFunctionExpr<>("string-append", "string -> string -> string", (String a, String b) -> a + b),
@@ -148,7 +155,6 @@ public class BuiltinInitializer {
         new Take("take"),
         new Drop("drop"),
         new Fold("fold"),
-        new FoldOptional("fold-optional"),
         new All("all"),
         new Some("some"),
         new ReplaceNth("replace-nth"),

@@ -10,6 +10,7 @@
 | (tail l)           | cons 'a -> cons 'a                        | returns rest of list after first element        |
 | (empty? l)         | cons 'a -> bool                           | returns true if list is empty                   |
 | (nil? l)           | cons 'a -> bool                           | returns true if list is empty                   |
+| (filter f l)       | ('a -> bool) -> cons 'a -> cons 'a        | return all items in l for which f returns true |
 | (map f l)          | ('a -> 'b) -> cons 'a -> cons 'b          | applies f to each element of l                  |
 | (pmap f l)         | ('a -> 'b) -> cons 'a -> cons 'b          | applies f in parallel to each element of l      |
 | (map-optional f l) | ('a -> 'b) -> cons (option 'a) -> cons 'b | applies f in parallel to each Just element of l |
@@ -19,8 +20,20 @@
 | (remove elem l)    | 'a -> cons 'a -> cons 'a                  | removes first occurrence of elem in l           |
 | (take n l)         | int -> cons 'a -> cons 'a                 | returns list of first n elements in l           |
 | (drop n l)         | int -> cons 'a -> cons 'a                 | returns list l without first n elements         |
-| fold f elem l      | ('b -> 'a -> 'b) -> 'b -> cons 'a -> b    | fold func f over list                           |
+| (fold f elem l)      | ('b -> 'a -> 'b) -> 'b -> cons 'a -> b    | fold func f over list                           |
+| (all f l)      | ('a -> bool) -> cons 'a -> bool    | return true if f returns true for all list items |
+| (some f l)      | ('a -> bool) -> cons 'a -> bool    | return true if f returns true for at least one list item |
+| (replace-nth n item l) | (int -> 'a -> cons 'a -> cons 'a    | replace nth item in l with item|
 
+### strings
+| Function           | Signature                                 | Description                                     |
+|--------------------|-------------------------------------------|-------------------------------------------------|
+| (->string a)         | 'a -> string                  | return string representation of a| 
+| (string->int s)         | string -> int                             | converts a string to an int | 
+| (string->option-int s)    | string -> option int                    | converts a string to an option int in case of parse errors| 
+| (string->double s)         | string -> double                             | converts a string to an double | 
+| (string->option-double s)    | string -> option double                    | converts a string to an option double in case of parse errors| 
+| (string-length s)         | string -> int                             | returns the| 
 
 ### int
 | Function   | Signature               | Description                      |
