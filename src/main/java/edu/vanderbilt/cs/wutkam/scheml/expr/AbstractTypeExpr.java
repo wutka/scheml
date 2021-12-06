@@ -106,4 +106,13 @@ public class AbstractTypeExpr implements Expression {
         }
         return new ListExpr(scheml);
     }
+
+    @Override
+    public int hashCode() {
+        int hash = typeName.hashCode() + constructorName.hashCode();
+        for (Expression v: values) {
+            hash += v.hashCode();
+        }
+        return hash;
+    }
 }
