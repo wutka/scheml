@@ -9,7 +9,7 @@ import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.BuiltinFunctionExpr;
  */
 public class DictPut extends BuiltinFunctionExpr {
     public DictPut(String name) {
-        super(name, "dict 'a 'b -> 'a -> 'b -> 'b");
+        super(name, "dict 'a 'b -> 'a -> 'b -> dict 'a 'b");
     }
 
     @Override
@@ -18,6 +18,6 @@ public class DictPut extends BuiltinFunctionExpr {
         Expression key = args[1];
         Expression value = args[2];
         dict.dict.put(key, value);
-        return value;
+        return dict;
     }
 }
