@@ -217,6 +217,7 @@ public class BuiltinInitializer {
         new SetIntersection("set-intersection"),
         new SetLen("set-len"),
         new SetPut("set-put"),
+        new SetRemove("set-remove"),
         new SetToList("set->list"),
         new SetUnion("set-union"),
 
