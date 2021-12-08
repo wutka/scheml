@@ -114,6 +114,12 @@ public abstract class Type {
                     return new TypeRef(new DictType(
                             computeTypeSignature(parts[1], signature, symbolNameMap),
                             computeTypeSignature(parts[2], signature, symbolNameMap)));
+                } else if (symbol.equals("set")) {
+                    if (parts.length > 2) {
+                        throw new LispException("Too many type names after set");
+                    }
+                    return new TypeRef(new SetType(
+                            computeTypeSignature(parts[1], signature, symbolNameMap)));
                 }
 
                 // If we get this far, the symbol must be an abstract type declaration, so look it up

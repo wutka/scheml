@@ -6,6 +6,7 @@ import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.dict.*;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.list.*;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.ref.Ref;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.ref.SetRef;
+import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.set.*;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.sexpr.*;
 import edu.vanderbilt.cs.wutkam.scheml.expr.builtin.string.SplitWithLimit;
 import edu.vanderbilt.cs.wutkam.scheml.runtime.Environment;
@@ -209,6 +210,15 @@ public class BuiltinInitializer {
         new DictPut("dict-put"),
         new DictToList("dict->list"),
         new ListToDict("list->dict"),
+
+        new ListToSet("list->set"),
+        new SetContains("set-contains?"),
+        new SetDifference("set-difference"),
+        new SetIntersection("set-intersection"),
+        new SetLen("set-len"),
+        new SetPut("set-put"),
+        new SetToList("set->list"),
+        new SetUnion("set-union"),
 
         new Split("split"),
         new SplitWithLimit("split-with-limit"),
