@@ -224,6 +224,13 @@ public class TypeForm implements Form {
             if (nameSym.value.equals("array")) {
                 TypeRef arrayType = fromExpression(typeList.getElement(nextPos++), parameterizedTypes);
                 return new TypeRef(new ArrayType(arrayType));
+            } else if (nameSym.value.equals("set")) {
+                TypeRef setType = fromExpression(typeList.getElement(nextPos++), parameterizedTypes);
+                return new TypeRef(new SetType(setType));
+            } else if (nameSym.value.equals("dict")) {
+                TypeRef keyType = fromExpression(typeList.getElement(nextPos++), parameterizedTypes);
+                TypeRef valueType = fromExpression(typeList.getElement(nextPos++), parameterizedTypes);
+                return new TypeRef(new DictType(keyType, valueType));
 
             } else {
                 AbstractTypeDecl abstractTypeDecl = SchemlRuntime.getTypeRegistry().lookup(nameSym.value);

@@ -84,7 +84,8 @@ public class DictExpr implements Expression {
 
     @Override
     public boolean equals(Object other) {
-        if (!(other instanceof DictExpr otherDict)) return false;
+        if (!(other instanceof DictExpr)) return false;
+        DictExpr otherDict = (DictExpr) other;
         return dict.equals(otherDict.dict);
     }
 }

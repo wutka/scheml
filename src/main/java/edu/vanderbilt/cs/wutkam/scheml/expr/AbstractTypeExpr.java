@@ -110,8 +110,10 @@ public class AbstractTypeExpr implements Expression {
     @Override
     public int hashCode() {
         int hash = typeName.hashCode() + constructorName.hashCode();
+        int i = 0;
         for (Expression v: values) {
-            hash += v.hashCode();
+            hash += (v.hashCode() << i);
+            i += 3;
         }
         return hash;
     }
