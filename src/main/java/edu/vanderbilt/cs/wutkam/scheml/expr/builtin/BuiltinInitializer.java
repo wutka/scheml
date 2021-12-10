@@ -164,6 +164,7 @@ public class BuiltinInitializer {
         new Some("some"),
         new ReplaceNth("replace-nth"),
         new Filter("filter"),
+        new Sort("sort"),
 
         new Fst("fst"),
         new Snd("snd"),

@@ -109,4 +109,17 @@ public abstract class BuiltinFunctionExpr extends FunctionExpr {
         return result;
     }
 
+    protected static Expression applyLoopNoExc(Applicable f, List<Expression> args)
+    {
+        try {
+            Expression result = f.apply(args, new Environment<>());
+            while (result instanceof TailCallExpr) {
+                result = result.evaluate(new Environment<>(), false);
+            }
+            return result;
+        } catch (Exception exc) {
+            throw new RuntimeException("Exception while evaluating function", exc);
+        }
+    }
+
 }
