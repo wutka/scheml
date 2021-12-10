@@ -258,7 +258,12 @@ public abstract class Type {
                 } else if (ch == ')') {
                     if (currSymbol.length() > 0) {
                         if (funcSignature != null) {
-                            funcSignature.signatures.add(new SignatureSymbol(currSymbol.toString().trim()));
+                            if (currExprList.size() > 0) {
+                                currExprList.add(new SignatureSymbol(currSymbol.toString().trim()));
+                                funcSignature.signatures.add(new SignatureExprList(currExprList));
+                            } else {
+                                funcSignature.signatures.add(new SignatureSymbol(currSymbol.toString().trim()));
+                            }
                             return funcSignature;
                         } else {
                             currExprList.add(new SignatureSymbol(currSymbol.toString().trim()));
