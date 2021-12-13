@@ -122,9 +122,19 @@ public class BuiltinInitializer {
                 (String a) -> { try { return new AbstractTypeExpr("option", "Just", Arrays.asList(new DoubleExpr(Double.parseDouble(a)))); }
                 catch (Exception exc) { return new AbstractTypeExpr("option", "Nothing", new ArrayList<>()); }}),
         new BuiltinUnaryFunctionExpr<>("string-length", "string -> int", String::length),
+        new BuiltinUnaryFunctionExpr<>("string-toLowerCase", "string -> string", (String a) -> a.toLowerCase()),
+        new BuiltinUnaryFunctionExpr<>("string-toUpperCase", "string -> string", (String a) -> a.toUpperCase()),
+        new BuiltinBinaryFunctionExpr<>("string-at", "string -> int -> char", (String s, Long pos) -> s.charAt(pos.intValue())),
+        new BuiltinBinaryFunctionExpr<>("string-index", "string -> char -> int", (String s, Character ch) -> s.indexOf(ch)),
+        new BuiltinUnaryFunctionExpr<>("string-length", "string -> int", String::length),
         new BuiltinUnaryFunctionExpr<>("string-trim", "string -> string", String::trim),
         new BuiltinBinaryFunctionExpr<>("string-append", "string -> string -> string", (String a, String b) -> a + b),
         new BuiltinTernaryFunctionExpr<>("string-replace", "string -> string -> string -> string", String::replaceAll),
+
+        new BuiltinUnaryFunctionExpr<>("char-lowercase?", "char -> bool", (Character ch) -> Character.isLowerCase(ch)),
+        new BuiltinUnaryFunctionExpr<>("char-uppercase?", "char -> bool", (Character ch) -> Character.isUpperCase(ch)),
+        new BuiltinUnaryFunctionExpr<>("char->lowercase", "char -> char", (Character ch) -> Character.toLowerCase(ch)),
+        new BuiltinUnaryFunctionExpr<>("char->uppercase", "char -> char", (Character ch) -> Character.toUpperCase(ch)),
 
         new ListToString("list->string"),
         new StringToList("string->list"),
