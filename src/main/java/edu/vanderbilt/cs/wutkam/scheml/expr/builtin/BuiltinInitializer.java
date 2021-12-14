@@ -218,6 +218,7 @@ public class BuiltinInitializer {
         new DictValuesToList("dict-values"),
         new DictLen("dict-len"),
         new DictLookup("dict-lookup"),
+        new DictLookupWithDefault("dict-lookup-with-default"),
         new DictLookup("lookup"),
         new DictHasKey("dict-has-key?"),
         new DictHasKey("has-key?"),
