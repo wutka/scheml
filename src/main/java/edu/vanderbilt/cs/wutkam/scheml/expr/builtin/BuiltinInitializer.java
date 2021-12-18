@@ -77,6 +77,13 @@ public class BuiltinInitializer {
         new BuiltinBinaryFunctionExpr<>(">b", "bignum -> bignum -> bignum", (BigInteger a, BigInteger b) -> a.compareTo(b) > 0),
         new BuiltinBinaryFunctionExpr<>(">=b", "bignum -> bignum -> bignum", (BigInteger a, BigInteger b) -> a.compareTo(b) >= 0),
 
+        new BuiltinBinaryFunctionExpr<>("char=", "char -> char -> bool", (Character a, Character b) -> a.equals(b)),
+        new BuiltinBinaryFunctionExpr<>("char!=", "char -> char -> bool", (Character a, Character b) -> !a.equals(b)),
+        new BuiltinBinaryFunctionExpr<>("char<", "char -> char -> bool", (Character a, Character b) -> a < b),
+        new BuiltinBinaryFunctionExpr<>("char<=", "char -> char -> bool", (Character a, Character b) -> a <= b),
+        new BuiltinBinaryFunctionExpr<>("char>", "char -> char -> bool", (Character a, Character b) -> a > b),
+        new BuiltinBinaryFunctionExpr<>("char>=", "char -> char -> bool", (Character a, Character b) -> a >= b),
+
         new BuiltinUnaryFunctionExpr<>("neg", "int -> int", (Long a) -> -a),
         new BuiltinUnaryFunctionExpr<>("neg.", "double -> double", (Double a) -> -a),
         new BuiltinUnaryFunctionExpr<>("negb", "bignum -> bignum", BigInteger::negate),
