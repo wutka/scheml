@@ -232,6 +232,7 @@ public class BuiltinInitializer {
         new DictHasKey("has-key?"),
         new DictMap("dict-map"),
         new DictPut("dict-put"),
+        new DictRemove("dict-remove"),
         new DictToList("dict->list"),
         new ListToDict("list->dict"),
 
