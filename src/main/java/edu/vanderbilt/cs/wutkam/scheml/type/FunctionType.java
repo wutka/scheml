@@ -23,8 +23,13 @@ public class FunctionType extends Type {
     }
 
     public FunctionType(int arity, TypeRef[] paramTypes, TypeRef returnType) {
-        this.arity = arity;
-        this.paramTypes = paramTypes;
+        if ((arity == 1) && paramTypes[0].getType().equals(VoidType.TYPE)) {
+            this.arity = 0;
+            this.paramTypes = new TypeRef[0];
+        } else {
+            this.arity = arity;
+            this.paramTypes = paramTypes;
+        }
         this.returnType = returnType;
     }
 
